@@ -1,17 +1,31 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Clicker {
+
+    JLabel clickCountLabel, perSecondLabel;
+    int clickCount;
+    Font font1, font2;
+    ClickHandler cHandler = new ClickHandler();
+
     public static void main(String[] args) {
 
         new Clicker();
     }
 
     public Clicker() {
+        clickCount = 0;
+        createFont();
         createUI();
 
     }
 
+    public void createFont(){
+        font1 = new Font("Arial", Font.PLAIN, 32);
+        font2 = new Font("Arial", Font.PLAIN, 15);
+    }
     public void createUI(){
         JFrame window = new JFrame();
         window.setSize(800,600);
@@ -21,7 +35,7 @@ public class Clicker {
 
         JPanel clickHere = new JPanel();
         clickHere.setBounds(100,220,200,200);
-        clickHere.setBackground(Color.blue);
+        clickHere.setBackground(Color.black);
         window.add(clickHere);
 
         ImageIcon pushCar = new ImageIcon(getClass().getClassLoader().getResource("resource/carImage.png"));
@@ -31,8 +45,34 @@ public class Clicker {
         carButton.setFocusPainted(false);
         carButton.setBorder(null);
         carButton.setIcon(pushCar);
+        carButton.addActionListener(cHandler);
         clickHere.add(carButton);
 
-       window.setVisible(true);
+        JPanel clickCounter = new JPanel();
+        clickCounter.setBounds(100,100,200,100);
+        clickCounter.setBackground(Color.black);
+        clickCounter.setLayout(new GridLayout(2,1));
+        window.add(clickCounter);
+
+        clickCountLabel = new JLabel(clickCount + " pushes!");
+        clickCountLabel.setForeground(Color.white);
+        clickCountLabel.setFont(font1);
+        clickCounter.add(clickCountLabel);
+
+        perSecondLabel = new JLabel();
+        perSecondLabel.setForeground(Color.white);
+        perSecondLabel.setFont(font2);
+        clickCounter.add(perSecondLabel);
+
+        window.setVisible(true);
+    }
+
+    public class ClickHandler implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+
+            clickCount++;
+            clickCountLabel.setText(clickCount + " pushes!");
+
+        }
     }
 }
