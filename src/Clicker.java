@@ -49,7 +49,7 @@ public class Clicker {
         clickHere.add(carButton);
 
         JPanel clickCounter = new JPanel();
-        clickCounter.setBounds(100,100,200,100);
+        clickCounter.setBounds(100,100,300,100);
         clickCounter.setBackground(Color.black);
         clickCounter.setLayout(new GridLayout(2,1));
         window.add(clickCounter);
@@ -69,10 +69,16 @@ public class Clicker {
 
     public class ClickHandler implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-
+//            double randValue = Math.random(); //cheat loop to boost clicks for debug
+//            int max = 100;
+//            int min = 1;
+//            int range = max - min + 1;
+//            int timesToPush = (int)(range * randValue);
+//
+//            for (int i=0; i<timesToPush; i++){
             clickCount++;
             clickCountLabel.setText(clickCount + " pushes!");
-
+//            } //end cheat loop
         }
     }
 }
