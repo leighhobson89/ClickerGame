@@ -259,7 +259,7 @@ public class Clicker {
 
 
                 if (!mechanicUnlocked && clickCount<3500 || driveUnlocked) {
-                    clickCount=clickCount+100;
+                    clickCount=clickCount+1; //change +xxx value here to advance clicks quicker for debug
                     clickCountLabel.setText("" + clickCount);
 
                     if (!autoClickerUnlocked && clickCount >= 10) {
@@ -400,8 +400,8 @@ public class Clicker {
     private float repairCar(int repairCounter) {
         float repairCounterAsFloat = repairCounter;
         float repairPercent = repairCounterAsFloat/500*100;
-        //return repairPercent;
-        return 100;
+        return repairPercent;
+        //return 100; debug skip repair clicks
     }
 
     public class MouseHandler implements MouseListener {
