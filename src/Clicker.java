@@ -86,7 +86,7 @@ public class Clicker {
         metresTravelledLabel.setFont(font2);
         clickCounter.add(metresTravelledLabel);
 
-        clickCountLabel = new JLabel(""+clickCount);
+        clickCountLabel = new JLabel(clickCount+"m");
         clickCountLabel.setForeground(Color.white);
         clickCountLabel.setFont(font1);
         clickCounter.add(clickCountLabel);
@@ -204,7 +204,7 @@ public class Clicker {
             @Override
             public void actionPerformed(ActionEvent e) {
                 clickCount++;
-                clickCountLabel.setText(""+clickCount);
+                clickCountLabel.setText(clickCount+"m");
 
                 if(!towTruckUnlocked && clickCount >= 200) {
                     towTruckUnlocked = true;
@@ -259,8 +259,8 @@ public class Clicker {
 
 
                 if (!mechanicUnlocked && clickCount<3500 || driveUnlocked) {
-                    clickCount=clickCount+1; //change +xxx value here to advance clicks quicker for debug
-                    clickCountLabel.setText("" + clickCount);
+                    clickCount=clickCount+100; //change +xxx value here to advance clicks quicker for debug
+                    clickCountLabel.setText(clickCount+"m");
 
                     if (!autoClickerUnlocked && clickCount >= 10) {
                         autoClickerUnlocked = true;
@@ -279,13 +279,13 @@ public class Clicker {
                 }
                 else if (!mechanicTriggeredYet && clickCount>3500) {
                     clickCount=3500;
-                    clickCountLabel.setText(""+clickCount);
+                    clickCountLabel.setText(clickCount+"m");
                     timer.stop();
                     temporarilyLockPowerUpsForMechanicMiniGame(1, autoClickerNumber, towTruckNumber); //lock/unlock powerups while at mechanic
                 }
                 else {
                     clickCount=3500;
-                    clickCountLabel.setText(""+clickCount);
+                    clickCountLabel.setText(clickCount+"m");
                     price4.setText(clicksLeftToFixCar + "m");
                     temporarilyLockPowerUpsForMechanicMiniGame(1, autoClickerNumber, towTruckNumber); //lock/unlock powerups while at mechanic
                 }
@@ -296,8 +296,8 @@ public class Clicker {
                 case "Hired Help":
                     if(clickCount >= autoClickerPrice && !mechanicUnlocked){
                         clickCount = clickCount-autoClickerPrice;
-                        autoClickerPrice = autoClickerPrice + 10;
-                        clickCountLabel.setText(""+clickCount);
+                        autoClickerPrice = autoClickerPrice + 5;
+                        clickCountLabel.setText(clickCount+"m");
                         price1.setText("" + autoClickerPrice + "m");
                         autoClickerNumber++;
                         button1.setText("Hired Help (" + autoClickerNumber + ")");
@@ -307,7 +307,7 @@ public class Clicker {
                     }
                     else {
                         if (!mechanicTriggeredYet) {
-                            messageText.setText("\n\nYou need " + (towTruckPrice-clickCount) + " more metres\nto buy this upgrade!");
+                            messageText.setText("\n\nYou need " + (autoClickerPrice-clickCount) + " more metres\nto buy this upgrade!");
                         }
                         else {
                             messageText.setText("Already arrived at garage,\nno more hired help required");
@@ -317,8 +317,8 @@ public class Clicker {
                 case "Tow Truck":
                     if(clickCount >= towTruckPrice && !mechanicUnlocked){
                         clickCount = clickCount-towTruckPrice;
-                        towTruckPrice = towTruckPrice + 100;
-                        clickCountLabel.setText(""+clickCount);
+                        towTruckPrice = towTruckPrice + 50;
+                        clickCountLabel.setText(clickCount+"m");
                         towTruckNumber++;
                         button2.setText("Tow Truck (" + towTruckNumber + ")");
                         price2.setText(towTruckPrice + "m");
@@ -339,6 +339,7 @@ public class Clicker {
                     if(clickCount == mechanicPrice){
                         if (button3ClickIteration==0) {
                             button3.setText("Car is 0% fixed");
+                            clickCountLabel.setText("0m");
                         }
                         clicksLeftToFixCar--;
                         price4.setText(clicksLeftToFixCar + "m");
@@ -361,7 +362,7 @@ public class Clicker {
                     }
                     else {
                         if (!mechanicTriggeredYet) {
-                            messageText.setText("\n\nYou need " + (towTruckPrice - clickCount) + " more metres\nto buy this upgrade!");
+                            messageText.setText("\n\nYou need " + (mechanicPrice - clickCount) + " more metres\nto buy this upgrade!");
                         }
                         else{
                             messageText.setText("\n\nGarage Closed\nCar already repaired!");
