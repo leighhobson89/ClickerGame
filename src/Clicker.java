@@ -305,7 +305,7 @@ public class Clicker {
 
                     break;
                 case "Hired Help":
-                    if(clickCount >= autoClickerPrice && !mechanicUnlocked){
+                    if(clickCount >= autoClickerPrice && !mechanicUnlocked && stage1){
                         clickCount = clickCount-autoClickerPrice;
                         autoClickerPrice = autoClickerPrice + 5;
                         clickCountLabel.setText(clickCount+"m");
@@ -317,7 +317,7 @@ public class Clicker {
                         timerUpdate();
                     }
                     else {
-                        if (!mechanicTriggeredYet) {
+                        if (!mechanicTriggeredYet && stage1) {
                             messageText.setText("\n\nYou need " + (autoClickerPrice-clickCount) + " more metres\nto buy this upgrade!");
                         }
                         else {
@@ -326,7 +326,7 @@ public class Clicker {
                     }
                     break;
                 case "Tow Truck":
-                    if(clickCount >= towTruckPrice && !mechanicUnlocked){
+                    if(clickCount >= towTruckPrice && !mechanicUnlocked && stage1){
                         clickCount = clickCount-towTruckPrice;
                         towTruckPrice = towTruckPrice + 50;
                         clickCountLabel.setText(clickCount+"m");
@@ -338,7 +338,7 @@ public class Clicker {
                         timerUpdate();
                     }
                     else {
-                        if (!mechanicTriggeredYet) {
+                        if (!mechanicTriggeredYet && stage1) {
                         messageText.setText("\n\nYou need " + (towTruckPrice-clickCount) + " more metres\nto buy this upgrade!");
                         }
                         else {
@@ -347,7 +347,7 @@ public class Clicker {
                     }
                     break;
                 case "Mechanic":
-                    if(clickCount == mechanicPrice){
+                    if(clickCount == mechanicPrice && stage1){
                         if (button3ClickIteration==0) {
                             button3.setText("Car is 0% fixed");
                             clickCountLabel.setText("0m");
@@ -374,7 +374,7 @@ public class Clicker {
                         button3ClickIteration++;
                     }
                     else {
-                        if (!mechanicTriggeredYet) {
+                        if (!mechanicTriggeredYet && stage1) {
                             messageText.setText("\n\nYou need " + (mechanicPrice - clickCount) + " more metres\nto buy this upgrade!");
                         }
                         else{
@@ -441,6 +441,15 @@ public class Clicker {
 
         @Override
         public void mouseClicked(MouseEvent e) {
+            JButton button = (JButton) e.getSource();
+
+            if (driveFirstClickFlag == 0 && button == button4) {
+                driveFirstClickFlag = 1;
+//              String carStart = "startCar.mp3";
+//              Media hit = new Media(new File(carStart).toURI().toString());
+//              MediaPlayer mediaPlayer = new MediaPlayer(hit);
+//              mediaPlayer.play();
+            }
 
         }
 
@@ -459,32 +468,29 @@ public class Clicker {
             JButton button = (JButton) e.getSource();
 
             if (stage1) {
-                if (button == button1) {
+                if (button == button1 && stage1) {
                     if (!autoClickerUnlocked) {
                         messageText.setText("\n\n\nThis item is currently locked!");
                     } else {
                         messageText.setText("Hired Help!\n[Price: " + autoClickerPrice + "]\nExtra manpower to push \nevery 10 seconds!");
                     }
-                } else if (button == button2) {
+                } else if (button == button2 && stage1) {
                     if (!towTruckUnlocked) {
                         messageText.setText("\n\n\nThis item is currently locked!");
                     } else {
                         messageText.setText("Call a Tow Truck!\n[Price: " + towTruckPrice + "]\nTow Truck will move you much\nfaster than a pair of hands!");
                     }
 
-                } else if (button == button3) {
+                } else if (button == button3 && stage1) {
                     if (!mechanicUnlocked) {
                         messageText.setText("\n\n\nThis item is currently locked!");
                     } else {
                         messageText.setText("You arrived at the mechanic! Phew!\nSpend 3500m + 500 clicks to\nrepair your wheels!");
                     }
-                } else if (button == button4) {
+                } else if (button == button4 && stage1) {
                     if (driveUnlocked && driveFirstClickFlag == 0) {
                         driveFirstClickFlag = 1;
-//                        String carStart = "startCar.mp3";
-//                        Media hit = new Media(new File(carStart).toURI().toString());
-//                        MediaPlayer mediaPlayer = new MediaPlayer(hit);
-//                        mediaPlayer.play();
+                        messageText.setText("Start your engine and\nbegin stage 2!");
                     } else {
                         messageText.setText("\n\n\nThis item is currently locked!");
                     }
