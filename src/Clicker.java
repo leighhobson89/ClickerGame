@@ -1,3 +1,4 @@
+import javax.print.attribute.standard.Media;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -5,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import javafx.scene.media.MediaPlayer;
 
 import static javax.swing.SwingConstants.RIGHT;
 
@@ -15,13 +18,14 @@ public class Clicker {
     int clickCount, timerSpeed, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter,clicksLeftToFixCar;
     double clicksPerSecond;
     float repairCounterPercent;
-    boolean timerOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic;
+    boolean inBetweenStage3Stage4, timerOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic;
     Font font1, font2, font3;
     ClickHandler cHandler = new ClickHandler();
     Timer timer;
     JTextArea messageText;
     MouseHandler mHandler = new MouseHandler();
     Border raisedBorder = BorderFactory.createRaisedBevelBorder();
+    Media carStart;
 
     public static void main(String[] args) {
 
@@ -29,6 +33,7 @@ public class Clicker {
     }
 
     public Clicker() {
+        //carStart = new Media(new File("resource/startCar.mp3").toURI().toString());
         timerOn = false;
         clicksPerSecond = 0;
         clickCount = 0;
@@ -41,10 +46,10 @@ public class Clicker {
         repairCounter = 0;
         carInMechanic = false;
         clicksLeftToFixCar = 500;
+        inBetweenStage3Stage4 = false;
 
         createFont();
         createUI();
-
     }
 
     public void createFont(){
@@ -257,9 +262,8 @@ public class Clicker {
 //
 //            for (int i=0; i<timesToPush; i++){
 
-
                 if (!mechanicUnlocked && clickCount<3500 || driveUnlocked) {
-                    clickCount=clickCount+100; //change +xxx value here to advance clicks quicker for debug
+                    clickCount=clickCount+1750; //change +xxx value here to advance clicks quicker for debug
                     clickCountLabel.setText(clickCount+"m");
 
                     if (!autoClickerUnlocked && clickCount >= 10) {
@@ -288,6 +292,10 @@ public class Clicker {
                     clickCountLabel.setText(clickCount+"m");
                     price4.setText(clicksLeftToFixCar + "m");
                     temporarilyLockPowerUpsForMechanicMiniGame(1, autoClickerNumber, towTruckNumber); //lock/unlock powerups while at mechanic
+                }
+                if (inBetweenStage3Stage4) {
+                        clickCount=0;
+                        clickCountLabel.setText("0m");
                 }
  //           } //end cheat loop
 
@@ -352,7 +360,9 @@ public class Clicker {
                             carInMechanic = false;
                             clickCount=0;
                             button3.setText("Car Fixed!");
+                            inBetweenStage3Stage4 = true;
                             clickCountLabel.setText("0m");
+                            clicksPerSecond = 0;
                             String s = String.format("%.1f", clicksPerSecond);
                             perSecondLabelLabel.setText("Metres of help per second:");
                             perSecondLabel.setText(s);
@@ -369,6 +379,8 @@ public class Clicker {
                         }
                     }
                     break;
+                case "letsDrive":
+                    inBetweenStage3Stage4 = false;
             }
 //
         }
@@ -389,8 +401,6 @@ public class Clicker {
             towTruckUnlocked = true;
             mechanicUnlocked=false;
             driveUnlocked = true;
-            button1.setText("Hired Help (" + autoClickerNumber + ")");
-            button2.setText("Tow Truck (" + towTruckNumber + ")");
             button4.setFont(font3);
             button4.setForeground(Color.red);
             button4.setBorder(raisedBorder);
@@ -401,8 +411,8 @@ public class Clicker {
     private float repairCar(int repairCounter) {
         float repairCounterAsFloat = repairCounter;
         float repairPercent = repairCounterAsFloat/500*100;
-        return repairPercent;
-        //return 100; debug skip repair clicks
+        //return repairPercent;
+        return 100; //debug skip repair clicks
     }
 
     public class MouseHandler implements MouseListener {
@@ -449,7 +459,15 @@ public class Clicker {
                     messageText.setText("You arrived at the mechanic! Phew!\nSpend 3500m + 500 clicks to\nrepair your wheels!");
                 }
             } else if (button == button4) {
-                messageText.setText("\n\n\nThis item is currently locked!");
+                if (driveUnlocked) {
+                    String bip = "bip.mp3";
+
+           //         MediaPlayer mediaPlayer = new MediaPlayer(hit);
+           //         mediaPlayer.play();
+                }
+                else {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
             }
         }
         @Override
