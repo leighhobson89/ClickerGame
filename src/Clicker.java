@@ -182,7 +182,7 @@ public class Clicker {
         button4.setFont(font1);
         button4.setFocusPainted(false);
         button4.addActionListener(cHandler);
-        button4.setActionCommand("");
+        button4.setActionCommand("LetsDrive");
         button4.addMouseListener(mHandler);
         itemPanel.add(button4);
 
@@ -379,8 +379,10 @@ public class Clicker {
                         }
                     }
                     break;
-                case "letsDrive":
-                    inBetweenStage3Stage4 = false;
+                case "LetsDrive":
+                    if (repairCounterPercent == 100) {
+                        inBetweenStage3Stage4 = false;
+                    }
             }
 //
         }
