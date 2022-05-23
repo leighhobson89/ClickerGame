@@ -19,9 +19,9 @@ public class Clicker extends Application {
     JButton carButton, button1, button2, button3, button4;
     int clickCount, timerSpeed, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar;
     int driveFirstClickFlag;
-    double clicksPerSecond;
+    double clicksPerSecond, speedKmH;
     float repairCounterPercent;
-    boolean stage1, stage2, inBetweenStage3Stage4, timerOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic;
+    boolean stage1, stage2, stage2Start, inBetweenMechanicAndClickStartEngine, timerOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic;
     Font font1, font2, font3;
     ClickHandler cHandler = new ClickHandler();
     Timer timer;
@@ -51,9 +51,11 @@ public class Clicker extends Application {
         repairCounter = 0;
         carInMechanic = false;
         clicksLeftToFixCar = 500;
-        inBetweenStage3Stage4 = false;
+        inBetweenMechanicAndClickStartEngine = false;
         stage1 = true;
         driveFirstClickFlag = 0;
+        stage2Start =false;
+        speedKmH = clicksPerSecond*3.6;
 
         createFont();
         createUI();
@@ -98,7 +100,7 @@ public class Clicker extends Application {
         clickCounter.setLayout(new GridLayout(4,1));
         window.add(clickCounter);
 
-        metresTravelledLabel = new JLabel("Metres travelled:");
+        metresTravelledLabel = new JLabel("Distance travelled:");
         metresTravelledLabel.setForeground(Color.yellow);
         metresTravelledLabel.setFont(font2);
         clickCounter.add(metresTravelledLabel);
@@ -221,13 +223,19 @@ public class Clicker extends Application {
             @Override
             public void actionPerformed(ActionEvent e) {
                 clickCount++;
-                clickCountLabel.setText(clickCount+"m");
+                if (stage2){
+                    double clickCountAsDouble = clickCount;
+                    clickCountLabel.setText(clickCount + "m (" + clickCountAsDouble/1000 + "km)");
+                }
+                else {
+                    clickCountLabel.setText(clickCount + "m");
+                }
 
-                if(!towTruckUnlocked && clickCount >= 200) {
+                if(!towTruckUnlocked && clickCount >= 200 && stage1) {
                     towTruckUnlocked = true;
                     button2.setText("Tow Truck");
                 }
-                if(!mechanicUnlocked && clickCount == 3500) {
+                if(!mechanicUnlocked && clickCount == 3500 && stage1) {
                     timer.stop();
                     perSecondLabelLabel.setText("");
                     perSecondLabel.setText("");
@@ -243,13 +251,25 @@ public class Clicker extends Application {
         else if (timerOn){
             timer.stop();
         }
-
+        if (stage2Start){
+            clicksPerSecond = 1;
+        }
         double speed = 1/clicksPerSecond*1000;
         timerSpeed = (int)Math.round(speed);
 
-        String s = String.format("%.1f", clicksPerSecond);
-        perSecondLabelLabel.setText("Metres of help per second:");
-        perSecondLabel.setText(s);
+        if (stage1) {
+            String s = String.format("%.1f", clicksPerSecond);
+            perSecondLabelLabel.setText("Metres of help per second:");
+            perSecondLabel.setText(s);
+        }
+        else if (stage2) {
+            Integer s = ((int)clicksPerSecond);
+            perSecondLabelLabel.setText("Speed:");
+            perSecondLabel.setText(s + "m/s (" + speedKmH + "km/hr)");
+        }
+        else {
+            System.out.println("Beyond stage2 not setup yet");
+        }
 
         if((!mechanicUnlocked && clickCount<3500) || (mechanicUnlocked && driveUnlocked)) {
             setTimer();
@@ -274,7 +294,7 @@ public class Clicker extends Application {
 //
 //            for (int i=0; i<timesToPush; i++){
 
-                if (!mechanicUnlocked && clickCount<3500 || driveUnlocked) {
+                if (!mechanicUnlocked && clickCount<3500 && stage1) {
                     clickCount=clickCount+1750; //change +xxx value here to advance clicks quicker for debug
                     clickCountLabel.setText(clickCount+"m");
 
@@ -300,12 +320,14 @@ public class Clicker extends Application {
                     temporarilyLockPowerUpsForMechanicMiniGame(1, autoClickerNumber, towTruckNumber); //lock/unlock powerups while at mechanic
                 }
                 else {
+                    if(stage1){
                     clickCount=3500;
                     clickCountLabel.setText(clickCount+"m");
                     price4.setText(clicksLeftToFixCar + "m");
                     temporarilyLockPowerUpsForMechanicMiniGame(1, autoClickerNumber, towTruckNumber); //lock/unlock powerups while at mechanic
+                    }
                 }
-                if (inBetweenStage3Stage4) {
+                if (inBetweenMechanicAndClickStartEngine) {
                         clickCount=0;
                         clickCountLabel.setText("0m");
                 }
@@ -372,12 +394,8 @@ public class Clicker extends Application {
                             carInMechanic = false;
                             clickCount=0;
                             button3.setText("Car Fixed!");
-                            inBetweenStage3Stage4 = true;
+                            inBetweenMechanicAndClickStartEngine = true;
                             clickCountLabel.setText("0m");
-                            clicksPerSecond = 0;
-                            String s = String.format("%.1f", clicksPerSecond);
-                            perSecondLabelLabel.setText("Metres of help per second:");
-                            perSecondLabel.setText(s);
                             temporarilyLockPowerUpsForMechanicMiniGame(2, autoClickerNumber, towTruckNumber);
                         }
                         button3ClickIteration++;
@@ -403,6 +421,7 @@ public class Clicker extends Application {
     private void letsDrive() {
         stage1 = false;
         stage2 = true;
+        stage2Start = true;
         button1.setText("Accelerate");
         button2.setText("Brake");
         button3.setText("Left");
@@ -414,6 +433,8 @@ public class Clicker extends Application {
         price3.setText("");
         price4.setText("");
         price.setText("");
+        timerUpdate();
+        stage2Start = false;
     }
 
     private void temporarilyLockPowerUpsForMechanicMiniGame(int toggle, int autoClickerNumber, int towTruckNumber) {
@@ -451,13 +472,26 @@ public class Clicker extends Application {
         public void mouseClicked(MouseEvent e) {
             JButton button = (JButton) e.getSource();
 
-            if (driveFirstClickFlag == 0 && inBetweenStage3Stage4 && button == button4) {
+            if (driveFirstClickFlag == 0 && inBetweenMechanicAndClickStartEngine && button == button4) {
                 driveFirstClickFlag = 1;
-                inBetweenStage3Stage4 = false;
+                inBetweenMechanicAndClickStartEngine = false;
                 media = new Media(carStart.toUri().toString());
                 MediaPlayer mediaPlayer = new MediaPlayer(media);
                 mediaPlayer.play();
-                System.out.println("played media file");
+            }
+            if (stage2) {
+                if (button == button1) {
+                    messageText.setText("\n\n\nAccelerate by 1m/s");
+                }
+                if (button == button2) {
+                    messageText.setText("\n\n\nSlow by 1m/s");
+                }
+                if (button == button3) {
+                    messageText.setText("\n\n\nSwerve Left!");
+                }
+                if (button == button4) {
+                    messageText.setText("\n\n\nSwerve Right!");
+                }
             }
 
         }
@@ -477,26 +511,26 @@ public class Clicker extends Application {
             JButton button = (JButton) e.getSource();
 
             if (stage1) {
-                if (button == button1 && stage1) {
+                if (button == button1) {
                     if (!autoClickerUnlocked) {
                         messageText.setText("\n\n\nThis item is currently locked!");
                     } else {
                         messageText.setText("Hired Help!\n[Price: " + autoClickerPrice + "]\nExtra manpower to push \nevery 10 seconds!");
                     }
-                } else if (button == button2 && stage1) {
+                } else if (button == button2) {
                     if (!towTruckUnlocked) {
                         messageText.setText("\n\n\nThis item is currently locked!");
                     } else {
                         messageText.setText("Call a Tow Truck!\n[Price: " + towTruckPrice + "]\nTow Truck will move you much\nfaster than a pair of hands!");
                     }
 
-                } else if (button == button3 && stage1) {
+                } else if (button == button3) {
                     if (!mechanicUnlocked) {
                         messageText.setText("\n\n\nThis item is currently locked!");
                     } else {
                         messageText.setText("You arrived at the mechanic! Phew!\nSpend 3500m + 500 clicks to\nrepair your wheels!");
                     }
-                } else if (button == button4 && stage1) {
+                } else if (button == button4) {
                     if (driveUnlocked && driveFirstClickFlag == 0) {
                         messageText.setText("Start your engine and\nbegin stage 2!");
                     } else {
@@ -504,9 +538,21 @@ public class Clicker extends Application {
                     }
                 }
             }
-            if (stage2) {
+                if (stage2) {
+                    if (button == button1) {
+                        messageText.setText("\n\n\nAccelerate by 1m/s");
+                    }
+                    if (button == button2) {
+                        messageText.setText("\n\n\nSlow by 1m/s");
+                    }
+                    if (button == button3) {
+                        messageText.setText("\n\n\nSwerve Left!");
+                    }
+                    if (button == button4) {
+                        messageText.setText("\n\n\nSwerve Right!");
+                    }
 
-            }
+                }
         }
         @Override
         public void mouseExited(MouseEvent e) {
