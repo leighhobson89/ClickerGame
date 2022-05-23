@@ -1,4 +1,3 @@
-import javax.print.attribute.standard.Media;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -7,11 +6,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import javafx.application.Application;
+import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.stage.Stage;
 
 import static javax.swing.SwingConstants.RIGHT;
 
-public class Clicker {
+public class Clicker extends Application {
 
     JLabel metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4;
     JButton carButton, button1, button2, button3, button4;
@@ -26,15 +31,17 @@ public class Clicker {
     JTextArea messageText;
     MouseHandler mHandler = new MouseHandler();
     Border raisedBorder = BorderFactory.createRaisedBevelBorder();
-    Media carStart;
+    private Media media;
+    private MediaPlayer mediaPlayer;
+    private Path carStart = Paths.get("src/resource/startCar.mp3");
+
 
     public static void main(String[] args) {
-
+        launch(args);
         new Clicker();
     }
 
     public Clicker() {
-        //carStart = new Media(new File("resource/startCar.mp3").toURI().toString());
         timerOn = false;
         clicksPerSecond = 0;
         clickCount = 0;
@@ -53,6 +60,11 @@ public class Clicker {
 
         createFont();
         createUI();
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+
     }
 
     public void createFont(){
@@ -384,7 +396,6 @@ public class Clicker {
                     break;
                 case "LetsDrive":
                     if (repairCounterPercent == 100) {
-                        inBetweenStage3Stage4 = false;
                         letsDrive();
                     }
             }
@@ -443,12 +454,13 @@ public class Clicker {
         public void mouseClicked(MouseEvent e) {
             JButton button = (JButton) e.getSource();
 
-            if (driveFirstClickFlag == 0 && button == button4) {
+            if (driveFirstClickFlag == 0 && inBetweenStage3Stage4 && button == button4) {
                 driveFirstClickFlag = 1;
-//              String carStart = "startCar.mp3";
-//              Media hit = new Media(new File(carStart).toURI().toString());
-//              MediaPlayer mediaPlayer = new MediaPlayer(hit);
-//              mediaPlayer.play();
+                inBetweenStage3Stage4 = false;
+                media = new Media(carStart.toUri().toString());
+                MediaPlayer mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.play();
+                System.out.println("played media file");
             }
 
         }
@@ -489,7 +501,6 @@ public class Clicker {
                     }
                 } else if (button == button4 && stage1) {
                     if (driveUnlocked && driveFirstClickFlag == 0) {
-                        driveFirstClickFlag = 1;
                         messageText.setText("Start your engine and\nbegin stage 2!");
                     } else {
                         messageText.setText("\n\n\nThis item is currently locked!");
