@@ -1,6 +1,4 @@
 import javafx.application.Application;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -10,18 +8,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.math.RoundingMode;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 
 import static javax.swing.SwingConstants.RIGHT;
 
 public class Clicker extends Application {
 
-    JLabel metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4;
-    JButton carButton, button1, button2, button3, button4;
+    String obstacleType;
+    JLabel metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
+    JButton button1, button2, button3, button4;
     int clickCount, timerSpeed, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar;
-    int driveFirstClickFlag, stage2ButtonPressed;
+    int driveFirstClickFlag;
     double clicksPerSecond, speedKmH;
     float repairCounterPercent;
     boolean stage1, stage2, stage2Start, inBetweenMechanicAndClickStartEngine, timerOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic;
@@ -31,13 +28,10 @@ public class Clicker extends Application {
     JTextArea messageText;
     MouseHandler mHandler = new MouseHandler();
     Border raisedBorder = BorderFactory.createRaisedBevelBorder();
-    private Media media;
-    private MediaPlayer mediaPlayer;
-    private Path carStart = Paths.get("src/resource/startCar.mp3");
+
 
 
     public static void main(String[] args) {
-        launch(args);
         new Clicker();
     }
 
@@ -57,9 +51,8 @@ public class Clicker extends Application {
         inBetweenMechanicAndClickStartEngine = false;
         stage1 = true;
         driveFirstClickFlag = 0;
-        stage2Start =false;
-        speedKmH = clicksPerSecond*3.6;
-
+        stage2Start = false;
+        obstacleType = "Garage Gate";
         createFont();
         createUI();
     }
@@ -218,6 +211,32 @@ public class Clicker extends Application {
         messageText.setEditable(false);
         messagePanel.add(messageText);
 
+        JPanel bottomDistanceInfoPanel = new JPanel();
+        bottomDistanceInfoPanel.setBounds(100,430,200,100);
+        bottomDistanceInfoPanel.setBackground(Color.blue);
+        bottomDistanceInfoPanel.setLayout(new GridLayout(4,1));
+        window.add(bottomDistanceInfoPanel);
+
+        distanceToGoTitleLabel = new JLabel("Distance to Steve's House:");
+        distanceToGoTitleLabel.setForeground(Color.yellow);
+        distanceToGoTitleLabel.setFont(font2);
+        bottomDistanceInfoPanel.add(distanceToGoTitleLabel);
+
+        distanceToGoLabel = new JLabel("50000m");
+        distanceToGoLabel.setForeground(Color.white);
+        distanceToGoLabel.setFont(font1);
+        bottomDistanceInfoPanel.add(distanceToGoLabel);
+
+        distanceToNextObstacleTitleLabel = new JLabel("Distance to next obstacle (" + obstacleType + "):");
+        distanceToNextObstacleTitleLabel.setForeground(Color.yellow);
+        distanceToNextObstacleTitleLabel.setFont(font2);
+        bottomDistanceInfoPanel.add(distanceToNextObstacleTitleLabel);
+
+        distanceToNextObstacleLabel = new JLabel("100m");
+        distanceToNextObstacleLabel.setForeground(Color.white);
+        distanceToNextObstacleLabel.setFont(font1);
+        bottomDistanceInfoPanel.add(distanceToNextObstacleLabel);
+
         window.setVisible(true);
     }
 
@@ -258,9 +277,6 @@ public class Clicker extends Application {
         if (stage2Start){
             clicksPerSecond = 1;
         }
-        if (clicksPerSecond < 1){
-            clicksPerSecond = 1;
-        }
         double speed = 1/clicksPerSecond*1000;
         timerSpeed = (int)Math.round(speed);
 
@@ -271,6 +287,7 @@ public class Clicker extends Application {
         }
         else if (stage2) {
             Integer mS = ((int)clicksPerSecond);
+            speedKmH = clicksPerSecond*3.6;
             String kmHr = String.format("%.1f", speedKmH);
             perSecondLabelLabel.setText("Speed:");
             perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
@@ -424,12 +441,16 @@ public class Clicker extends Application {
                     break;
                 case "Accelerate":
                     System.out.println("acc");
-                    clicksPerSecond++;
+                    if (clicksPerSecond <= 69) {
+                        clicksPerSecond++;
+                    }
                     timerUpdate();
                 break;
                 case "Brake":
                     System.out.println("brk");
-                    clicksPerSecond--;
+                    if (clicksPerSecond >= 2) {
+                        clicksPerSecond--;
+                    }
                     timerUpdate();
                 break;
                 case "SwerveLeft":
@@ -503,9 +524,7 @@ public class Clicker extends Application {
             if (driveFirstClickFlag == 0 && inBetweenMechanicAndClickStartEngine && button == button4) {
                 driveFirstClickFlag = 1;
                 inBetweenMechanicAndClickStartEngine = false;
-                media = new Media(carStart.toUri().toString());
-                MediaPlayer mediaPlayer = new MediaPlayer(media);
-                mediaPlayer.play();
+                Utils.playSound("startCar.mp3");
             }
             if (stage2) {
                 if (button == button1) {
