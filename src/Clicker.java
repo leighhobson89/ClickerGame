@@ -15,7 +15,7 @@ import static javax.swing.SwingConstants.RIGHT;
 public class Clicker extends Application {
 
     String obstacleType;
-    JLabel metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
+    JLabel metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
     JButton button1, button2, button3, button4;
     int clickCount, timerSpeed, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar;
     int driveFirstClickFlag;
@@ -75,7 +75,7 @@ public class Clicker extends Application {
         window.setLayout(null);
 
         JPanel clickHere = new JPanel();
-        clickHere.setBounds(100,220,200,200);
+        clickHere.setBounds(100,200,200,200);
         clickHere.setBackground(Color.black);
         window.add(clickHere);
 
@@ -212,27 +212,32 @@ public class Clicker extends Application {
         messagePanel.add(messageText);
 
         JPanel bottomDistanceInfoPanel = new JPanel();
-        bottomDistanceInfoPanel.setBounds(100,430,200,100);
-        bottomDistanceInfoPanel.setBackground(Color.blue);
-        bottomDistanceInfoPanel.setLayout(new GridLayout(4,1));
+        bottomDistanceInfoPanel.setBounds(100,415,200,130);
+        bottomDistanceInfoPanel.setBackground(Color.black);
+        bottomDistanceInfoPanel.setLayout(new GridLayout(5,1));
         window.add(bottomDistanceInfoPanel);
 
-        distanceToGoTitleLabel = new JLabel("Distance to Steve's House:");
+        distanceToGoTitleLabel = new JLabel("");
         distanceToGoTitleLabel.setForeground(Color.yellow);
         distanceToGoTitleLabel.setFont(font2);
         bottomDistanceInfoPanel.add(distanceToGoTitleLabel);
 
-        distanceToGoLabel = new JLabel("50000m");
+        distanceToGoLabel = new JLabel("");
         distanceToGoLabel.setForeground(Color.white);
         distanceToGoLabel.setFont(font1);
         bottomDistanceInfoPanel.add(distanceToGoLabel);
 
-        distanceToNextObstacleTitleLabel = new JLabel("Distance to next obstacle (" + obstacleType + "):");
+        distanceToNextObstacleTitleLabel = new JLabel("");
         distanceToNextObstacleTitleLabel.setForeground(Color.yellow);
         distanceToNextObstacleTitleLabel.setFont(font2);
         bottomDistanceInfoPanel.add(distanceToNextObstacleTitleLabel);
 
-        distanceToNextObstacleLabel = new JLabel("100m");
+        whatIsNextObstacle = new JLabel("");
+        whatIsNextObstacle.setForeground(Color.white);
+        whatIsNextObstacle.setFont(font2);
+        bottomDistanceInfoPanel.add(whatIsNextObstacle);
+
+        distanceToNextObstacleLabel = new JLabel("");
         distanceToNextObstacleLabel.setForeground(Color.white);
         distanceToNextObstacleLabel.setFont(font1);
         bottomDistanceInfoPanel.add(distanceToNextObstacleLabel);
@@ -467,6 +472,11 @@ public class Clicker extends Application {
         stage1 = false;
         stage2 = true;
         stage2Start = true;
+        distanceToGoTitleLabel.setText("Distance to Steve's house:");
+        distanceToGoLabel.setText("50000m");
+        whatIsNextObstacle.setText("Next obstacle: " + obstacleType);
+        distanceToNextObstacleTitleLabel.setText("Distance to obstacle:");
+        distanceToNextObstacleLabel.setText("25m");
         button1.setActionCommand("Accelerate");
         button2.setActionCommand("Brake");
         button3.setActionCommand("SwerveLeft");
