@@ -275,6 +275,7 @@ public class Clicker extends Application {
                 timer.stop();
                 perSecondLabelLabel.setText("");
                 perSecondLabel.setText("");
+                price4.setText("500m");
                 temporarilyLockPowerUpsForMechanicMiniGame(1);
             }
         });
@@ -469,6 +470,9 @@ public class Clicker extends Application {
                             clicksPerSecond = 0;
                         }
                         timerUpdate();
+                    }
+                    else if (!accelerateClickedFlag) {
+                        clicksPerSecond = 0;
                     }
                 break;
                 case "SwerveLeft":
