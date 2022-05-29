@@ -9,8 +9,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import static javax.swing.SwingConstants.RIGHT;
 
@@ -22,11 +20,13 @@ public class Clicker extends Application {
     JLabel metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
     JLabel obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
     JButton button1, button2, button3, button4;
-    int clickCount, timerSpeed, secondsElapsed, delayPanelAfterObstacleTimerSpeed, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, nextObstDistance, distanceToSteves;
-    int driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue;
+    int clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, delayPanelAfterObstacleTimerSpeed, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, nextObstDistance, distanceToSteves;
+    int driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, passObstacleFlag;
+    int delayObstaclePanelTimerSpeed;
     double clicksPerSecond, speedKmH;
     float repairCounterPercent;
-    boolean stage1, stage2, stage2Start, inBetweenMechanicAndClickStartEngine, timerOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag,displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
+    boolean stage1, stage2, stage2Start, inBetweenMechanicAndClickStartEngine, timerOn, delayObstaclePanelOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag,displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
+    boolean startDelayTimerFlag;
     Font font1, font2, font3;
     ClickHandler cHandler = new ClickHandler();
     Timer timer, delayPanelAfterObstacleTimer;
@@ -35,7 +35,7 @@ public class Clicker extends Application {
     Border raisedBorder = BorderFactory.createRaisedBevelBorder();
     String[] obstacleNameArray = {"Garage Gate", "Sheep Crossing", "Police Checkpoint", "Level Crossing", "Tractor Up Ahead", "Dog Running in Road", "Drunk Man in Road", "Fallen Rocks", "Broken Water Pipe", "Kids Playing in Road",
             "Turning Lorry Up Ahead", "Bin Wagon Spilled Trash", "Fallen Tree", "Road Works Up Ahead", "Bicycle Up Ahead", "Mate Wants A Race", "Road Rage Dude Chasing You", "Minimum Speed Limit", "Out Accelerate A Sports Car", "Out Accelerate A Hatchback"};
-    Integer[][] speedRangeRequiredObstacles = {{0, 0}, {0, 6}, {0, 3}, {0, 0}, {0, 5}, {0, 6}, {0, 8}, {0, 10}, {0, 12}, {0, 4}, {0, 11}, {0, 11}, {0, 9}, {0, 6}, {0, 9}, {50, 60}, {45, 50}, {30, 40}, {65, 70}, {60, 65}};
+    Integer[][] speedRangeRequiredObstaclesArray = {{0, 0}, {0, 6}, {0, 3}, {0, 0}, {0, 5}, {0, 6}, {0, 8}, {0, 10}, {0, 12}, {0, 4}, {0, 11}, {0, 11}, {0, 9}, {0, 6}, {0, 9}, {50, 60}, {45, 50}, {30, 40}, {65, 70}, {60, 65}};
 
     public static void main(String[] args) {
         new Clicker();
@@ -69,6 +69,8 @@ public class Clicker extends Application {
         displayObstacleConditionsFlag = false;
         costOfFailureFirstIterationFlag = false;
         delayPanelAfterObstacleTimerSpeed = 1000;
+        passObstacleFlag = 0; //1 pass obst 2 fail obst
+        startDelayTimerFlag = false;
         createFont();
         createUI();
     }
@@ -264,7 +266,7 @@ public class Clicker extends Application {
         messagePanel.add(messageText);
 
         JPanel bottomDistanceInfoPanel = new JPanel();
-        bottomDistanceInfoPanel.setBounds(100,415,200,130);
+        bottomDistanceInfoPanel.setBounds(100,415,300,130);
         bottomDistanceInfoPanel.setBackground(Color.black);
         bottomDistanceInfoPanel.setLayout(new GridLayout(5,1));
         window.add(bottomDistanceInfoPanel);
@@ -299,7 +301,7 @@ public class Clicker extends Application {
 
     public void setDelayPanelAfterObstacleTimer() {
         delayPanelAfterObstacleTimer = new Timer(delayPanelAfterObstacleTimerSpeed, e -> {
-            secondsElapsed++;
+            secondsElapsedDelayToRemoveObstaclePanel++;
         });
     }
     public void setTimer() {
@@ -314,33 +316,40 @@ public class Clicker extends Application {
                 distanceToSteves--;
                 nextObstDistance--;
                 distanceToNextObstacleLabel.setText((nextObstDistance) + "m");
-                if(nextObstDistance < 200 && nextObstDistance >= 3) {
+                if(nextObstDistance < 300 && nextObstDistance >= 3) {
                     displayObstacleConditionsFlag = true;
-                    displayObstaclePassConditions(speedRangeRequiredObstacles, nextObstDistance);
-                } else if (nextObstDistance < 3 && nextObstDistance >= 0 && clicksPerSecond <= (speedRangeRequiredObstacles[obstacleTarget][1] - speedRangeRequiredObstacles[obstacleTarget][0])) {
+                    displayObstaclePassConditions(nextObstDistance);
+                } else if (nextObstDistance < 3 && nextObstDistance >= 0 && clicksPerSecond <= (speedRangeRequiredObstaclesArray[obstacleTarget][1] - speedRangeRequiredObstaclesArray[obstacleTarget][0])) {
                     //if it is start a 5 second timer and constantly check speed in that time
                     //if outside range during timer period, apply penalty
                     //after timer expires and in correct range update next random obstacle random distance 0-3000m
                     passFailObstacle.setForeground(Color.green);
                     passFailObstacle.setText("*PASS*");
-                    displayObstacleConditionsFlag = false;
+                    passObstacleFlag = 1;
+                    delayPanelAfterObstacleTimerUpdate();
+                    if (distanceToSteves > 0) {
+                        setupNextObstacle(passObstacleFlag);
+                    }
+                    else {
+                        //win Stage 2
+                    }
+
                 } else if (nextObstDistance < 0) {
                     //hitObstacleScenarioAtWrongSpeed
                     passFailObstacle.setForeground(Color.red);
                     passFailObstacle.setText("*FAIL*");
-                    if (clickCount >= costOfFailureValue) {
+                    startDelayTimerFlag = true;
+                    passObstacleFlag = 2;
+                    delayPanelAfterObstacleTimerUpdate();
+                    if (clickCount >= costOfFailureValue) { //subtract clicks for failing
                         clickCount = clickCount - costOfFailureValue;
-                    } else {
+                    } else { // set clicks to zero if garage gate
                         clickCount = 0;
                     }
-                    delayPanelAfterObstacleTimer.start();
-                    if(secondsElapsed == 3) {
-                        displayObstacleConditionsFlag = false;
-                        delayPanelAfterObstacleTimer.stop();
-                        secondsElapsed = 0;
-                    }
+                    setupNextObstacle(passObstacleFlag);
                 }
-                //delaytimer 3s to read result before removing
+
+                System.out.println("Delay Timer says" + secondsElapsedDelayToRemoveObstaclePanel);
                 if (!displayObstacleConditionsFlag) {
                     obstacleConditionsTitle.setText("");
                     obstacleConditions.setText("");
@@ -349,6 +358,11 @@ public class Clicker extends Application {
                     costOfFailure.setText("");
                     distanceToGoLabel.setText("");
                     passFailObstacle.setText("");
+                }
+                if(secondsElapsedDelayToRemoveObstaclePanel >= 3) {
+                    displayObstacleConditionsFlag = false;
+                    delayPanelAfterObstacleTimer.stop();
+                    secondsElapsedDelayToRemoveObstaclePanel = 0;
                 }
             }
             else if (stage1){
@@ -370,25 +384,57 @@ public class Clicker extends Application {
         });
     }
 
-    private void displayObstaclePassConditions(Integer[][] requiredSpeedRanges, int nextObstDistance) {
+    private void setupNextObstacle(int passObstacleFlag) {
+        if (passObstacleFlag == 2) {
+            clicksPerSecond = 0;
+            perSecondLabel.setText(clicksPerSecond + "m/s");
+            timerUpdate();
+        }
+        int value = (int)(Math.random() * 19) + 1; //pick a new obstacle
+        obstacleType = obstacleNameArray[value];
+        obstacleTarget = value;
+        whatIsNextObstacle.setText("Next obstacle: " + obstacleType);
+        nextObstDistance = (int) (Math.random() * 2000) + 200; //distance of next obstacle
+        distanceToNextObstacleLabel.setText(nextObstDistance + "m");
+        timerObstacleValue = (int)(Math.random() * 7) + 3; //add this once pass/fail
+        if (costOfFailureFirstIterationFlag) {
+            costOfFailureValue = (int)(Math.random() * (clickCount/100 * 12)) + 200;
+            costOfFailureFirstIterationFlag = false;
+        } else {
+            costOfFailureValue = (int)(Math.random() * (clickCount/100 * 33)) + (clickCount/100 * 10);
+        }
+
+    }
+
+    private void displayObstaclePassConditions(int nextObstDistance) {
         if (costOfFailureValue == 0) { //if leaving garage and Garage Gate
             costOfFailureFirstIterationFlag = true;
+            costOfFailureValue = 25; //lose all clicks if fail first obstacle
         }
-        costOfFailureValue = clickCount; //lose all clicks if fail first obstacle
         obstacleConditionsTitle.setText("Speed Range:");
-        obstacleConditions.setText(requiredSpeedRanges[obstacleTarget][0] + " - " + requiredSpeedRanges[obstacleTarget][1] + "m/s");
+        obstacleConditions.setText(speedRangeRequiredObstaclesArray[obstacleTarget][0] + " - " + speedRangeRequiredObstaclesArray[obstacleTarget][1] + "m/s");
         timerObstacleTitle.setText("Time to hold Speed:");
         timerObstacle.setText(timerObstacleValue + "s");
         costOfFailure.setText("Cost of Failure: " + costOfFailureValue + "m");
         //calculate pass/fail
-        //obstacleTarget = (int)(Math.random() * 20) + 2; //add this once pass/fail
-        //timerObstacleValue = (int)(Math.random() * 7) + 3; //add this once pass/fail
-        //costOfFailureValue = (int)(Math.random() * 800) + 1; //add this once pass/fail
-        if (costOfFailureFirstIterationFlag) {
-            costOfFailureValue = clickCount;
-        }
     }
 
+    public void delayPanelAfterObstacleTimerUpdate() {
+        if(!delayObstaclePanelOn) {
+            delayObstaclePanelOn=true;
+        }
+        else if (delayObstaclePanelOn){
+            delayPanelAfterObstacleTimer.stop();
+        }
+
+        delayObstaclePanelTimerSpeed = 1000;
+
+        if(startDelayTimerFlag) {
+            setDelayPanelAfterObstacleTimer();
+            delayPanelAfterObstacleTimer.start();
+            startDelayTimerFlag = false;
+        }
+    }
     public void timerUpdate() {
         if(!timerOn && clickCount<3500 && !carInMechanic) {
             timerOn=true;
@@ -421,7 +467,6 @@ public class Clicker extends Application {
 
         if((!mechanicUnlocked && stage1 && clickCount<3500) || (stage2 && clicksPerSecond > 0)) {
             setTimer();
-            setDelayPanelAfterObstacleTimer();
             timer.start();
         }
     }
@@ -599,6 +644,7 @@ public class Clicker extends Application {
         stage1 = false;
         stage2 = true;
         stage2Start = true;
+        setDelayPanelAfterObstacleTimer();
         distanceToGoTitleLabel.setText("Distance to Steve's house:");
         distanceToGoLabel.setText("50000m");
         whatIsNextObstacle.setText("Next obstacle: " + obstacleType);
