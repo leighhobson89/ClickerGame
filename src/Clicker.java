@@ -15,35 +15,28 @@ import static javax.swing.SwingConstants.RIGHT;
 public class Clicker extends Application {
 
     String obstacleType;
-    JFrame window;
-    JPanel clickHere, clickCounter, pricePanel, priceLabelPanel, itemPanel, messagePanel, bottomDistanceInfoPanel;
     JLabel metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
-    JLabel obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
     JButton button1, button2, button3, button4;
-    int clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, secondsLeftToPassObstacle,  delayPanelAfterObstacleTimerSpeed, countdownToPassTimerSpeed, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, nextObstDistance, distanceToSteves;
-    int driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passFlag, passResult;
+    int clickCount, timerSpeed, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, nextObstDistance, distanceToSteves;
+    int driveFirstClickFlag;
     double clicksPerSecond, speedKmH;
     float repairCounterPercent;
-    boolean stage1, stage2, stage2Start, inBetweenMechanicAndClickStartEngine, countdownToPassTimerOn, timerOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked;
-    boolean driveUnlocked, carInMechanic, accelerateClickedFlag,displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
+    boolean stage1, stage2, stage2Start, inBetweenMechanicAndClickStartEngine, timerOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag;
     Font font1, font2, font3;
     ClickHandler cHandler = new ClickHandler();
-    Timer timer, delayPanelAfterObstacleTimer, countdownToPassTimer;
+    Timer timer;
     JTextArea messageText;
     MouseHandler mHandler = new MouseHandler();
     Border raisedBorder = BorderFactory.createRaisedBevelBorder();
-    String[] obstacleNameArray = {"Garage Gate", "Sheep Crossing", "Police Checkpoint", "Level Crossing", "Tractor Up Ahead", "Dog Running in Road", "Drunk Man in Road", "Fallen Rocks", "Broken Water Pipe", "Kids Playing in Road",
-            "Turning Lorry Up Ahead", "Bin Wagon Spilled Trash", "Fallen Tree", "Road Works Up Ahead", "Bicycle Up Ahead", "Mate Wants A Race", "Road Rage Dude Chasing You", "Minimum Speed Limit", "Out Accelerate A Sports Car", "Out Accelerate A Hatchback"};
-    Integer[][] speedRangeRequiredObstacles = {{0, 0}, {0, 6}, {0, 3}, {0, 0}, {0, 5}, {0, 6}, {0, 8}, {0, 10}, {0, 12}, {0, 4}, {0, 11}, {0, 11}, {0, 9}, {0, 6}, {0, 9}, {50, 60}, {45, 50}, {30, 40}, {65, 70}, {60, 65}};
+
+
 
     public static void main(String[] args) {
         new Clicker();
-
     }
 
     public Clicker() {
         timerOn = false;
-        countdownToPassTimerOn = false;
         clicksPerSecond = 0;
         clickCount = 0;
         autoClickerNumber = 0;
@@ -63,15 +56,6 @@ public class Clicker extends Application {
         nextObstDistance = 25;
         distanceToSteves = 50000;
         accelerateClickedFlag = false;
-        obstacleTarget = 0;
-        costOfFailureValue = 0;
-        timerObstacleValue = (int)(Math.random() * 7) + 3;
-        originalTimerObstacleValue = 0;
-        displayObstacleConditionsFlag = false;
-        costOfFailureFirstIterationFlag = false;
-        delayPanelAfterObstacleTimerSpeed = 1000;
-        passFlag = 0;
-        passResult = 0;
         createFont();
         createUI();
     }
@@ -135,44 +119,8 @@ public class Clicker extends Application {
         perSecondLabel.setFont(font2);
         clickCounter.add(perSecondLabel);
 
-        JPanel obstacleInfoPanel = new JPanel();
-        obstacleInfoPanel.setBounds(500,401,250,150);
-        obstacleInfoPanel.setBackground(Color.black);
-        obstacleInfoPanel.setLayout(new GridLayout(6,1));
-        window.add(obstacleInfoPanel);
-
-        obstacleConditionsTitle = new JLabel("");
-        obstacleConditionsTitle.setForeground(Color.yellow);
-        obstacleConditionsTitle.setFont(font2);
-        obstacleInfoPanel.add(obstacleConditionsTitle);
-
-        obstacleConditions = new JLabel("");
-        obstacleConditions.setForeground(Color.white);
-        obstacleConditions.setFont(font2);
-        obstacleInfoPanel.add(obstacleConditions);
-
-        timerObstacleTitle = new JLabel("");
-        timerObstacleTitle.setForeground(Color.yellow);
-        timerObstacleTitle.setFont(font2);
-        obstacleInfoPanel.add(timerObstacleTitle);
-
-        timerObstacle = new JLabel("");
-        timerObstacle.setForeground(Color.white);
-        timerObstacle.setFont(font2);
-        obstacleInfoPanel.add(timerObstacle);
-
-        costOfFailure = new JLabel("");
-        costOfFailure.setForeground(Color.red);
-        costOfFailure.setFont(font2);
-        obstacleInfoPanel.add(costOfFailure);
-
-        passFailObstacle = new JLabel("");
-        passFailObstacle.setForeground(Color.green);
-        passFailObstacle.setFont(font1);
-        obstacleInfoPanel.add(passFailObstacle);
-
         JPanel priceLabelPanel = new JPanel();
-        priceLabelPanel.setBounds(390,100,100,50);
+        priceLabelPanel.setBounds(390,120,100,50);
         priceLabelPanel.setBackground(Color.black);
         priceLabelPanel.setLayout(new GridLayout(1,1));
         window.add(priceLabelPanel);
@@ -184,7 +132,7 @@ public class Clicker extends Application {
         priceLabelPanel.add(price);
 
         JPanel pricePanel = new JPanel();
-        pricePanel.setBounds(390,150,100,250);
+        pricePanel.setBounds(390,170,100,250);
         pricePanel.setBackground(Color.black);
         pricePanel.setLayout(new GridLayout(4,1));
         window.add(pricePanel);
@@ -214,7 +162,7 @@ public class Clicker extends Application {
         pricePanel.add(price4);
 
         JPanel itemPanel = new JPanel();
-        itemPanel.setBounds(500,150,250,250);
+        itemPanel.setBounds(500,170,250,250);
         itemPanel.setBackground(Color.black);
         itemPanel.setLayout(new GridLayout(4,1));
         window.add(itemPanel);
@@ -252,7 +200,7 @@ public class Clicker extends Application {
         itemPanel.add(button4);
 
         JPanel messagePanel = new JPanel();
-        messagePanel.setBounds(530,50,250,150);
+        messagePanel.setBounds(530,70,250,150);
         messagePanel.setBackground(Color.black);
         window.add(messagePanel);
 
@@ -300,20 +248,7 @@ public class Clicker extends Application {
         window.setVisible(true);
     }
 
-    public void setDelayPanelAfterObstacleTimer() {
-        delayPanelAfterObstacleTimer = new Timer(delayPanelAfterObstacleTimerSpeed, e -> {
-            secondsElapsedDelayToRemoveObstaclePanel++;
-        });
-    }
-
-    public void setCountdownToPassTimer() {
-        countdownToPassTimer = new Timer(countdownToPassTimerSpeed, e -> {
-            secondsLeftToPassObstacle--;
-            timerObstacle.setText(secondsLeftToPassObstacle + "s");
-            countdownToPassTimerUpdate();
-        });
-    }
-    public void setTimer() {
+    public void setTimer(){
         timer = new Timer(timerSpeed, e -> {
             clickCount++;
             if (stage2){
@@ -325,53 +260,7 @@ public class Clicker extends Application {
                 distanceToSteves--;
                 nextObstDistance--;
                 distanceToNextObstacleLabel.setText((nextObstDistance) + "m");
-                if(nextObstDistance < 200 && nextObstDistance >= 3) {
-                    displayObstacleConditionsFlag = true;
-                    displayObstaclePassConditions(speedRangeRequiredObstacles, nextObstDistance);
-                } else if (nextObstDistance < 3 && nextObstDistance >= 0 && clicksPerSecond <= (speedRangeRequiredObstacles[obstacleTarget][1] - speedRangeRequiredObstacles[obstacleTarget][0])) {
-                    displayObstacleConditionsFlag = true;
-                    displayObstaclePassConditions(speedRangeRequiredObstacles, nextObstDistance);
-                    secondsLeftToPassObstacle = originalTimerObstacleValue;
-                    setCountdownToPassTimer();
-                    countdownToPassTimer.start();
-                    passResult = countdownToPassTimerUpdate();
-                    if (passResult == 1) {
-                        System.out.println("PASSED FOR REAL");
-                    } else if (passResult == 2) {
-                        System.out.println("FAILED AFTER ENTERING CORRECT RANGE");
-                    }
-                    //if outside range during timer period, restart timer
-                    //if hit obstacle (-1) goto fail scenario
-                    //after timer expires and in correct range update next random obstacle random distance 0-3000m
-                    //passFailObstacle.setForeground(Color.green);
-                    //passFailObstacle.setText("*PASS*");
-                    //displayObstacleConditionsFlag = false;
-                } else if (nextObstDistance < 0) {
-                    System.out.println("FAILED COS HIT OBSTACLE HAVING NEVER ENTERED SPEED RANGE");
-//                    passFailObstacle.setForeground(Color.red);
-//                    passFailObstacle.setText("*FAIL*");
-                    if (clickCount >= costOfFailureValue) {
-                        clickCount = clickCount - costOfFailureValue;
-                    } else {
-                        clickCount = 0;
-                    }
-                    delayPanelAfterObstacleTimer.start();
-                    if(secondsElapsedDelayToRemoveObstaclePanel == 3) {
-                        displayObstacleConditionsFlag = false;
-                        delayPanelAfterObstacleTimer.stop();
-                        secondsElapsedDelayToRemoveObstaclePanel = 0;
-                    }
-                }
-                //delaytimer 3s to read result before removing
-                if (!displayObstacleConditionsFlag) {
-                    obstacleConditionsTitle.setText("");
-                    obstacleConditions.setText("");
-                    timerObstacleTitle.setText("");
-                    timerObstacle.setText("");
-                    costOfFailure.setText("");
-                    distanceToGoLabel.setText("");
-                    passFailObstacle.setText("");
-                }
+                distanceToGoLabel.setText((distanceToSteves) + "m");
             }
             else if (stage1){
                 clickCountLabel.setText(clickCount + "m");
@@ -391,60 +280,7 @@ public class Clicker extends Application {
             }
         });
     }
-
-    private void displayObstaclePassConditions(Integer[][] requiredSpeedRanges, int nextObstDistance) {
-        if (costOfFailureValue == 0) { //if leaving garage and Garage Gate
-            costOfFailureFirstIterationFlag = true;
-        }
-        costOfFailureValue = clickCount; //lose all clicks if fail first obstacle
-        obstacleConditionsTitle.setText("Speed Range:");
-        obstacleConditions.setText(requiredSpeedRanges[obstacleTarget][0] + " - " + requiredSpeedRanges[obstacleTarget][1] + "m/s");
-        timerObstacleTitle.setText("Time to hold Speed:");
-        timerObstacle.setText(timerObstacleValue + "s");
-        costOfFailure.setText("Cost of Failure: " + costOfFailureValue + "m");
-        //calculate pass/fail
-        //obstacleTarget = (int)(Math.random() * 20) + 2; //add this once pass/fail
-        //timerObstacleValue = (int)(Math.random() * 7) + 3; //add this once pass/fail
-        //costOfFailureValue = (int)(Math.random() * 800) + 1; //add this once pass/fail
-        if (costOfFailureFirstIterationFlag) {
-            costOfFailureValue = clickCount;
-        }
-    }
-
-    public int countdownToPassTimerUpdate() {
-        passFlag = 0;
-        int rangeValue = (speedRangeRequiredObstacles[obstacleTarget][1] - speedRangeRequiredObstacles[obstacleTarget][0]);
-        if (!countdownToPassTimerOn && stage2 && clicksPerSecond <= rangeValue) {
-            countdownToPassTimerOn = true;
-        }
-
-        if (secondsLeftToPassObstacle > 0 && clicksPerSecond <= rangeValue) {
-            double speed = 1000;
-            countdownToPassTimerSpeed = (int) Math.round(speed);
-            timerObstacleValue = secondsLeftToPassObstacle;
-        }
-
-        if (countdownToPassTimerOn) {
-            nextObstDistance = nextObstDistance + (int) clicksPerSecond;
-        }
-
-        if (secondsLeftToPassObstacle == 0 && clicksPerSecond <= rangeValue && countdownToPassTimerOn) {
-            passFlag = 1;
-            countdownToPassTimer.stop();
-        }
-
-        if (clicksPerSecond > rangeValue && nextObstDistance >= 0) {
-            timerObstacleValue = originalTimerObstacleValue;
-        }
-
-        if (secondsLeftToPassObstacle > 0 && nextObstDistance < 0) {
-            passFlag = 2;
-        }
-        return passFlag;
-    }
-
-    public int timerUpdate() {
-        int rangeValue = (speedRangeRequiredObstacles[obstacleTarget][1] - speedRangeRequiredObstacles[obstacleTarget][0]);
+    public void timerUpdate() {
         if(!timerOn && clickCount<3500 && !carInMechanic) {
             timerOn=true;
         }
@@ -457,12 +293,6 @@ public class Clicker extends Application {
         if(clicksPerSecond > 0) {
             double speed = 1 / clicksPerSecond * 1000;
             timerSpeed = (int) Math.round(speed);
-        }
-        if (clicksPerSecond == 0 && clicksPerSecond <= rangeValue && nextObstDistance <= 3) {
-            secondsLeftToPassObstacle = originalTimerObstacleValue;
-            setCountdownToPassTimer();
-            countdownToPassTimer.start();
-            passResult = countdownToPassTimerUpdate();
         }
 
         if (stage1) {
@@ -482,10 +312,8 @@ public class Clicker extends Application {
 
         if((!mechanicUnlocked && stage1 && clickCount<3500) || (stage2 && clicksPerSecond > 0)) {
             setTimer();
-            setDelayPanelAfterObstacleTimer();
             timer.start();
         }
-        return passResult;
     }
     public class ClickHandler implements ActionListener {
         public void actionPerformed(ActionEvent event) {
@@ -631,8 +459,7 @@ public class Clicker extends Application {
                     if (clicksPerSecond <= 69) {
                         clicksPerSecond++;
                     }
-                    originalTimerObstacleValue = timerObstacleValue;
-                    passResult = timerUpdate();
+                    timerUpdate();
                 break;
                 case "Brake":
                     System.out.println("brk");
@@ -642,8 +469,7 @@ public class Clicker extends Application {
                         } else if (clicksPerSecond < 1) {
                             clicksPerSecond = 0;
                         }
-                        originalTimerObstacleValue = timerObstacleValue;
-                        passResult = timerUpdate();
+                        timerUpdate();
                     }
                     else if (!accelerateClickedFlag) {
                         clicksPerSecond = 0;
