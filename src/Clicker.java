@@ -349,7 +349,6 @@ public class Clicker extends Application {
                         clickCount = 0;
                     }
                     setupNextObstacle(passObstacleFlag);
-                    passObstacleFlag = 0;
                 }
                 if (nextObstDistance < 4 && nextObstDistance >= 0 && clicksPerSecond <= (speedRangeRequiredObstaclesArray[obstacleTarget][1] - speedRangeRequiredObstaclesArray[obstacleTarget][0])) {
                     startCountDownToPassObstacleFlag = true;
@@ -667,11 +666,6 @@ public class Clicker extends Application {
                 case "Accelerate":
                     System.out.println("acc");
                     accelerateClickedFlag = true;
-//                    if (passObstacleFlag == 0) {
-//                        countDownToPassObstacleOn = false;
-//                        setCountDownToPassObstacleTimer();
-//                        countDownToPassObstacleTimerUpdate();
-                    }
                     if (clicksPerSecond <= 69) {
                         clicksPerSecond++;
                     }
