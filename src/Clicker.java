@@ -318,6 +318,10 @@ public class Clicker extends Application {
                 countDownToPassObstacleOn = false;
                 countDownToPassObstacleTimerUpdate();
             }
+            if (nextObstDistance <= 0 && clicksPerSecond > (speedRangeRequiredObstaclesArray[obstacleTarget][1] - speedRangeRequiredObstaclesArray[obstacleTarget][0])) {
+                passObstacleFlag = 2;
+                countDownToPassObstacleTimerUpdate();
+            }
         });
     }
     public void setTimer() {
@@ -336,30 +340,11 @@ public class Clicker extends Application {
                 if(nextObstDistance < 300 && nextObstDistance >= 3) {
                     displayObstacleConditionsFlag = true;
                     displayObstaclePassConditions(nextObstDistance);
-                } else if (nextObstDistance < 0) {
-                    //hitObstacleScenarioAtWrongSpeed
-                    passFailObstacle.setForeground(Color.red);
-                    passFailObstacle.setText("*FAIL*");
-                    startDelayTimerFlag = true;
-                    passObstacleFlag = 2;
-                    delayPanelAfterObstacleTimerUpdate();
-                    if (clickCount >= costOfFailureValue) { //subtract clicks for failing
-                        clickCount = clickCount - costOfFailureValue;
-                    } else { // set clicks to zero if garage gate
-                        clickCount = 0;
+                }
+                if (clicksPerSecond > (speedRangeRequiredObstaclesArray[obstacleTarget][1] - speedRangeRequiredObstaclesArray[obstacleTarget][0]) && (countDownToPassObstacleOn || nextObstDistance <= 0)) {
+                    if (nextObstDistance <= 0) {
+                        passObstacleFlag = 2;
                     }
-                    setupNextObstacle(passObstacleFlag);
-                }
-                if (nextObstDistance < 4 && nextObstDistance >= 0 && clicksPerSecond <= (speedRangeRequiredObstaclesArray[obstacleTarget][1] - speedRangeRequiredObstaclesArray[obstacleTarget][0])) {
-                    startCountDownToPassObstacleFlag = true;
-                    setCountDownToPassObstacleTimer();
-                    countDownToPassObstacleTimerUpdate();
-
-                    //if it is start a 5 second timer and constantly check speed in that time
-                    //if outside range during timer period, stop timer
-                    //after timer expires and in correct range update next random obstacle random distance 0-3000m
-                }
-                if (clicksPerSecond > (speedRangeRequiredObstaclesArray[obstacleTarget][1] - speedRangeRequiredObstaclesArray[obstacleTarget][0]) && countDownToPassObstacleOn) {
                     countDownToPassObstacleTimerUpdate();
                 }
                 if (!displayObstacleConditionsFlag) {
@@ -411,7 +396,6 @@ public class Clicker extends Application {
         timerObstacleValue = originalTimerObstacleValue;
         if (costOfFailureFirstIterationFlag) {
             costOfFailureValue = (int)(Math.random() * (clickCount/100 * 12)) + 200;
-            costOfFailureFirstIterationFlag = false;
         } else {
             costOfFailureValue = (int)(Math.random() * (clickCount/100 * 33)) + (clickCount/100 * 10);
         }
@@ -430,23 +414,43 @@ public class Clicker extends Application {
         costOfFailure.setText("Cost of Failure: " + costOfFailureValue + "m");
     }
 
-    public void checkIfPassedObstacle() {
-        if (passObstacleFlag == 1) {
-            if (nextObstDistance < 4 && nextObstDistance >= 0 && clicksPerSecond <= (speedRangeRequiredObstaclesArray[obstacleTarget][1] - speedRangeRequiredObstaclesArray[obstacleTarget][0]) && timerObstacleValue == 0) {
-                passFailObstacle.setForeground(Color.green);
-                passFailObstacle.setText("*PASS*");
-                startDelayTimerFlag = true;
-                delayPanelAfterObstacleTimerUpdate();
-                if (distanceToSteves > 0) {
-                    setupNextObstacle(passObstacleFlag);
-                    passObstacleFlag = 0;
-                    countDownToPassObstacleTimerUpdate();
-                }
-                else {
-                    //win Stage 2
-                }
-            }
+    public void obstaclePassed() {
+        passFailObstacle.setForeground(Color.green);
+        passFailObstacle.setText("*PASS*");
+        startDelayTimerFlag = true;
+        delayPanelAfterObstacleTimerUpdate();
+        if (distanceToSteves > 0) {
+            setupNextObstacle(passObstacleFlag);
+            passObstacleFlag = 0;
+            startCountDownToPassObstacleFlag = false;
+            countDownToPassObstacleTimer.stop();
         }
+        else {
+                    //win Stage 2
+        }
+    }
+
+    public void obstacleFailed() {
+        passFailObstacle.setForeground(Color.red);
+        passFailObstacle.setText("*FAIL*");
+        startDelayTimerFlag = true;
+        delayPanelAfterObstacleTimerUpdate();
+        if (clickCount >= costOfFailureValue) { //subtract clicks for failing
+            clickCount = clickCount - costOfFailureValue;
+        } else { // set clicks to zero if garage gate
+            clickCount = 0;
+        }
+        if (costOfFailureFirstIterationFlag) {
+            costOfFailureFirstIterationFlag = false;
+            countDownToPassObstacleOn = false;
+        } else {
+            setCountDownToPassObstacleTimer();
+            countDownToPassObstacleTimer.stop();
+            countDownToPassObstacleOn = false;
+        }
+        setupNextObstacle(passObstacleFlag);
+        passObstacleFlag = 0;
+        startCountDownToPassObstacleFlag = false;
     }
 
     public void delayPanelAfterObstacleTimerUpdate() {
@@ -473,24 +477,24 @@ public class Clicker extends Application {
         }
 
         if(startCountDownToPassObstacleFlag) {
-            setCountDownToPassObstacleTimer();
             countDownToPassObstacleTimer.start();
             System.out.println("countdownTimerStarted, time is" + timerObstacleValue + "s");
             startCountDownToPassObstacleFlag = false;
         }
         if(passObstacleFlag == 1) {
             countDownToPassObstacleTimer.stop();
-            checkIfPassedObstacle();
+            obstaclePassed();
             }
         if (passObstacleFlag == 2) {
-            countDownToPassObstacleTimer.stop();
+            obstacleFailed();
         }
         if (clicksPerSecond > (speedRangeRequiredObstaclesArray[obstacleTarget][1] - speedRangeRequiredObstaclesArray[obstacleTarget][0]) && countDownToPassObstacleOn) {
             countDownToPassObstacleTimer.stop();
             timerObstacleValue = originalTimerObstacleValue;
             timerObstacle.setText(timerObstacleValue + "s");
+            countDownToPassObstacleOn = false;
         }
-        }
+    }
     public void timerUpdate() {
         if (!timerOn && clickCount < 3500 && !carInMechanic) {
             timerOn = true;
@@ -532,17 +536,6 @@ public class Clicker extends Application {
 
             switch(action) {
                 case "pushCar":
-
-
-
-//            double randValue = Math.random(); //cheat loop to boost clicks for debug
-//            int max = 1000;
-//            int min = 1;
-//            int range = max - min + 1;
-//            int timesToPush = (int)(range * randValue);
-//
-//            for (int i=0; i<timesToPush; i++){
-
                 if (!mechanicUnlocked && clickCount<3500 && stage1) {
                     clickCount=clickCount+1750; //change +xxx value here to advance clicks quicker for debug
                     clickCountLabel.setText(clickCount+"m");
@@ -580,9 +573,6 @@ public class Clicker extends Application {
                         clickCount=0;
                         clickCountLabel.setText("0m");
                 }
- //           } //end cheat loop
-
-
                     break;
                 case "Hired Help":
                     if(clickCount >= autoClickerPrice && !mechanicUnlocked && stage1){
@@ -684,6 +674,7 @@ public class Clicker extends Application {
                             startCountDownToPassObstacleFlag = true;
                             setCountDownToPassObstacleTimer();
                             countDownToPassObstacleTimerUpdate();
+
                         }
                     }
                     else if (!accelerateClickedFlag) {
