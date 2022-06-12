@@ -45,7 +45,6 @@ public class Clicker extends Application {
     final int MAX_SPEED_OF_CAR_MINUS_1_STAGE2 = 69;
 
     String obstacleType;
-
     JFrame window;
     JPanel clickHere, clickCounter, pricePanel, priceLabelPanel, itemPanel, messagePanel, bottomDistanceInfoPanel;
     JLabel stage2ElapsedValue, stage2ElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
@@ -69,6 +68,7 @@ public class Clicker extends Application {
 
     public static void main(String[] args) {
         new Clicker();
+
     }
 
     public Clicker() {
@@ -169,8 +169,44 @@ public class Clicker extends Application {
         perSecondLabel.setFont(font2);
         clickCounter.add(perSecondLabel);
 
+        JPanel obstacleInfoPanel = new JPanel();
+        obstacleInfoPanel.setBounds(500,401,250,150);
+        obstacleInfoPanel.setBackground(Color.black);
+        obstacleInfoPanel.setLayout(new GridLayout(6,1));
+        window.add(obstacleInfoPanel);
+
+        obstacleConditionsTitle = new JLabel("");
+        obstacleConditionsTitle.setForeground(Color.yellow);
+        obstacleConditionsTitle.setFont(font2);
+        obstacleInfoPanel.add(obstacleConditionsTitle);
+
+        obstacleConditions = new JLabel("");
+        obstacleConditions.setForeground(Color.white);
+        obstacleConditions.setFont(font2);
+        obstacleInfoPanel.add(obstacleConditions);
+
+        timerObstacleTitle = new JLabel("");
+        timerObstacleTitle.setForeground(Color.yellow);
+        timerObstacleTitle.setFont(font2);
+        obstacleInfoPanel.add(timerObstacleTitle);
+
+        timerObstacle = new JLabel("");
+        timerObstacle.setForeground(Color.white);
+        timerObstacle.setFont(font2);
+        obstacleInfoPanel.add(timerObstacle);
+
+        costOfFailure = new JLabel("");
+        costOfFailure.setForeground(Color.red);
+        costOfFailure.setFont(font2);
+        obstacleInfoPanel.add(costOfFailure);
+
+        passFailObstacle = new JLabel("");
+        passFailObstacle.setForeground(Color.green);
+        passFailObstacle.setFont(font1);
+        obstacleInfoPanel.add(passFailObstacle);
+
         JPanel priceLabelPanel = new JPanel();
-        priceLabelPanel.setBounds(390,120,100,50);
+        priceLabelPanel.setBounds(390,100,100,50);
         priceLabelPanel.setBackground(Color.black);
         priceLabelPanel.setLayout(new GridLayout(1,1));
         window.add(priceLabelPanel);
@@ -182,7 +218,7 @@ public class Clicker extends Application {
         priceLabelPanel.add(price);
 
         JPanel pricePanel = new JPanel();
-        pricePanel.setBounds(390,170,100,250);
+        pricePanel.setBounds(390,150,100,250);
         pricePanel.setBackground(Color.black);
         pricePanel.setLayout(new GridLayout(4,1));
         window.add(pricePanel);
@@ -212,7 +248,7 @@ public class Clicker extends Application {
         pricePanel.add(price4);
 
         JPanel itemPanel = new JPanel();
-        itemPanel.setBounds(500,170,250,250);
+        itemPanel.setBounds(500,150,250,250);
         itemPanel.setBackground(Color.black);
         itemPanel.setLayout(new GridLayout(4,1));
         window.add(itemPanel);
@@ -250,7 +286,7 @@ public class Clicker extends Application {
         itemPanel.add(button4);
 
         JPanel messagePanel = new JPanel();
-        messagePanel.setBounds(530,70,250,150);
+        messagePanel.setBounds(530,50,250,150);
         messagePanel.setBackground(Color.black);
         window.add(messagePanel);
 
