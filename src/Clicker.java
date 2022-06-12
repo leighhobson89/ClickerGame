@@ -52,6 +52,7 @@ public class Clicker extends Application {
     JButton button1, button2, button3, button4;
     int clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, distanceToSteve;
     int randomSteveMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, rangePermitted, rangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
+    int countTimesPassTimeUntilSteveMoves;
     double clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean stage1, stage2, stage2Start, inBetweenMechanicAndClickStartEngine, timerOn, delayObstaclePanelOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag,displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
@@ -96,6 +97,7 @@ public class Clicker extends Application {
         rangeActual = 0;
         generalTimerElapsedMinutes = 0;
         generalTimerElapsedSeconds = 0;
+        countTimesPassTimeUntilSteveMoves = 1;
         createFont();
         createUI();
     }
@@ -370,12 +372,13 @@ public class Clicker extends Application {
         timer = new Timer(timerSpeed, e -> {
             clickCount++;
             if (stage2){
+                distanceToSteve--;
                 double ccountAsDouble = clickCount;
                 DecimalFormat num = new DecimalFormat("0.00");
                 num.setRoundingMode(RoundingMode.FLOOR);
                 String km = num.format(ccountAsDouble/1000);
                 clickCountLabel.setText(clickCount + "m (" + km + "km)");
-                distanceToGoLabel.setText(distanceToSteve - clickCount + "m");
+                distanceToGoLabel.setText(distanceToSteve + "m");
                 stage2ElapsedLabel.setText("Steve Moves Every 10 Minutes:");
                 if (generalTimerElapsedSeconds >= 60 && generalTimerSecondsToDisplay >= 60) {
                     generalTimerElapsedMinutes++;
@@ -396,11 +399,20 @@ public class Clicker extends Application {
                     }
                 }
                 System.out.println("General Elapsed Timer = " + generalTimerElapsedSeconds);
-//                if (generalTimerElapsedSeconds > TIME_UNTIL_STEVE_MOVES) {
-//                    randomSteveMovementModifier = (int) (Math.random() * MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES - MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES) + MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES; //
-//                    distanceToSteve = distanceToSteve + randomSteveMovementModifier;
-//                    distanceToGoLabel.setText(distanceToSteve + "m");
-//                }
+                if (generalTimerElapsedSeconds % TIME_UNTIL_STEVE_MOVES == 0) {
+                    randomSteveMovementModifier = (int) (Math.random() * MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES - MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES) + MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES; //
+                    distanceToSteve = distanceToSteve + randomSteveMovementModifier;
+                    distanceToGoLabel.setText(distanceToSteve + "m");
+                }
+                if (generalTimerElapsedSeconds >= (TIME_UNTIL_STEVE_MOVES * countTimesPassTimeUntilSteveMoves) - 30 && generalTimerElapsedSeconds < (TIME_UNTIL_STEVE_MOVES * countTimesPassTimeUntilSteveMoves)) {
+                    stage2ElapsedValue.setForeground(Color.red);
+                } else if (generalTimerElapsedSeconds >= TIME_UNTIL_STEVE_MOVES * countTimesPassTimeUntilSteveMoves) {
+                    stage2ElapsedValue.setForeground(Color.white);
+                    stage2ElapsedValue.setText("0:00");
+                    countTimesPassTimeUntilSteveMoves++;
+                    generalTimerElapsedMinutes = 0;
+                    generalTimerSecondsToDisplay = 0;
+                }
                 if (!countDownToPassObstacleOn) {
                     nextObstDistance--;
                 } else {
