@@ -1,9 +1,10 @@
 <component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="ClickerGame:jar">
+  <artifact type="jar" name="ClickerGame:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/ClickerGame_jar</output-path>
     <root id="archive" name="ClickerGame.jar">
       <element id="module-output" name="ClickerGame" />
-      <element id="module-source" name="ClickerGame" />
+      <element id="library" level="project" name="FXlib" />
+      <element id="library" level="project" name="lib" />
     </root>
   </artifact>
 </component>

@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 import static javax.swing.SwingConstants.RIGHT;
 
@@ -48,8 +49,6 @@ public class Clicker extends Application {
     final int MIN_NO_OF_TURNING_CLICKS = 0;
 
     String obstacleType, km, kmSteve;
-    JFrame window;
-    JPanel clickHere, clickCounter, pricePanel, priceLabelPanel, itemPanel, messagePanel, bottomDistanceInfoPanel;
     JLabel stage2ElapsedValue, stage2ElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
     JLabel obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
     JButton button1, button2, button3, button4;
@@ -133,7 +132,7 @@ public class Clicker extends Application {
         clickHere.setBackground(Color.black);
         window.add(clickHere);
 
-        ImageIcon pushCar = new ImageIcon(getClass().getClassLoader().getResource("resource/carImage.png"));
+        ImageIcon pushCar = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("resource/carImage.png")));
 
         JButton carButton = new JButton();
         carButton.setBackground(Color.black);
@@ -353,9 +352,7 @@ public class Clicker extends Application {
     }
 
     public void setDelayPanelAfterObstacleTimer() {
-        delayPanelAfterObstacleTimer = new Timer(1000, e -> {
-            secondsElapsedDelayToRemoveObstaclePanel++;
-        });
+        delayPanelAfterObstacleTimer = new Timer(1000, e -> secondsElapsedDelayToRemoveObstaclePanel++);
     }
 
     private void setCountDownToPassObstacleTimer() {
@@ -508,7 +505,11 @@ public class Clicker extends Application {
             timerUpdate();
         }
         requiredLeftClicks = (int) ((Math.random() * (MAX_NO_OF_TURNING_CLICKS - MIN_NO_OF_TURNING_CLICKS)) + MIN_NO_OF_TURNING_CLICKS);
-        requiredRightClicks = (int) ((Math.random() * (MAX_NO_OF_TURNING_CLICKS - MIN_NO_OF_TURNING_CLICKS)) + MIN_NO_OF_TURNING_CLICKS);
+        if (requiredLeftClicks == 0) { //remove possibility of L:0 | R:0 random generation
+            requiredRightClicks = (int) ((Math.random() * (MAX_NO_OF_TURNING_CLICKS - MIN_NO_OF_TURNING_CLICKS - 1)) + MIN_NO_OF_TURNING_CLICKS + 1);
+        } else {
+            requiredRightClicks = (int) ((Math.random() * (MAX_NO_OF_TURNING_CLICKS - MIN_NO_OF_TURNING_CLICKS)) + MIN_NO_OF_TURNING_CLICKS);
+        }
         System.out.println("Left Needed = " + requiredLeftClicks);
         System.out.println("Right Needed = " + requiredRightClicks);
         int value = (int) (Math.random() * NUMBER_OF_OBSTACLES_IN_ARRAY_MINUS_1) + 1; //pick a new obstacle
@@ -594,12 +595,10 @@ public class Clicker extends Application {
         distanceToSteve = distanceToSteve + costOfFailureValue;
         if (costOfFailureFirstIterationFlag) {
             costOfFailureFirstIterationFlag = false;
-            countDownToPassObstacleOn = false;
         } else {
             countDownToPassObstacleTimer.stop();
-            countDownToPassObstacleOn = false;
-            //setCountDownToPassObstacleTimer();
         }
+        countDownToPassObstacleOn = false;
         setupNextObstacle(passObstacleFlag);
         passObstacleFlag = 0;
         startCountDownToPassObstacleFlag = false;
@@ -609,7 +608,7 @@ public class Clicker extends Application {
         if(!delayObstaclePanelOn) {
             delayObstaclePanelOn=true;
         }
-        else if (delayObstaclePanelOn){
+        else {
             delayPanelAfterObstacleTimer.stop();
         }
 
@@ -624,7 +623,7 @@ public class Clicker extends Application {
         if(!countDownToPassObstacleOn) {
             countDownToPassObstacleOn=true;
         }
-        else if (countDownToPassObstacleOn){
+        else {
             countDownToPassObstacleTimer.stop();
         }
 
@@ -652,7 +651,7 @@ public class Clicker extends Application {
         if ((rangeActual > rangePermitted || rangeActual < 0) && nextObstDistance > 0) {
             countDownToPassObstacleTimer.stop();
             timerObstacleValue = originalTimerObstacleValue;
-            if (timerObstacle.getText() != "") { //if already showing obstacle panel info, then run this, otherwise no, to fix flickering seconds after passing
+            if (!Objects.equals(timerObstacle.getText(), "")) { //if already showing obstacle panel info, then run this, otherwise no, to fix flickering seconds after passing
                 timerObstacle.setText(timerObstacleValue + "s");
             }
             countDownToPassObstacleOn = false;
@@ -726,16 +725,16 @@ public class Clicker extends Application {
                     clickCount=PRICE_TO_UNLOCK_MECHANIC;
                     clickCountLabel.setText(clickCount+"m");
                     timer.stop();
-                    temporarilyLockPowerUpsForMechanicMiniGame(1); //lock/unlock powerups while at mechanic
+                    temporarilyLockPowerUpsForMechanicMiniGame(1); //lock/unlock power ups while at mechanic
                 }
                 else {
                     if(stage1){
                     clickCount = PRICE_TO_UNLOCK_MECHANIC;
                     clickCountLabel.setText(clickCount+"m");
                     price4.setText(clicksLeftToFixCar + "m");
-                    temporarilyLockPowerUpsForMechanicMiniGame(1); //lock/unlock powerups while at mechanic
                     }
                 }
+                temporarilyLockPowerUpsForMechanicMiniGame(1); //lock/unlock power ups while at mechanic
                 if (inBetweenMechanicAndClickStartEngine) {
                         clickCount=0;
                         clickCountLabel.setText("0m");
@@ -793,7 +792,7 @@ public class Clicker extends Application {
                         price4.setText(clicksLeftToFixCar + "m");
                         messageText.setText("You arrived at the mechanic! Phew!\nSpend 3500m + 500 clicks to\nrepair your wheels!");
                         repairCounter++;
-                        repairCounterPercent = repairCar(repairCounter);
+                        repairCounterPercent = (float) repairCounter / CLICKS_TO_FIX_CAR * 100;
                         String repairPercentString = String.format("%.2f", repairCounterPercent);
                         button3.setText(repairPercentString + "% fixed");
                         if ((int)repairCounterPercent == 100) {
@@ -845,7 +844,7 @@ public class Clicker extends Application {
                         setCountDownToPassObstacleTimer();
                         countDownToPassObstacleTimerUpdate();
                         if (nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && nextObstDistance >= 0 && (rangeActual <= rangePermitted && rangeActual >= 0)) {
-                            //System.out.println("not failing anymore timer should start again");
+                            //System.out.println("not failing any more timer should start again");
                             wasPassingNowFailing = false;
                             startCountDownToPassObstacleFlag = true;
                             setCountDownToPassObstacleTimer();
@@ -880,7 +879,7 @@ public class Clicker extends Application {
                             setCountDownToPassObstacleTimer();
                             countDownToPassObstacleTimerUpdate();
                             if (nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && nextObstDistance >= 0 && (rangeActual <= rangePermitted && rangeActual >= 0)) {
-                                //System.out.println("not failing anymore timer should start again");
+                                //System.out.println("not failing any more timer should start again");
                                 wasPassingNowFailing = false;
                                 startCountDownToPassObstacleFlag = true;
                                 setCountDownToPassObstacleTimer();
@@ -888,7 +887,7 @@ public class Clicker extends Application {
                             }
                         }
                     }
-                    else if (!accelerateClickedFlag) {
+                    else {
                         clicksPerSecond = 0;
                     }
                 break;
@@ -912,10 +911,13 @@ public class Clicker extends Application {
                         passFailObstacle.setFont(font1);
                         passFailObstacle.setText("L: " + (requiredLeftClicks - leftClickCount) + " | R: " + (requiredRightClicks - rightClickCount));
                         System.out.println("valid right clicks is" + rightClickCount);
+                        if (leftClickCount > requiredLeftClicks || rightClickCount > requiredRightClicks) {
+                            passFailObstacle.setFont(font3);
+                            passFailObstacle.setText("CRASHED!");
+                        }
                     }
                 break;
             }
-//
         }
     }
     private void letsDrive() {
@@ -973,14 +975,6 @@ public class Clicker extends Application {
             button4.setText("START ENGINE!");
         }
     }
-
-    private float repairCar(int repairCounter) {
-        float repairCounterAsFloat = repairCounter;
-        float repairPercent = repairCounterAsFloat/CLICKS_TO_FIX_CAR * 100;
-        return repairPercent;
-//        return 100; //debug skip repair clicks //comment this line and uncomment above line when game ready
-    }
-
     public class MouseHandler implements MouseListener {
 
         @Override
