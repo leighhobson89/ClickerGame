@@ -27,12 +27,12 @@ public class Clicker extends Application {
     final int DELAY_TO_REMOVE_OBST_PANEL_AFTER_OBSTACLE = 3;
     final int PRICE_TO_UNLOCK_TOW_TRUCK = 200;
     final int COST_INCREASE_PER_TOW_TRUCK = 50;
-    final int TOW_TRUCK_ADDS_THIS_MANY_CLICKS_PER_SECOND = 5;
+    final int TOW_TRUCK_ADDS_THIS_MANY_CLICKS_PER_SECOND = 10;
     final int PRICE_TO_UNLOCK_MECHANIC = 3500;
     final int PRICE_TO_UNLOCK_AUTOCLICKER = 10;
     final int COST_INCREASE_PER_AUTOCLICKER = 5;
     final double AUTOCLICKER_ADDS_THIS_MANY_CLICKS_PER_SECOND = 0.1;
-    final int CLICKS_TO_FIX_CAR = 10;
+    final int CLICKS_TO_FIX_CAR = 500;
     final int NUMBER_OF_OBSTACLES_IN_ARRAY_MINUS_1 = 19;
     final int MAX_NEW_OBSTACLE_DISTANCE_STG2_1 = 2000;
     final int MIN_NEW_OBSTACLE_DISTANCE_STG2_1 = 650;
@@ -45,7 +45,7 @@ public class Clicker extends Application {
     final int COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2 = 10;
     final int DISTANCE_TO_GARAGE_GATE = 25;
     final int DISTANCE_TO_STEVE = 20000;
-    final int DISTANCE_TO_ESCAPE_PLANE = 50000;
+    final int DISTANCE_TO_ESCAPE_PLANE = 100000;
     final int COST_OF_FAILURE_FOR_HITTING_STEVE = 10000;
     final int DEBUG_QUICK_CLICKER_STG_1 = 1750;
     final int MAX_SPEED_OF_CAR_MINUS_1_STAGE2 = 69;
@@ -56,7 +56,7 @@ public class Clicker extends Application {
     String obstacleType, km, kmSteve;
     JLabel stage2ElapsedValue, stage2ElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
     JLabel obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
-    JButton button1, button2, button3, button4;
+    JButton button1, button2, button3, button4, button5;
     int clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, distanceToSteve;
     int randomSteveMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, rangePermitted, rangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
     int countDisplay, distanceToSteveAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilSteveMoves, leftClickCount, rightClickCount;
@@ -268,7 +268,7 @@ public class Clicker extends Application {
         JPanel itemPanel = new JPanel();
         itemPanel.setBounds(500,150,250,250);
         itemPanel.setBackground(Color.black);
-        itemPanel.setLayout(new GridLayout(4,1));
+        itemPanel.setLayout(new GridLayout(5,1));
         window.add(itemPanel);
 
         button1 = new JButton(LOCKED);
@@ -302,6 +302,14 @@ public class Clicker extends Application {
         button4.setActionCommand("LetsDrive");
         button4.addMouseListener(mHandler);
         itemPanel.add(button4);
+
+        button5 = new JButton("SkipStage2.2");
+        button5.setFont(font1);
+        button5.setFocusPainted(false);
+        button5.addActionListener(cHandler);
+        button5.setActionCommand("SkipStage22");
+        button5.addMouseListener(mHandler);
+        itemPanel.add(button5);
 
         JPanel messagePanel = new JPanel();
         messagePanel.setBounds(530,50,250,150);
@@ -533,8 +541,6 @@ public class Clicker extends Application {
             } else {
                 requiredRightClicks = (int) ((Math.random() * (MAX_NO_OF_TURNING_CLICKS - MIN_NO_OF_TURNING_CLICKS)) + MIN_NO_OF_TURNING_CLICKS);
             }
-            System.out.println("Left Needed = " + requiredLeftClicks);
-            System.out.println("Right Needed = " + requiredRightClicks);
             int value = (int) (Math.random() * NUMBER_OF_OBSTACLES_IN_ARRAY_MINUS_1) + 1; //pick a new obstacle
             countDownToPassObstacleOn = false;
             obstacleType = obstacleNameArrayStg2_1[value];
@@ -760,9 +766,7 @@ public class Clicker extends Application {
         } else if (timerOn) {
             timer.stop();
         }
-        if (stage2Start) {
-            clicksPerSecond = 1;
-        }
+
         if (clicksPerSecond > 0) {
             double speed = 1 / clicksPerSecond * 1000;
             timerSpeed = (int) Math.round(speed);
@@ -800,7 +804,7 @@ public class Clicker extends Application {
             switch(action) {
                 case "pushCar":
                 if (!mechanicUnlocked && clickCount < PRICE_TO_UNLOCK_MECHANIC && stage1) {
-                    clickCount=clickCount + DEBUG_QUICK_CLICKER_STG_1; //replace with real value when game ready
+                    clickCount++; //replace with real value when game ready
                     clickCountLabel.setText(clickCount+"m");
 
                     if (!autoClickerUnlocked && clickCount >= PRICE_TO_UNLOCK_AUTOCLICKER) {
@@ -829,9 +833,10 @@ public class Clicker extends Application {
                     clickCount = PRICE_TO_UNLOCK_MECHANIC;
                     clickCountLabel.setText(clickCount+"m");
                     price4.setText(clicksLeftToFixCar + "m");
+                    temporarilyLockPowerUpsForMechanicMiniGame(1);
                     }
                 }
-                temporarilyLockPowerUpsForMechanicMiniGame(1); //lock/unlock power ups while at mechanic
+                 //lock/unlock power ups while at mechanic
                 if (inBetweenMechanicAndClickStartEngine) {
                         clickCount=0;
                         clickCountLabel.setText("0m");
@@ -917,7 +922,7 @@ public class Clicker extends Application {
                     }
                     break;
                 case "Accelerate":
-                    System.out.println("acc");
+                    //System.out.println("acc");
                     accelerateClickedFlag = true;
                     if (clicksPerSecond <= MAX_SPEED_OF_CAR_MINUS_1_STAGE2) {
                         clicksPerSecond++;
@@ -950,7 +955,7 @@ public class Clicker extends Application {
                     }
                 break;
                 case "Brake":
-                    System.out.println("brk");
+                    //System.out.println("brk");
                     if (accelerateClickedFlag) {
                         if (clicksPerSecond >= 1) {
                             clicksPerSecond--;
@@ -994,7 +999,7 @@ public class Clicker extends Application {
                         leftClickCount++;
                         passFailObstacle.setFont(font1);
                         passFailObstacle.setText("L: " + (requiredLeftClicks - leftClickCount) + " | R: " + (requiredRightClicks - rightClickCount));
-                        System.out.println("valid left clicks is" + leftClickCount);
+                        //System.out.println("valid left clicks is" + leftClickCount);
                         if (leftClickCount > requiredLeftClicks || rightClickCount > requiredRightClicks) {
                             passFailObstacle.setFont(font3);
                             passFailObstacle.setText("CRASHED!");
@@ -1007,13 +1012,16 @@ public class Clicker extends Application {
                         rightClickCount++;
                         passFailObstacle.setFont(font1);
                         passFailObstacle.setText("L: " + (requiredLeftClicks - leftClickCount) + " | R: " + (requiredRightClicks - rightClickCount));
-                        System.out.println("valid right clicks is" + rightClickCount);
+                        //System.out.println("valid right clicks is" + rightClickCount);
                         if (leftClickCount > requiredLeftClicks || rightClickCount > requiredRightClicks) {
                             passFailObstacle.setFont(font3);
                             passFailObstacle.setText("CRASHED!");
                         }
                     }
                 break;
+                case "SkipStage22":
+                    letsDrive();
+                    beatStage2Part1SetupPart2();
             }
         }
     }
@@ -1023,6 +1031,7 @@ public class Clicker extends Application {
         num.setRoundingMode(RoundingMode.FLOOR);
         kmSteve = num.format(distanceToSteveAsDouble/1000);
         stage1 = false;
+        clicksPerSecond = 0;
         stage2 = true;
         stage2Start = true;
         setStage2ElapsedTimer();
@@ -1200,4 +1209,4 @@ public class Clicker extends Application {
 
         }
     }
-    }
+}
