@@ -35,7 +35,7 @@ public class Clicker extends Application {
     final int CLICKS_TO_FIX_CAR = 10;
     final int NUMBER_OF_OBSTACLES_IN_ARRAY_MINUS_1 = 19;
     final int MAX_NEW_OBSTACLE_DISTANCE_STG2_1 = 2000;
-    final int MIN_NEW_OBSTACLE_DISTANCE_STG2_1 = 420;
+    final int MIN_NEW_OBSTACLE_DISTANCE_STG2_1 = 650;
     final int MAX_NEW_OBSTACLE_DISTANCE_STG2_2 = 12000;
     final int MIN_NEW_OBSTACLE_DISTANCE_STG2_2 = 5000;
     final int MAX_NEW_TIMER_AMOUNT = 7;
@@ -44,7 +44,7 @@ public class Clicker extends Application {
     final int COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR1 = 33;
     final int COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2 = 10;
     final int DISTANCE_TO_GARAGE_GATE = 25;
-    final int DISTANCE_TO_STEVE = 3000;
+    final int DISTANCE_TO_STEVE = 20000;
     final int DISTANCE_TO_ESCAPE_PLANE = 50000;
     final int COST_OF_FAILURE_FOR_HITTING_STEVE = 10000;
     final int DEBUG_QUICK_CLICKER_STG_1 = 1750;
@@ -59,7 +59,7 @@ public class Clicker extends Application {
     JButton button1, button2, button3, button4;
     int clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, distanceToSteve;
     int randomSteveMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, rangePermitted, rangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
-    int distanceToSteveAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilSteveMoves, leftClickCount, rightClickCount;
+    int countDisplay, distanceToSteveAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilSteveMoves, leftClickCount, rightClickCount;
     double clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean stage1, stage2, stage2Start, inBetweenMechanicAndClickStartEngine, timerOn, delayObstaclePanelOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag,displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
@@ -113,6 +113,7 @@ public class Clicker extends Application {
         rightClickCount = 0;
         requiredLeftClicks = 0;
         requiredRightClicks = 0;
+        countDisplay = 0;
         createFont();
         createUI();
     }
@@ -467,7 +468,8 @@ public class Clicker extends Application {
                 }
                 if(nextObstDistance < DISTANCE_DISPLAY_OBSTACLE_BOARD && nextObstDistance >= 3) {
                     displayObstacleConditionsFlag = true;
-                    displayObstaclePassConditions();
+                    countDisplay++;
+                    displayObstaclePassConditions(countDisplay);
                 }
                 if (nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && !countDownToPassObstacleOn && nextObstDistance >= 0 && (rangeActual <= rangePermitted && rangeActual >= 0)) {
                     startCountDownToPassObstacleFlag = true;
@@ -481,6 +483,7 @@ public class Clicker extends Application {
                     countDownToPassObstacleTimerUpdate();
                 }
                 if (!displayObstacleConditionsFlag) {
+                    countDisplay = 0;
                     obstacleConditionsTitle.setText("");
                     obstacleConditions.setText("");
                     timerObstacleTitle.setText("");
@@ -576,7 +579,18 @@ public class Clicker extends Application {
         }
     }
 
-    private void displayObstaclePassConditions() {
+    private void displayObstaclePassConditions(int count) {
+        if (count == 1) { //bug fix for when passing and no button clicks allowing passing of next obstacle
+            double newSpeed = clicksPerSecond;
+            button2.doClick();
+            if (newSpeed > clicksPerSecond) {
+                clicksPerSecond++;
+                Integer mS = ((int) clicksPerSecond);
+                speedKmH = clicksPerSecond * 3.6;
+                String kmHr = String.format("%.1f", speedKmH);
+                perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
+            }
+        } //end of bug fix
         if (costOfFailureValue == 0) { //if leaving garage and Garage Gate
             costOfFailureFirstIterationFlag = true;
             costOfFailureValue = DISTANCE_TO_GARAGE_GATE; //lose all clicks if fail first obstacle
@@ -903,8 +917,7 @@ public class Clicker extends Application {
                     }
                     break;
                 case "Accelerate":
-                    //System.out.println("acc");
-                    //if ()
+                    System.out.println("acc");
                     accelerateClickedFlag = true;
                     if (clicksPerSecond <= MAX_SPEED_OF_CAR_MINUS_1_STAGE2) {
                         clicksPerSecond++;
@@ -937,7 +950,7 @@ public class Clicker extends Application {
                     }
                 break;
                 case "Brake":
-                    //System.out.println("brk");
+                    System.out.println("brk");
                     if (accelerateClickedFlag) {
                         if (clicksPerSecond >= 1) {
                             clicksPerSecond--;
