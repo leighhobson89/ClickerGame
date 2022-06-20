@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.swing.SwingConstants.RIGHT;
 
@@ -45,7 +46,7 @@ public class Clicker extends Application {
     final int COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR1 = 33;
     final int COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2 = 10;
     final int DISTANCE_TO_GARAGE_GATE = 25;
-    final int DISTANCE_TO_STEVE = 3000;
+    final int DISTANCE_TO_STEVE = 100;
     final int DISTANCE_TO_ESCAPE_PLANE = 100000;
     final int COST_OF_FAILURE_STAGE2_2_START_VALUE = 1500;
     final int COST_OF_FAILURE_FOR_HITTING_STEVE = 10000;
@@ -55,8 +56,10 @@ public class Clicker extends Application {
     final int MAX_NO_OF_TURNING_CLICKS = 10;
     final int MIN_NO_OF_TURNING_CLICKS = 0;
     final int FIRST_OBSTACLE_STG2_2 = 2500;
-    final int NITROUS_COUNT = 5;
+    final int NITROUS_COUNT = 30;
     final int OVERDRIVE_TOGGLE_SPEED = 70;
+    final int MAX_SPEED_BOOST_CAN_BE_USED = 300;
+    final int BOOST_AMOUNT_DELIVERED = 50;
 
     String obstacleType, km, kmGoal;
     JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
@@ -68,11 +71,11 @@ public class Clicker extends Application {
     double clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean stage1, stage2, BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag,displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
-    boolean failedObstacleWithinApproachOfEndOfStageGoal, approachingEndOfStageGoalFlag, checkTimeSteveMoveCount, startDelayTimerFlag, countDownToPassObstacleOn, startCountDownToPassObstacleFlag, wasPassingNowFailing, moreThanOneMinuteElapsedFlag;
+    boolean boostTimerFlag, failedObstacleWithinApproachOfEndOfStageGoal, approachingEndOfStageGoalFlag, checkTimeSteveMoveCount, startDelayTimerFlag, countDownToPassObstacleOn, startCountDownToPassObstacleFlag, wasPassingNowFailing, moreThanOneMinuteElapsedFlag;
     boolean stg2Part2, overDrive, atStartEngineScreen;
     Font font1, font2, font3;
     ClickHandler cHandler = new ClickHandler();
-    Timer timer, delayPanelAfterObstacleTimer, countDownToPassObstacleTimer, generalElapsedCounter;
+    Timer boostTimer, timer, delayPanelAfterObstacleTimer, countDownToPassObstacleTimer, generalElapsedCounter;
     JTextArea messageText;
     MouseHandler mHandler = new MouseHandler();
     Border raisedBorder = BorderFactory.createRaisedBevelBorder();
@@ -375,6 +378,16 @@ public class Clicker extends Application {
 
     public void setDelayPanelAfterObstacleTimer() {
         delayPanelAfterObstacleTimer = new Timer(1000, e -> secondsElapsedDelayToRemoveObstaclePanel++);
+    }
+
+    private void setBoostTimer(String direction) { //build this timer to handle speed increase and decrease when clicking nitrous
+        if (direction.equalsIgnoreCase("up")) {
+            boostTimer = new Timer(30, e -> {
+        });
+        } else if (direction.equalsIgnoreCase("down")) {
+            boostTimer = new Timer(200, e -> {
+            });
+        }
     }
 
     private void setCountDownToPassObstacleTimer() {
@@ -787,6 +800,10 @@ public class Clicker extends Application {
         }
     }
 
+    public void boostTimerUpdate() {
+
+    }
+
     public void countDownToPassObstacleTimerUpdate() {
         if(!countDownToPassObstacleOn) {
             countDownToPassObstacleOn=true;
@@ -1132,10 +1149,23 @@ public class Clicker extends Application {
                     }
                 break;
                 case "Nitrous":
+                    boostInject();
                 break;
             }
         }
     }
+
+    private void boostInject() {
+        if (stg2Part2 && clicksPerSecond <= MAX_SPEED_BOOST_CAN_BE_USED && nitrousCount > 0) {
+            boostTimerFlag = true;
+            setBoostTimer("up"); // increase speed progressively via an acceleration timer
+            nitrousCount--;
+            button4.setText("Super Nitro (" + nitrousCount + ")");
+            //start counting up to 5 once boosted
+            //setBoostTimer("down") // degrade the speed back to before the boost via a deceleration timer
+        }
+    }
+
     private void letsDrive() {
         distanceToEndOfStageGoal = DISTANCE_TO_STEVE;
         repairCounterPercent = 0;
@@ -1302,7 +1332,7 @@ public class Clicker extends Application {
                 if (button == button4 && stage2) {
                     messageText.setText("\n\n\nSwerve Right!");
                 } else if (button == button4 && stg2Part2) {
-                    messageText.setText("\nNitrous Oxide\nHuge speed boost!\nYou only have 5!");
+                    messageText.setText("\nNitrous Oxide\nHuge speed boost!\nYou only have " + nitrousCount + "!");
                 }
             }
         }
