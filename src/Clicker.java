@@ -19,7 +19,7 @@ public class Clicker extends Application {
     final int DISTANCE_DISPLAY_OBSTACLE_BOARD = 600;
     final int DISTANCE_ENTER_OBSTACLE_ELIGIBILITY = 10;
     final int DISTANCE_TO_TRIGGER_FAST_OBSTACLE_RANGE_COUNTDOWN_SPEED = 10;
-    final int TIME_UNTIL_STEVE_MOVES = 600;
+    final int TIME_UNTIL_PENALTY = 600;
     final int MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES = 8000;
     final int MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES = 2000;
     final double WITHIN_RANGE_OBST_DISTANCE_COUNT_SPEED = 0.1;
@@ -34,7 +34,7 @@ public class Clicker extends Application {
     final double AUTOCLICKER_ADDS_THIS_MANY_CLICKS_PER_SECOND = 0.1;
     final int CLICKS_TO_FIX_CAR = 500;
     final int NUMBER_OF_OBSTACLES_IN_STEVE_ARRAY_MINUS_1 = 19;
-    final int NUMBER_OF_OBSTACLES_IN_AIRPORT_DASH_ARRAY_MINUS_1 = 10;
+    final int NUMBER_OF_OBSTACLES_IN_AIRPORT_DASH_ARRAY_MINUS_1 = 8;
     final int MAX_NEW_OBSTACLE_DISTANCE_STG2_1 = 2000;
     final int MIN_NEW_OBSTACLE_DISTANCE_STG2_1 = 650;
     final int MAX_NEW_OBSTACLE_DISTANCE_STG2_2 = 12000;
@@ -47,6 +47,7 @@ public class Clicker extends Application {
     final int DISTANCE_TO_GARAGE_GATE = 25;
     final int DISTANCE_TO_STEVE = 3000;
     final int DISTANCE_TO_ESCAPE_PLANE = 100000;
+    final int COST_OF_FAILURE_STAGE2_2_START_VALUE = 1500;
     final int COST_OF_FAILURE_FOR_HITTING_STEVE = 10000;
     final int DEBUG_QUICK_CLICKER_STG_1 = 1750;
     final int MAX_NORMAL_SPEED_OF_CAR_MINUS_1 = 69;
@@ -55,8 +56,9 @@ public class Clicker extends Application {
     final int MIN_NO_OF_TURNING_CLICKS = 0;
     final int FIRST_OBSTACLE_STG2_2 = 2500;
     final int NITROUS_COUNT = 5;
+    final int OVERDRIVE_TOGGLE_SPEED = 70;
 
-    String obstacleType, km, kmSteve;
+    String obstacleType, km, kmGoal;
     JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
     JLabel obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
     JButton button1, button2, button3, button4, button5;
@@ -86,7 +88,7 @@ public class Clicker extends Application {
 
     public Clicker() {
         km = "";
-        kmSteve = "";
+        kmGoal = "";
         clicksPerSecond = 0;
         clickCount = 0;
         autoClickerNumber = 0;
@@ -100,7 +102,7 @@ public class Clicker extends Application {
         driveFirstClickFlag = 0;
         obstacleType = "Garage Gate";
         nextObstDistance = DISTANCE_TO_GARAGE_GATE;
-        distanceToEndOfStageGoal = DISTANCE_TO_STEVE;
+        distanceToEndOfStageGoal = 0;
         randomSteveMovementModifier = 0;
         obstacleTarget = 0;
         costOfFailureValue = 0;
@@ -399,33 +401,35 @@ public class Clicker extends Application {
     public void setTimer() {
         timer = new Timer(timerSpeed, e -> {
             clickCount++;
-            if (stg2Part2) {
-                if (overDrive && clicksPerSecond < 70) {
+            if (stage2 || stg2Part2) {
+                if (overDrive && clicksPerSecond < OVERDRIVE_TOGGLE_SPEED && stg2Part2) {
                     overDrive = false;
                     button3.setForeground(Color.black);
                     button3.setText("Overdrive: OFF");
                 }
-            }
-            if (stage2){
                 distanceToEndOfStageGoal--;
                 double cCountAsDouble = clickCount;
-                double distanceToSteveAsDouble = distanceToEndOfStageGoal;
+                double distanceToEndOfStageGoalAsDouble = distanceToEndOfStageGoal;
                 DecimalFormat num = new DecimalFormat("0.00");
                 num.setRoundingMode(RoundingMode.FLOOR);
                 km = num.format(cCountAsDouble/1000);
-                kmSteve = num.format(distanceToSteveAsDouble/1000);
+                kmGoal = num.format(distanceToEndOfStageGoalAsDouble/1000);
                 if (clickCount > DISTANCE_TO_SWITCH_KM_TO_M) {
                     clickCountLabel.setText(km + "km");
                 } else {
                     clickCountLabel.setText(clickCount + "m");
                 }
                 if (distanceToEndOfStageGoal >= DISTANCE_TO_SWITCH_KM_TO_M) {
-                    distanceToGoLabel.setText(kmSteve + "km");
+                    distanceToGoLabel.setText(kmGoal + "km");
                 } else {
                     distanceToGoLabel.setText(distanceToEndOfStageGoal + "m");
                 }
                 if (!approachingEndOfStageGoalFlag) {
-                    generalTimerElapsedLabel.setText("Steve Moves Every 10 Minutes:");
+                    if (stage2) {
+                        generalTimerElapsedLabel.setText("Steve Moves Every 10 Minutes:");
+                    } else if (stg2Part2) {
+                        generalTimerElapsedLabel.setText("Escape Aircraft Leaves In 10 min!");
+                    }
                 }
                 if (generalTimerElapsedSeconds >= 60 && generalTimerSecondsToDisplay >= 60) {
                     generalTimerElapsedMinutes++;
@@ -449,25 +453,29 @@ public class Clicker extends Application {
                         }
                     }
                 }
-                if (generalTimerElapsedSeconds % TIME_UNTIL_STEVE_MOVES == 0 && !checkTimeSteveMoveCount) {
-                    checkTimeSteveMoveCount = true;
-                    randomSteveMovementModifier = (int) ((Math.random() * (MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES - MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES)) + MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES);
-                    distanceToEndOfStageGoal = distanceToEndOfStageGoal + randomSteveMovementModifier;
-                    if (distanceToEndOfStageGoal > DISTANCE_TO_SWITCH_KM_TO_M) {
-                        distanceToGoLabel.setText(kmSteve + "km");
-                    } else {
-                        distanceToGoLabel.setText(distanceToEndOfStageGoal + "m");
+                if (stage2) {
+                    if (generalTimerElapsedSeconds % TIME_UNTIL_PENALTY == 0 && !checkTimeSteveMoveCount) {
+                        checkTimeSteveMoveCount = true;
+                        randomSteveMovementModifier = (int) ((Math.random() * (MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES - MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES)) + MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES);
+                        distanceToEndOfStageGoal = distanceToEndOfStageGoal + randomSteveMovementModifier;
+                        if (distanceToEndOfStageGoal > DISTANCE_TO_SWITCH_KM_TO_M) {
+                            distanceToGoLabel.setText(kmGoal + "km");
+                        } else {
+                            distanceToGoLabel.setText(distanceToEndOfStageGoal + "m");
+                        }
                     }
-                }
-                if (generalTimerElapsedSeconds >= (TIME_UNTIL_STEVE_MOVES * countTimesPassTimeUntilSteveMoves) - 30 && generalTimerElapsedSeconds < (TIME_UNTIL_STEVE_MOVES * countTimesPassTimeUntilSteveMoves)) {
-                    generalTimerElapsedValue.setForeground(Color.red);
-                    checkTimeSteveMoveCount = false;
-                } else if (generalTimerElapsedSeconds >= TIME_UNTIL_STEVE_MOVES * countTimesPassTimeUntilSteveMoves && !approachingEndOfStageGoalFlag) {
-                    generalTimerElapsedValue.setForeground(Color.white);
-                    generalTimerElapsedValue.setText("0:00");
-                    countTimesPassTimeUntilSteveMoves++;
-                    generalTimerElapsedMinutes = 0;
-                    generalTimerSecondsToDisplay = 0;
+                    if (generalTimerElapsedSeconds >= (TIME_UNTIL_PENALTY * countTimesPassTimeUntilSteveMoves) - 30 && generalTimerElapsedSeconds < (TIME_UNTIL_PENALTY * countTimesPassTimeUntilSteveMoves)) {
+                        generalTimerElapsedValue.setForeground(Color.red);
+                        checkTimeSteveMoveCount = false;
+                    } else if (generalTimerElapsedSeconds >= TIME_UNTIL_PENALTY * countTimesPassTimeUntilSteveMoves && !approachingEndOfStageGoalFlag) {
+                        generalTimerElapsedValue.setForeground(Color.white);
+                        generalTimerElapsedValue.setText("0:00");
+                        countTimesPassTimeUntilSteveMoves++;
+                        generalTimerElapsedMinutes = 0;
+                        generalTimerSecondsToDisplay = 0;
+                    }
+                } else if (stg2Part2 && generalTimerElapsedSeconds >= TIME_UNTIL_PENALTY) {
+                    gameOver();
                 }
                 if (!countDownToPassObstacleOn) {
                     nextObstDistance--;
@@ -535,10 +543,10 @@ public class Clicker extends Application {
         });
     }
 
-    private void setupNextObstacle(int passObstacleFlag, int distanceToSteveAfterFailure) {
+    private void setupNextObstacle(int passObstacleFlag, int distanceToEndOfStageGoalAfterFailure) {
         if (passObstacleFlag == 2) {
             if (failedObstacleWithinApproachOfEndOfStageGoal) {
-                endOfStageGoalApproach(distanceToSteveAfterFailure);
+                endOfStageGoalApproach(distanceToEndOfStageGoalAfterFailure);
             }
             wasPassingNowFailing = false;
             clicksPerSecond = 0;
@@ -547,7 +555,7 @@ public class Clicker extends Application {
         }
         if (distanceToEndOfStageGoal > 3000 && stg2Part2){
             int value = (int) (Math.random() * NUMBER_OF_OBSTACLES_IN_AIRPORT_DASH_ARRAY_MINUS_1) + 1; //pick a new obstacle
-            obstacleType = obstacleNameArrayStg2_1[value];
+            obstacleType = obstacleNameArrayStg2_2[value];
             obstacleTarget = value;
             countDownToPassObstacleOn = false;
             whatIsNextObstacle.setText("");
@@ -559,7 +567,7 @@ public class Clicker extends Application {
             timerObstacleValue = originalTimerObstacleValue;
             costOfFailureValue = (int) (Math.random() * (clickCount/100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR1)) + (clickCount/100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2);
         } else {
-            endOfStageGoalApproach(distanceToSteveAfterFailure);
+            endOfStageGoalApproach(distanceToEndOfStageGoalAfterFailure);
         }
         if (distanceToEndOfStageGoal > 2500 && stage2) {
             requiredLeftClicks = (int) ((Math.random() * (MAX_NO_OF_TURNING_CLICKS - MIN_NO_OF_TURNING_CLICKS)) + MIN_NO_OF_TURNING_CLICKS);
@@ -585,12 +593,12 @@ public class Clicker extends Application {
                 costOfFailureValue = (int) (Math.random() * (clickCount/100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR1)) + (clickCount/100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2);
             }
         } else {
-            endOfStageGoalApproach(distanceToSteveAfterFailure);
+            endOfStageGoalApproach(distanceToEndOfStageGoalAfterFailure);
         }
     }
 
     private void endOfStageGoalApproach(int distanceToEndOfStageGoalAfterFailure) {
-        if ((stage2 && failedObstacleWithinApproachOfEndOfStageGoal &&distanceToEndOfStageGoalAfterFailure < 2500) || (stg2Part2 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 3000) || (stg2Part2 && distanceToEndOfStageGoal < 3000) || (stage2 && distanceToEndOfStageGoal < 2500)) {
+        if ((stage2 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 2500) || (stg2Part2 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 3000) || (stg2Part2 && distanceToEndOfStageGoal < 3000) || (stage2 && distanceToEndOfStageGoal < 2500)) {
             approachingEndOfStageGoalFlag = true;
             generalElapsedCounter.stop();
             if (stage2) {
@@ -598,7 +606,7 @@ public class Clicker extends Application {
                 costOfFailureValue = COST_OF_FAILURE_FOR_HITTING_STEVE;
                 obstacleType = obstacleNameArrayStg2_1[20];
                 obstacleTarget = 20;
-                distanceToGoTitleLabel.setText("STOP WITHIN 10m of STEVE!");
+                distanceToGoTitleLabel.setText("STOP WITHIN 10m OF STEVE!");
             } else if (stg2Part2) {
                 generalTimerElapsedLabel.setText("The escape plane is ready!");
                 costOfFailureValue = clickCount;
@@ -649,7 +657,7 @@ public class Clicker extends Application {
                 passFailObstacle.setText("NO TURNING REQUIRED");
             }
         } else if (stg2Part2) {
-            //stuff for stg2Part2 turbo etc
+            obstacleConditions.setText(SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG2_2[obstacleTarget][0] + " - " + SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG2_2[obstacleTarget][1] + "m/s");
         }
         timerObstacleTitle.setText("Time to hold Speed:");
         timerObstacle.setText(timerObstacleValue + "s");
@@ -1112,12 +1120,12 @@ public class Clicker extends Application {
                     letsDrive();
                 break;
                 case "OverDrive":
-                    if (!overDrive && clicksPerSecond == 70) {
+                    if (!overDrive && clicksPerSecond == OVERDRIVE_TOGGLE_SPEED) {
                         overDrive = true;
                         button3.setForeground(Color.red);
                         button3.setText("Overdrive: ON");
                         //play overdrive sound
-                    } else if (overDrive && clicksPerSecond < 80){
+                    } else if (overDrive && clicksPerSecond == OVERDRIVE_TOGGLE_SPEED){
                         overDrive = false;
                         button3.setForeground(Color.black);
                         button3.setText("Overdrive: OFF");
@@ -1129,11 +1137,12 @@ public class Clicker extends Application {
         }
     }
     private void letsDrive() {
+        distanceToEndOfStageGoal = DISTANCE_TO_STEVE;
         repairCounterPercent = 0;
         double distanceToEndOfStageGoalAsDouble = distanceToEndOfStageGoal;
         DecimalFormat num = new DecimalFormat("0.00");
         num.setRoundingMode(RoundingMode.FLOOR);
-        kmSteve = num.format(distanceToEndOfStageGoalAsDouble/1000);
+        kmGoal = num.format(distanceToEndOfStageGoalAsDouble/1000);
         stage1 = false;
         clicksPerSecond = 0;
         stage2 = true;
@@ -1141,7 +1150,7 @@ public class Clicker extends Application {
         generalElapsedCounter.start();
         setDelayPanelAfterObstacleTimer();
         distanceToGoTitleLabel.setText("Distance to Steve:");
-        distanceToGoLabel.setText(kmSteve + "km");
+        distanceToGoLabel.setText(kmGoal + "km");
         whatIsNextObstacle.setText("Next obstacle: " + obstacleType);
         distanceToNextObstacleTitleLabel.setText("Distance to obstacle:");
         distanceToNextObstacleLabel.setText(DISTANCE_TO_GARAGE_GATE + "m");
@@ -1164,6 +1173,14 @@ public class Clicker extends Application {
     }
 
     private void beatStage2Part1SetupPart2() {
+        stage2 = false;
+        obstacleType = obstacleNameArrayStg2_2[0];
+        obstacleTarget = 0;
+        failedObstacleWithinApproachOfEndOfStageGoal = false;
+        approachingEndOfStageGoalFlag = false;
+        distanceToEndOfStageGoal = DISTANCE_TO_ESCAPE_PLANE;
+        distanceToEndOfStageGoalAfterFail =
+        costOfFailureValue = COST_OF_FAILURE_STAGE2_2_START_VALUE;
         passFailObstacle.setText("");
         obstacleConditionsTitle.setText("");
         obstacleConditions.setText("");
@@ -1214,6 +1231,12 @@ public class Clicker extends Application {
     }
 
     private void gameOver() {
+        generalTimerElapsedValue.setForeground(Color.red);
+        generalTimerElapsedValue.setText("ESCAPE PLANE LEFT!");
+        passFailObstacle.setForeground(Color.red);
+        passFailObstacle.setFont(font3);
+        passFailObstacle.setText("GAME OVER!");
+        //implement restart game conditions
         System.out.println("Game Over");
     }
 
@@ -1274,7 +1297,7 @@ public class Clicker extends Application {
                 if (button == button3 && stage2) {
                     messageText.setText("\n\n\nSwerve Left!");
                 } else if (button == button3 && stg2Part2) {
-                    messageText.setText("\n\nToggle OverDrive\nMust be at 70+m/s");
+                    messageText.setText("\n\nToggle OverDrive\nMust be at " + OVERDRIVE_TOGGLE_SPEED + "m/s");
                 }
                 if (button == button4 && stage2) {
                     messageText.setText("\n\n\nSwerve Right!");
