@@ -14,6 +14,8 @@ import java.util.Objects;
 import static javax.swing.SwingConstants.RIGHT;
 
 public class Clicker extends Application {
+
+    //-------------------------------------------------------CONSTANTS------------------------------------------------
     final String LOCKED = "LOCKED";
     final int DISTANCE_TO_SWITCH_KM_TO_M = 5000;
     final int DISTANCE_DISPLAY_OBSTACLE_BOARD = 600;
@@ -58,7 +60,10 @@ public class Clicker extends Application {
     final int OVERDRIVE_TOGGLE_SPEED = 70;
     final int MAX_SPEED_BOOST_CAN_BE_USED = 300;
     final int BOOST_AMOUNT_DELIVERED = 50;
+    final int MAX_NUMBER_OF_SIMULTANEOUS_NITROS = 5;
     final int BOOST_DURATION = 6;
+
+    //---------------------------------------------------------------------------------------------------------------
 
     String obstacleType, km, kmGoal;
     JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
@@ -66,7 +71,7 @@ public class Clicker extends Application {
     JButton button1, button2, button3, button4, button5;
     int stage, clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, distanceToEndOfStageGoal;
     int randomSteveMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, rangePermitted, rangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
-    int originalGeneralTimerValue, nitroTicks, nitrousCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilSteveMoves, leftClickCount, rightClickCount;
+    int numberOfActiveNitros, originalGeneralTimerValue, nitroTicks, nitrousCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilSteveMoves, leftClickCount, rightClickCount;
     double preNitroCPS, clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
@@ -83,213 +88,18 @@ public class Clicker extends Application {
     String[] obstacleNameArrayStg2_2 = {"Motorway Entry Road", "Slow Lorry Convoy", "Broken Down Van", "Pedestrian on Motorway", "Overpass Collapse", "Race a 1300cc Motorbike", "Jump The Ramp", "Max Power", "Steady She Goes", "Motorway Exit", "Airfield Entrance", "Escape Plane"};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG2_1 = {{0, 0, 0}, {2, 8, 1}, {1, 2, 0}, {0, 0, 0}, {3, 6, 1}, {2, 9, 1}, {4, 8, 1}, {3, 10, 1}, {6, 12, 1}, {2, 4, 1}, {8, 11, 1}, {6, 15, 1}, {3, 14, 1}, {0, 1, 1}, {3, 15, 1}, {50, 60, 0}, {45, 50, 0}, {30, 70, 0}, {65, 70, 0}, {60, 65, 0}, {0, 0, 0}};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG2_2 = {{40, 50}, {15, 25}, {20, 30}, {10, 15}, {5, 10}, {110, 140}, {150, 180}, {300, 350}, {40, 50}, {30, 40}, {10, 15}, {0, 0}};
+
     public static void main(String[] args) {
         new Clicker();
-
     }
 
     public Clicker() {
-        km = "";
-        kmGoal = "";
-        clicksPerSecond = 0;
-        clickCount = 0;
-        autoClickerNumber = 0;
-        autoClickerPrice = PRICE_TO_UNLOCK_AUTOCLICKER;
-        towTruckNumber = 0;
-        towTruckPrice = PRICE_TO_UNLOCK_TOW_TRUCK;
-        mechanicPrice = PRICE_TO_UNLOCK_MECHANIC;
-        repairCounter = 0;
-        clicksLeftToFixCar = CLICKS_TO_FIX_CAR;
-        stage = 1;
-        driveFirstClickFlag = 0;
-        obstacleType = "Garage Gate";
-        nextObstDistance = DISTANCE_TO_GARAGE_GATE;
-        distanceToEndOfStageGoal = 0;
-        randomSteveMovementModifier = 0;
-        obstacleTarget = 0;
-        costOfFailureValue = 0;
-        originalTimerObstacleValue = (int) ((Math.random() * (MAX_NEW_TIMER_AMOUNT - MIN_NEW_TIMER_AMOUNT)) + MIN_NEW_TIMER_AMOUNT);
-        timerObstacleValue = originalTimerObstacleValue;
-        passObstacleFlag = 0; //1 pass obst 2 fail obst
-        rangePermitted = 0;
-        rangeActual = 0;
-        generalTimerElapsedMinutes = 0;
-        generalTimerElapsedSeconds = 0;
-        generalTimerSecondsToDisplay = 0;
-        countTimesPassTimeUntilSteveMoves = 1;
-        leftClickCount = 0;
-        rightClickCount = 0;
-        requiredLeftClicks = 0;
-        requiredRightClicks = 0;
-        countDisplay = 0;
-        nitrousCount = 0;
-        nitroTicks = 0;
-        preNitroCPS = 0;
-        originalGeneralTimerValue = 0;
+        setInitialVariabes(false); //initial setup
         createFont();
         createUI();
     }
-
     @Override
-    public void start(Stage stage) {
-
-    }
-    public void restartGame() {
-        BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; autoClickerUnlocked = false; towTruckUnlocked = false; mechanicTriggeredYet = false; mechanicUnlocked = false; driveUnlocked = false; carInMechanic = false; accelerateClickedFlag = false; displayObstacleConditionsFlag = false; costOfFailureFirstIterationFlag = false;
-        failedObstacleWithinApproachOfEndOfStageGoal = false; approachingEndOfStageGoalFlag = false; checkTimeSteveMoveCount = false; startDelayTimerFlag = false; countDownToPassObstacleOn = false; startCountDownToPassObstacleFlag = false; wasPassingNowFailing = false; moreThanOneMinuteElapsedFlag = false;
-        degradeNitro = false; nitroActive = false; nitroSpeedUp = false; overDrive = false; atStartEngineScreen = false;
-        try {
-            timer.restart();
-            timer.stop();
-        } catch (Exception e) {
-            System.out.println("timer didn't exist.");
-        }
-        try {
-            delayPanelAfterObstacleTimer.restart();
-            delayPanelAfterObstacleTimer.stop();
-        } catch (Exception e) {
-            System.out.println("delay timer to remove obstacle timer didn't exist.");
-        }
-        try {
-            countDownToPassObstacleTimer.restart();
-            countDownToPassObstacleTimer.stop();
-        } catch (Exception e) {
-            System.out.println("countdown to pass obstacle timer didn't exist.");
-        }
-        try {
-            generalElapsedCounter.restart();
-            generalElapsedCounter.stop();
-        } catch (Exception e) {
-            System.out.println("general timer didn't exist.");
-        }
-        km = "";
-        kmGoal = "";
-        clicksPerSecond = 0;
-        clickCount = 0;
-        autoClickerNumber = 0;
-        autoClickerPrice = PRICE_TO_UNLOCK_AUTOCLICKER;
-        towTruckNumber = 0;
-        towTruckPrice = PRICE_TO_UNLOCK_TOW_TRUCK;
-        mechanicPrice = PRICE_TO_UNLOCK_MECHANIC;
-        repairCounter = 0;
-        clicksLeftToFixCar = CLICKS_TO_FIX_CAR;
-        stage = 1;
-        driveFirstClickFlag = 0;
-        obstacleType = "Garage Gate";
-        nextObstDistance = DISTANCE_TO_GARAGE_GATE;
-        distanceToEndOfStageGoal = 0;
-        randomSteveMovementModifier = 0;
-        obstacleTarget = 0;
-        costOfFailureValue = 0;
-        originalTimerObstacleValue = (int) ((Math.random() * (MAX_NEW_TIMER_AMOUNT - MIN_NEW_TIMER_AMOUNT)) + MIN_NEW_TIMER_AMOUNT);
-        timerObstacleValue = originalTimerObstacleValue;
-        passObstacleFlag = 0; //1 pass obst 2 fail obst
-        rangePermitted = 0;
-        rangeActual = 0;
-        generalTimerElapsedMinutes = 0;
-        generalTimerElapsedSeconds = 0;
-        generalTimerSecondsToDisplay = 0;
-        countTimesPassTimeUntilSteveMoves = 1;
-        leftClickCount = 0;
-        rightClickCount = 0;
-        requiredLeftClicks = 0;
-        requiredRightClicks = 0;
-        countDisplay = 0;
-        nitrousCount = 0;
-        nitroTicks = 0;
-        preNitroCPS = 0;
-        originalGeneralTimerValue = 0;
-        generalTimerElapsedLabel.setForeground(Color.yellow);
-        generalTimerElapsedLabel.setFont(font2);
-        generalTimerElapsedLabel.setText("");
-        generalTimerElapsedValue.setForeground(Color.white);
-        generalTimerElapsedValue.setFont(font1);
-        generalTimerElapsedValue.setText("");
-        metresTravelledLabel.setText("Distance travelled:");
-        metresTravelledLabel.setForeground(Color.yellow);
-        metresTravelledLabel.setFont(font2);
-        clickCountLabel.setForeground(Color.white);
-        clickCountLabel.setFont(font1);
-        clickCountLabel.setText("0m");
-        perSecondLabelLabel.setText("");
-        perSecondLabelLabel.setForeground(Color.yellow);
-        perSecondLabelLabel.setFont(font2);
-        perSecondLabel.setText("");
-        perSecondLabel.setForeground(Color.white);
-        perSecondLabel.setFont(font2);
-        obstacleConditionsTitle.setText("");
-        obstacleConditionsTitle.setForeground(Color.yellow);
-        obstacleConditionsTitle.setFont(font2);
-        obstacleConditions.setText("");
-        obstacleConditions.setForeground(Color.white);
-        obstacleConditions.setFont(font2);
-        timerObstacleTitle.setText("");
-        timerObstacleTitle.setForeground(Color.yellow);
-        timerObstacleTitle.setFont(font2);
-        timerObstacle.setText("");
-        timerObstacle.setForeground(Color.white);
-        timerObstacle.setFont(font2);
-        costOfFailure.setText("");
-        costOfFailure.setForeground(Color.red);
-        costOfFailure.setFont(font2);
-        passFailObstacle.setText("");
-        passFailObstacle.setForeground(Color.green);
-        passFailObstacle.setFont(font1);
-        price.setText("Price");
-        price.setHorizontalAlignment(RIGHT);
-        price.setForeground(Color.white);
-        price.setFont(font1);
-        price1.setText("10m");
-        price1.setHorizontalAlignment(RIGHT);
-        price1.setForeground(Color.white);
-        price1.setFont(font1);
-        price2.setText("");
-        price2.setHorizontalAlignment(RIGHT);
-        price2.setForeground(Color.white);
-        price2.setFont(font1);
-        price3.setText("");
-        price3.setHorizontalAlignment(RIGHT);
-        price3.setForeground(Color.white);
-        price3.setFont(font1);
-        price4.setText("");
-        price4.setHorizontalAlignment(RIGHT);
-        price4.setForeground(Color.white);
-        price4.setFont(font1);
-        button1.setText(LOCKED);
-        button1.setFont(font1);
-        button1.setActionCommand("Hired Help");
-        button1.setForeground(Color.black);
-        button2.setText(LOCKED);
-        button2.setFont(font1);
-        button2.setActionCommand("Tow Truck");
-        button2.setForeground(Color.black);
-        button3.setText(LOCKED);
-        button3.setFont(font1);
-        button3.setForeground(Color.black);
-        button3.setActionCommand("Mechanic");
-        button4.setText(LOCKED);
-        button4.setFont(font1);
-        button4.setForeground(Color.black);
-        button4.setActionCommand(null);
-        button5.setText("RestartGame");
-        button5.setFont(font1);
-        button5.setActionCommand("RestartGame");
-        distanceToGoTitleLabel.setText("");
-        distanceToGoTitleLabel.setForeground(Color.yellow);
-        distanceToGoTitleLabel.setFont(font2);
-        distanceToGoLabel.setText("");
-        distanceToGoLabel.setForeground(Color.white);
-        distanceToGoLabel.setFont(font1);
-        distanceToNextObstacleTitleLabel.setText("");
-        distanceToNextObstacleTitleLabel.setForeground(Color.yellow);
-        distanceToNextObstacleTitleLabel.setFont(font2);
-        distanceToNextObstacleLabel.setText("");
-        distanceToNextObstacleLabel.setForeground(Color.white);
-        distanceToNextObstacleLabel.setFont(font1);
-        whatIsNextObstacle.setText("");
-        whatIsNextObstacle.setForeground(Color.white);
-        whatIsNextObstacle.setFont(font2);
-    }
+    public void start(Stage stage) {}
 
     public void createFont(){
         font1 = new Font("Arial", Font.PLAIN, 32);
@@ -1351,7 +1161,7 @@ public class Clicker extends Application {
 
     private void boostInject() {
         if (stage == 3 && clicksPerSecond <= MAX_SPEED_BOOST_CAN_BE_USED && nitrousCount > 0 && overDrive) {
-            if (!nitroSpeedUp) {
+            if (!nitroSpeedUp && (numberOfActiveNitros <= MAX_NUMBER_OF_SIMULTANEOUS_NITROS)) {
                 nitroTicks = 0;
                 originalGeneralTimerValue = 0;
                 nitroSpeedUp = true;
@@ -1624,6 +1434,172 @@ public class Clicker extends Application {
             } else if (button == button4) {
                 messageText.setText(null);
             }
+        }
+    }
+
+    public void restartGame() {
+        setInitialVariabes(true); //set initial variables and reset everything if restarting
+    }
+
+    private void setInitialVariabes(boolean restart) {
+        if (restart) {
+            BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; autoClickerUnlocked = false; towTruckUnlocked = false; mechanicTriggeredYet = false; mechanicUnlocked = false; driveUnlocked = false; carInMechanic = false; accelerateClickedFlag = false; displayObstacleConditionsFlag = false; costOfFailureFirstIterationFlag = false;
+            failedObstacleWithinApproachOfEndOfStageGoal = false; approachingEndOfStageGoalFlag = false; checkTimeSteveMoveCount = false; startDelayTimerFlag = false; countDownToPassObstacleOn = false; startCountDownToPassObstacleFlag = false; wasPassingNowFailing = false; moreThanOneMinuteElapsedFlag = false;
+            degradeNitro = false; nitroActive = false; nitroSpeedUp = false; overDrive = false; atStartEngineScreen = false;
+            try {
+                timer.restart();
+                timer.stop();
+            } catch (Exception e) {
+                System.out.println("timer didn't exist.");
+            }
+            try {
+                delayPanelAfterObstacleTimer.restart();
+                delayPanelAfterObstacleTimer.stop();
+            } catch (Exception e) {
+                System.out.println("delay timer to remove obstacle timer didn't exist.");
+            }
+            try {
+                countDownToPassObstacleTimer.restart();
+                countDownToPassObstacleTimer.stop();
+            } catch (Exception e) {
+                System.out.println("countdown to pass obstacle timer didn't exist.");
+            }
+            try {
+                generalElapsedCounter.restart();
+                generalElapsedCounter.stop();
+            } catch (Exception e) {
+                System.out.println("general timer didn't exist.");
+            }
+        }
+        km = "";
+        kmGoal = "";
+        clicksPerSecond = 0;
+        clickCount = 0;
+        autoClickerNumber = 0;
+        autoClickerPrice = PRICE_TO_UNLOCK_AUTOCLICKER;
+        towTruckNumber = 0;
+        towTruckPrice = PRICE_TO_UNLOCK_TOW_TRUCK;
+        mechanicPrice = PRICE_TO_UNLOCK_MECHANIC;
+        repairCounter = 0;
+        clicksLeftToFixCar = CLICKS_TO_FIX_CAR;
+        stage = 1;
+        driveFirstClickFlag = 0;
+        obstacleType = "Garage Gate";
+        nextObstDistance = DISTANCE_TO_GARAGE_GATE;
+        distanceToEndOfStageGoal = 0;
+        randomSteveMovementModifier = 0;
+        obstacleTarget = 0;
+        costOfFailureValue = 0;
+        originalTimerObstacleValue = (int) ((Math.random() * (MAX_NEW_TIMER_AMOUNT - MIN_NEW_TIMER_AMOUNT)) + MIN_NEW_TIMER_AMOUNT);
+        timerObstacleValue = originalTimerObstacleValue;
+        passObstacleFlag = 0; //1 pass obst 2 fail obst
+        rangePermitted = 0;
+        rangeActual = 0;
+        generalTimerElapsedMinutes = 0;
+        generalTimerElapsedSeconds = 0;
+        generalTimerSecondsToDisplay = 0;
+        countTimesPassTimeUntilSteveMoves = 1;
+        leftClickCount = 0;
+        rightClickCount = 0;
+        requiredLeftClicks = 0;
+        requiredRightClicks = 0;
+        countDisplay = 0;
+        nitrousCount = 0;
+        nitroTicks = 0;
+        preNitroCPS = 0;
+        originalGeneralTimerValue = 0;
+        numberOfActiveNitros = 0;
+        if (restart) {
+            generalTimerElapsedLabel.setForeground(Color.yellow);
+            generalTimerElapsedLabel.setFont(font2);
+            generalTimerElapsedLabel.setText("");
+            generalTimerElapsedValue.setForeground(Color.white);
+            generalTimerElapsedValue.setFont(font1);
+            generalTimerElapsedValue.setText("");
+            metresTravelledLabel.setText("Distance travelled:");
+            metresTravelledLabel.setForeground(Color.yellow);
+            metresTravelledLabel.setFont(font2);
+            clickCountLabel.setForeground(Color.white);
+            clickCountLabel.setFont(font1);
+            clickCountLabel.setText("0m");
+            perSecondLabelLabel.setText("");
+            perSecondLabelLabel.setForeground(Color.yellow);
+            perSecondLabelLabel.setFont(font2);
+            perSecondLabel.setText("");
+            perSecondLabel.setForeground(Color.white);
+            perSecondLabel.setFont(font2);
+            obstacleConditionsTitle.setText("");
+            obstacleConditionsTitle.setForeground(Color.yellow);
+            obstacleConditionsTitle.setFont(font2);
+            obstacleConditions.setText("");
+            obstacleConditions.setForeground(Color.white);
+            obstacleConditions.setFont(font2);
+            timerObstacleTitle.setText("");
+            timerObstacleTitle.setForeground(Color.yellow);
+            timerObstacleTitle.setFont(font2);
+            timerObstacle.setText("");
+            timerObstacle.setForeground(Color.white);
+            timerObstacle.setFont(font2);
+            costOfFailure.setText("");
+            costOfFailure.setForeground(Color.red);
+            costOfFailure.setFont(font2);
+            passFailObstacle.setText("");
+            passFailObstacle.setForeground(Color.green);
+            passFailObstacle.setFont(font1);
+            price.setText("Price");
+            price.setHorizontalAlignment(RIGHT);
+            price.setForeground(Color.white);
+            price.setFont(font1);
+            price1.setText("10m");
+            price1.setHorizontalAlignment(RIGHT);
+            price1.setForeground(Color.white);
+            price1.setFont(font1);
+            price2.setText("");
+            price2.setHorizontalAlignment(RIGHT);
+            price2.setForeground(Color.white);
+            price2.setFont(font1);
+            price3.setText("");
+            price3.setHorizontalAlignment(RIGHT);
+            price3.setForeground(Color.white);
+            price3.setFont(font1);
+            price4.setText("");
+            price4.setHorizontalAlignment(RIGHT);
+            price4.setForeground(Color.white);
+            price4.setFont(font1);
+            button1.setText(LOCKED);
+            button1.setFont(font1);
+            button1.setActionCommand("Hired Help");
+            button1.setForeground(Color.black);
+            button2.setText(LOCKED);
+            button2.setFont(font1);
+            button2.setActionCommand("Tow Truck");
+            button2.setForeground(Color.black);
+            button3.setText(LOCKED);
+            button3.setFont(font1);
+            button3.setForeground(Color.black);
+            button3.setActionCommand("Mechanic");
+            button4.setText(LOCKED);
+            button4.setFont(font1);
+            button4.setForeground(Color.black);
+            button4.setActionCommand(null);
+            button5.setText("RestartGame");
+            button5.setFont(font1);
+            button5.setActionCommand("RestartGame");
+            distanceToGoTitleLabel.setText("");
+            distanceToGoTitleLabel.setForeground(Color.yellow);
+            distanceToGoTitleLabel.setFont(font2);
+            distanceToGoLabel.setText("");
+            distanceToGoLabel.setForeground(Color.white);
+            distanceToGoLabel.setFont(font1);
+            distanceToNextObstacleTitleLabel.setText("");
+            distanceToNextObstacleTitleLabel.setForeground(Color.yellow);
+            distanceToNextObstacleTitleLabel.setFont(font2);
+            distanceToNextObstacleLabel.setText("");
+            distanceToNextObstacleLabel.setForeground(Color.white);
+            distanceToNextObstacleLabel.setFont(font1);
+            whatIsNextObstacle.setText("");
+            whatIsNextObstacle.setForeground(Color.white);
+            whatIsNextObstacle.setFont(font2);
         }
     }
 }
