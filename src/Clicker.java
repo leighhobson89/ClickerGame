@@ -115,6 +115,7 @@ public class Clicker extends Application {
         rangeActual = 0;
         generalTimerElapsedMinutes = 0;
         generalTimerElapsedSeconds = 0;
+        generalTimerSecondsToDisplay = 0;
         countTimesPassTimeUntilSteveMoves = 1;
         leftClickCount = 0;
         rightClickCount = 0;
@@ -134,6 +135,33 @@ public class Clicker extends Application {
 
     }
     public void restartGame() {
+        BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; autoClickerUnlocked = false; towTruckUnlocked = false; mechanicTriggeredYet = false; mechanicUnlocked = false; driveUnlocked = false; carInMechanic = false; accelerateClickedFlag = false; displayObstacleConditionsFlag = false; costOfFailureFirstIterationFlag = false;
+        failedObstacleWithinApproachOfEndOfStageGoal = false; approachingEndOfStageGoalFlag = false; checkTimeSteveMoveCount = false; startDelayTimerFlag = false; countDownToPassObstacleOn = false; startCountDownToPassObstacleFlag = false; wasPassingNowFailing = false; moreThanOneMinuteElapsedFlag = false;
+        degradeNitro = false; nitroActive = false; nitroSpeedUp = false; overDrive = false; atStartEngineScreen = false;
+        try {
+            timer.restart();
+            timer.stop();
+        } catch (Exception e) {
+            System.out.println("timer didn't exist.");
+        }
+        try {
+            delayPanelAfterObstacleTimer.restart();
+            delayPanelAfterObstacleTimer.stop();
+        } catch (Exception e) {
+            System.out.println("delay timer to remove obstacle timer didn't exist.");
+        }
+        try {
+            countDownToPassObstacleTimer.restart();
+            countDownToPassObstacleTimer.stop();
+        } catch (Exception e) {
+            System.out.println("countdown to pass obstacle timer didn't exist.");
+        }
+        try {
+            generalElapsedCounter.restart();
+            generalElapsedCounter.stop();
+        } catch (Exception e) {
+            System.out.println("general timer didn't exist.");
+        }
         km = "";
         kmGoal = "";
         clicksPerSecond = 0;
@@ -160,6 +188,7 @@ public class Clicker extends Application {
         rangeActual = 0;
         generalTimerElapsedMinutes = 0;
         generalTimerElapsedSeconds = 0;
+        generalTimerSecondsToDisplay = 0;
         countTimesPassTimeUntilSteveMoves = 1;
         leftClickCount = 0;
         rightClickCount = 0;
@@ -181,9 +210,11 @@ public class Clicker extends Application {
         metresTravelledLabel.setFont(font2);
         clickCountLabel.setForeground(Color.white);
         clickCountLabel.setFont(font1);
-        clickCountLabel.setText(clickCount+"m");
+        clickCountLabel.setText("0m");
+        perSecondLabelLabel.setText("");
         perSecondLabelLabel.setForeground(Color.yellow);
         perSecondLabelLabel.setFont(font2);
+        perSecondLabel.setText("");
         perSecondLabel.setForeground(Color.white);
         perSecondLabel.setFont(font2);
         obstacleConditionsTitle.setText("");
@@ -212,12 +243,15 @@ public class Clicker extends Application {
         price1.setHorizontalAlignment(RIGHT);
         price1.setForeground(Color.white);
         price1.setFont(font1);
+        price2.setText("");
         price2.setHorizontalAlignment(RIGHT);
         price2.setForeground(Color.white);
         price2.setFont(font1);
+        price3.setText("");
         price3.setHorizontalAlignment(RIGHT);
         price3.setForeground(Color.white);
         price3.setFont(font1);
+        price4.setText("");
         price4.setHorizontalAlignment(RIGHT);
         price4.setForeground(Color.white);
         price4.setFont(font1);
@@ -236,7 +270,7 @@ public class Clicker extends Application {
         button4.setText(LOCKED);
         button4.setFont(font1);
         button4.setForeground(Color.black);
-        button4.setActionCommand("AdvanceStage");
+        button4.setActionCommand(null);
         button5.setText("RestartGame");
         button5.setFont(font1);
         button5.setActionCommand("RestartGame");
@@ -434,7 +468,6 @@ public class Clicker extends Application {
         button4.setFont(font1);
         button4.setFocusPainted(false);
         button4.addActionListener(cHandler);
-        //button4.setActionCommand("AdvanceStage");
         button4.addMouseListener(mHandler);
         itemPanel.add(button4);
 
