@@ -740,43 +740,15 @@ public class Clicker extends Application {
 
     public void obstacleFailed() {
         if (stage == 3) {
-            preNitroCPS1 = 0;
-            preNitroCPS2 = 0;
-            preNitroCPS3 = 0;
-            preNitroCPS4 = 0;
-            preNitroCPS5 = 0;
+            preNitroCPS1 = 0; preNitroCPS2 = 0; preNitroCPS3 = 0; preNitroCPS4 = 0; preNitroCPS5 = 0;
+            originalGeneralTimerValue1 = 0; originalGeneralTimerValue2 = 0; originalGeneralTimerValue3 = 0; originalGeneralTimerValue4 = 0; originalGeneralTimerValue5 = 0;
+            nitroTicks1 = 0; nitroTicks2 = 0; nitroTicks3 = 0; nitroTicks4 = 0; nitroTicks5 = 0;
+            degradeNitro1 = false; degradeNitro2 = false; degradeNitro3 = false; degradeNitro4 = false; degradeNitro5 = false;
+            nitro1 = false; nitro2 = false; nitro3 = false; nitro4 = false; nitro5 = false;
+            nitroSpeedUp1 = false; nitroSpeedUp2 = false; nitroSpeedUp3 = false; nitroSpeedUp4 = false; nitroSpeedUp5 = false;
+            nitrosArray[0] = false; nitrosArray[1] = false; nitrosArray[2] = false; nitrosArray[3] = false; nitrosArray[4] = false;
             nitroBeingUsed = 0;
             numberOfActiveNitros = 0;
-            originalGeneralTimerValue1 = 0;
-            originalGeneralTimerValue2 = 0;
-            originalGeneralTimerValue3 = 0;
-            originalGeneralTimerValue4 = 0;
-            originalGeneralTimerValue5 = 0;
-            nitroTicks1 = 0;
-            nitroTicks2 = 0;
-            nitroTicks3 = 0;
-            nitroTicks4 = 0;
-            nitroTicks5 = 0;
-            degradeNitro1 = false;
-            degradeNitro2 = false;
-            degradeNitro3 = false;
-            degradeNitro4 = false;
-            degradeNitro5 = false;
-            nitro1 = false;
-            nitro2 = false;
-            nitro3 = false;
-            nitro4 = false;
-            nitro5 = false;
-            nitroSpeedUp1 = false;
-            nitroSpeedUp2 = false;
-            nitroSpeedUp3 = false;
-            nitroSpeedUp4 = false;
-            nitroSpeedUp5 = false;
-            nitrosArray[0] = false;
-            nitrosArray[1] = false;
-            nitrosArray[2] = false;
-            nitrosArray[3] = false;
-            nitrosArray[4] = false;
         }
         leftClickCount = 0;
         rightClickCount = 0;
