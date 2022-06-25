@@ -22,8 +22,9 @@ public class Clicker extends Application {
     final int DISTANCE_DISPLAY_OBSTACLE_BOARD_STAGE3 = 1200;
     final int DISTANCE_ENTER_OBSTACLE_ELIGIBILITY = 10;
     final int DISTANCE_TO_TRIGGER_FAST_OBSTACLE_RANGE_COUNTDOWN_SPEED = 10;
-    final int TIME_UNTIL_PENALTY = 600;
-    final int MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES = 8000;
+    final int TIME_UNTIL_PENALTY_STAGE2 = 600;
+    final int TIME_UNTIL_PENALTY_STAGE3 = 720;
+    final int MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES = 5000;
     final int MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES = 2000;
     final double WITHIN_RANGE_OBST_DISTANCE_COUNT_SPEED = 0.1;
     final double FAST_OBSTACLE_WITHIN_RANGE_COUNTDOWN_SPEED = 0.01;
@@ -49,7 +50,7 @@ public class Clicker extends Application {
     final int COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2 = 10;
     final int DISTANCE_TO_GARAGE_GATE = 25;
     final int DISTANCE_TO_STEVE = 30;
-    final int DISTANCE_TO_ESCAPE_PLANE = 100000;
+    final int DISTANCE_TO_ESCAPE_PLANE = 3000;
     final int COST_OF_FAILURE_STAGE3_START_VALUE = 1500;
     final int COST_OF_FAILURE_FOR_HITTING_STEVE = 10000;
     final int MAX_NORMAL_SPEED_OF_CAR_MINUS_1 = 69;
@@ -74,13 +75,13 @@ public class Clicker extends Application {
     JButton buttonAddNitros, button1, button2, button3, button4, button5;
     int stage, clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, distanceToEndOfStageGoal;
     int randomSteveMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, rangePermitted, rangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
-    int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilSteveMoves, leftClickCount, rightClickCount;
+    int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilEndOStageGoal, leftClickCount, rightClickCount;
     int timeUntilAddNitroButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
     double originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
     boolean failedObstacleWithinApproachOfEndOfStageGoal, approachingEndOfStageGoalFlag, checkTimeSteveMoveCount, startDelayTimerFlag, countDownToPassObstacleOn, startCountDownToPassObstacleFlag, wasPassingNowFailing, moreThanOneMinuteElapsedFlag;
-    boolean timerNitroAddButtonDisappearFlag, nitroSpeedUp1, nitroSpeedUp2, nitroSpeedUp3, nitroSpeedUp4, nitroSpeedUp5, nitro1, nitro2, nitro3, nitro4, nitro5, degradeNitro1, degradeNitro2, degradeNitro3, degradeNitro4, degradeNitro5, overDrive, atStartEngineScreen;
+    boolean gameOverFlag, timerNitroAddButtonDisappearFlag, nitroSpeedUp1, nitroSpeedUp2, nitroSpeedUp3, nitroSpeedUp4, nitroSpeedUp5, nitro1, nitro2, nitro3, nitro4, nitro5, degradeNitro1, degradeNitro2, degradeNitro3, degradeNitro4, degradeNitro5, overDrive, atStartEngineScreen;
     boolean[] nitrosArray = {false, false, false, false, false};
     Font font1, font2, font3;
     ClickHandler cHandler = new ClickHandler();
@@ -267,7 +268,7 @@ public class Clicker extends Application {
         JPanel itemPanel = new JPanel();
         itemPanel.setBounds(500,150,280,250);
         itemPanel.setBackground(Color.black);
-        itemPanel.setLayout(new GridLayout(5,1));
+        itemPanel.setLayout(new GridLayout(4,1));
         window.add(itemPanel);
 
         button1 = new JButton(LOCKED);
@@ -301,13 +302,13 @@ public class Clicker extends Application {
         button4.addMouseListener(mHandler);
         itemPanel.add(button4);
 
-        button5 = new JButton("RestartGame");
-        button5.setFont(font1);
-        button5.setFocusPainted(false);
-        button5.addActionListener(cHandler);
-        button5.setActionCommand("RestartGame");
-        button5.addMouseListener(mHandler);
-        itemPanel.add(button5);
+//        button5 = new JButton("RestartGame");
+//        button5.setFont(font1);
+//        button5.setFocusPainted(false);
+//        button5.addActionListener(cHandler);
+//        button5.setActionCommand("RestartGame");
+//        button5.addMouseListener(mHandler);
+//        itemPanel.add(button5);
 
         JPanel messagePanel = new JPanel();
         messagePanel.setBounds(530,25,140,150);
@@ -495,9 +496,9 @@ public class Clicker extends Application {
                 }
                 if (!approachingEndOfStageGoalFlag) {
                     if (stage == 2) {
-                        generalTimerElapsedLabel.setText("Steve Moves Every 10 Minutes:");
+                        generalTimerElapsedLabel.setText("Steve Moves Every " + (TIME_UNTIL_PENALTY_STAGE2 / 60) + " Minutes:");
                     } else if (stage == 3) {
-                        generalTimerElapsedLabel.setText("Escape Aircraft Leaves In 10 min!");
+                        generalTimerElapsedLabel.setText("Escape Plane Leaves In " + (TIME_UNTIL_PENALTY_STAGE3 / 60) + " min!");
                     }
                 }
                 if (generalTimerElapsedSeconds >= 60 && generalTimerSecondsToDisplay >= 60) {
@@ -523,7 +524,7 @@ public class Clicker extends Application {
                     }
                 }
                 if (stage == 2) {
-                    if (generalTimerElapsedSeconds % TIME_UNTIL_PENALTY == 0 && !checkTimeSteveMoveCount) {
+                    if (generalTimerElapsedSeconds % TIME_UNTIL_PENALTY_STAGE2 == 0 && !checkTimeSteveMoveCount) {
                         checkTimeSteveMoveCount = true;
                         randomSteveMovementModifier = (int) ((Math.random() * (MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES - MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES)) + MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES);
                         distanceToEndOfStageGoal = distanceToEndOfStageGoal + randomSteveMovementModifier;
@@ -533,17 +534,17 @@ public class Clicker extends Application {
                             distanceToGoLabel.setText(distanceToEndOfStageGoal + "m");
                         }
                     }
-                    if (generalTimerElapsedSeconds >= (TIME_UNTIL_PENALTY * countTimesPassTimeUntilSteveMoves) - 30 && generalTimerElapsedSeconds < (TIME_UNTIL_PENALTY * countTimesPassTimeUntilSteveMoves)) {
+                    if (generalTimerElapsedSeconds >= (TIME_UNTIL_PENALTY_STAGE2 * countTimesPassTimeUntilEndOStageGoal) - 30 && generalTimerElapsedSeconds < (TIME_UNTIL_PENALTY_STAGE2 * countTimesPassTimeUntilEndOStageGoal)) {
                         generalTimerElapsedValue.setForeground(Color.red);
                         checkTimeSteveMoveCount = false;
-                    } else if (generalTimerElapsedSeconds >= TIME_UNTIL_PENALTY * countTimesPassTimeUntilSteveMoves && !approachingEndOfStageGoalFlag) {
+                    } else if (generalTimerElapsedSeconds >= TIME_UNTIL_PENALTY_STAGE2 * countTimesPassTimeUntilEndOStageGoal && !approachingEndOfStageGoalFlag) {
                         generalTimerElapsedValue.setForeground(Color.white);
                         generalTimerElapsedValue.setText("0:00");
-                        countTimesPassTimeUntilSteveMoves++;
+                        countTimesPassTimeUntilEndOStageGoal++;
                         generalTimerElapsedMinutes = 0;
                         generalTimerSecondsToDisplay = 0;
                     }
-                } else if (stage == 3 && generalTimerElapsedSeconds >= TIME_UNTIL_PENALTY) {
+                } else if (stage == 3 && generalTimerElapsedSeconds >= TIME_UNTIL_PENALTY_STAGE3) {
                     gameOver();
                 }
                 if (!countDownToPassObstacleOn) {
@@ -791,36 +792,41 @@ public class Clicker extends Application {
         } else {
             if (stage == 2) {
                 passFailObstacle.setText("YOU HIT STEVE!!");
+                gameOver();
             } else if (stage == 3) {
                 passFailObstacle.setText("PLANE DESTROYED!!");
                 gameOver();
             }
-            failedObstacleWithinApproachOfEndOfStageGoal = false;
-            unsetEndOfStageGoalApproach();
-        }
-                startDelayTimerFlag = true;
-        delayPanelAfterObstacleTimerUpdate();
-        if (clickCount >= costOfFailureValue) { //subtract clicks for failing
-            clickCount = clickCount - costOfFailureValue;
-        } else { // set clicks to zero if garage gate
-            clickCount = 0;
-        }
-        distanceToEndOfStageGoal = distanceToEndOfStageGoal + costOfFailureValue;
-        if (costOfFailureFirstIterationFlag) {
-            costOfFailureFirstIterationFlag = false;
-        } else {
-            countDownToPassObstacleTimer.stop();
-        }
-        countDownToPassObstacleOn = false;
-        setupNextObstacle(passObstacleFlag, distanceToEndOfStageGoalAfterFail);
-        passObstacleFlag = 0;
-        startCountDownToPassObstacleFlag = false;
-        if (approachingEndOfStageGoalFlag) { //fail actually on steve
-            if (!failedObstacleWithinApproachOfEndOfStageGoal) {
+            if (!gameOverFlag) {
+                failedObstacleWithinApproachOfEndOfStageGoal = false;
                 unsetEndOfStageGoalApproach();
             }
-        } else if (failedObstacleWithinApproachOfEndOfStageGoal) { //fail previous to steve but within range
-            endOfStageGoalApproach(distanceToEndOfStageGoalAfterFail);
+        }
+        if (!gameOverFlag) {
+            startDelayTimerFlag = true;
+            delayPanelAfterObstacleTimerUpdate();
+            if (clickCount >= costOfFailureValue) { //subtract clicks for failing
+                clickCount = clickCount - costOfFailureValue;
+            } else { // set clicks to zero if garage gate
+                clickCount = 0;
+            }
+            distanceToEndOfStageGoal = distanceToEndOfStageGoal + costOfFailureValue;
+            if (costOfFailureFirstIterationFlag) {
+                costOfFailureFirstIterationFlag = false;
+            } else {
+                countDownToPassObstacleTimer.stop();
+            }
+            countDownToPassObstacleOn = false;
+            setupNextObstacle(passObstacleFlag, distanceToEndOfStageGoalAfterFail);
+            passObstacleFlag = 0;
+            startCountDownToPassObstacleFlag = false;
+            if (approachingEndOfStageGoalFlag) { //fail actually on steve
+                if (!failedObstacleWithinApproachOfEndOfStageGoal) {
+                    unsetEndOfStageGoalApproach();
+                }
+            } else if (failedObstacleWithinApproachOfEndOfStageGoal) { //fail previous to steve but within range
+                endOfStageGoalApproach(distanceToEndOfStageGoalAfterFail);
+            }
         }
     }
 
@@ -828,7 +834,7 @@ public class Clicker extends Application {
         approachingEndOfStageGoalFlag = false;
         generalTimerElapsedLabel.setForeground(Color.yellow);
         if (stage == 2) {
-            generalTimerElapsedLabel.setText("Steve Moves Every 10 Minutes:");
+            generalTimerElapsedLabel.setText("Steve Moves Every " + (TIME_UNTIL_PENALTY_STAGE2 / 60) + " Minutes:");
             distanceToGoTitleLabel.setText("Distance to Steve:");
         } else if (stage == 3) {
             generalTimerElapsedLabel.setText("Escape Aircraft Leaves In 10 min!");
@@ -1190,8 +1196,7 @@ public class Clicker extends Application {
                 break;
                 case "Mechanic":
                     if(clickCount == mechanicPrice && stage == 1){
-                        stage = 0;
-                        if (button3ClickIteration==0) {
+                        if (button3ClickIteration == 0) {
                             button3.setText("Car is 0% fixed");
                             clickCountLabel.setText("0m");
                         }
@@ -1202,8 +1207,9 @@ public class Clicker extends Application {
                         repairCounterPercent = (float) repairCounter / CLICKS_TO_FIX_CAR * 100;
                         String repairPercentString = String.format("%.2f", repairCounterPercent);
                         button3.setText(repairPercentString + "% fixed");
-                        repairCounterPercent = 100; //DEBUG LINE
+                        repairCounterPercent = 100; //DEBUG LINE - repairCounterPercent = 100; for debug delete for normal
                         if ((int)repairCounterPercent == 100) {
+                            stage = 0;
                             carInMechanic = false;
                             clickCount=0;
                             button3.setText("Car Fixed!");
@@ -1225,9 +1231,11 @@ public class Clicker extends Application {
                 case "AdvanceStage":
                     if (repairCounterPercent == 100 && (stage != 2 || stage != 3)) {
                         atStartEngineScreen = false;
+                        Utils.playSound("startCar.mp3");
                         letsDrive();
                     } else if (stage == 2) {
                         atStartEngineScreen = false;
+                        Utils.playSound("startCar.mp3");
                         beatStage2SetupStage3();
                     }
                 break;
@@ -1499,7 +1507,7 @@ public class Clicker extends Application {
         stage = 3;
         nitrousBoostsRemainingCount = NITROUS_COUNT;
         nextObstDistance = FIRST_OBSTACLE_STAGE3;
-        generalTimerElapsedLabel.setText("Escape Aircraft Leaves In 10 min!");
+        generalTimerElapsedLabel.setText("Escape Plane Leaves In " + (TIME_UNTIL_PENALTY_STAGE3 / 60) + " min!");
         generalTimerElapsedValue.setForeground(Color.white);
         generalTimerElapsedValue.setText("0:00");
         clickCountLabel.setText("0m");
@@ -1540,7 +1548,11 @@ public class Clicker extends Application {
 
     private void gameOver() {
         generalTimerElapsedValue.setForeground(Color.red);
-        generalTimerElapsedValue.setText("ESCAPE PLANE LEFT!");
+        if (stage == 2) {
+            generalTimerElapsedValue.setText("YOU HIT STEVE!!");
+        } else if (stage == 3){
+            generalTimerElapsedValue.setText("PLANE LEFT!");
+        }
         passFailObstacle.setForeground(Color.red);
         passFailObstacle.setFont(font3);
         passFailObstacle.setText("GAME OVER!");
@@ -1556,6 +1568,9 @@ public class Clicker extends Application {
         button4.setActionCommand("RestartGame");
         button4.setText("Restart Game");
         System.out.println("Game Over");
+        timer.stop();
+        generalElapsedCounter.stop();
+        gameOverFlag = true;
     }
 
     private void temporarilyLockPowerUpsForMechanicMiniGame(int toggle) {
@@ -1609,24 +1624,25 @@ public class Clicker extends Application {
             if (stage != 1 && driveFirstClickFlag == 0 && button == button4) {
                 driveFirstClickFlag = 1;
                 BeginningOfADrivingStage = false;
-                Utils.playSound("startCar.mp3");
             }
             if (stage == 2 || stage == 3) {
                 if (button == button1) {
-                    messageText.setText("\n\n\nAccelerate by 1m/s");
+                    messageText.setText("\nAccelerate by 1m/s");
                 }
-                if (button == button2) {
-                    messageText.setText("\n\n\nSlow by 1m/s");
+                if (button == button2 && stage == 2) {
+                    messageText.setText("\nSlow by 1m/s");
+                } else if (button == button2 && stage == 3) {
+                        messageText.setText("\nSlow by 1m/s\nOr if nitros are active, kill them!");
                 }
                 if (button == button3 && stage == 2) {
-                    messageText.setText("\n\n\nSwerve Left!");
+                    messageText.setText("\nSwerve Left!");
                 } else if (button == button3 && stage == 3) {
-                    messageText.setText("\n\nToggle OverDrive\nMust be at " + OVERDRIVE_TOGGLE_SPEED + "m/s");
+                    messageText.setText("Toggle OverDrive\nMust be at 70+m/s\nAllows further acceleration & nitros!");
                 }
                 if (button == button4 && stage == 2) {
-                    messageText.setText("\n\n\nSwerve Right!");
+                    messageText.setText("\nSwerve Right!");
                 } else if (button == button4 && stage == 3) {
-                    messageText.setText("\nNitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!");
+                    messageText.setText("Nitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!" + "\nAnd OverDrive needs to be on!");
                 }
             }
         }
@@ -1666,37 +1682,47 @@ public class Clicker extends Application {
                         messageText.setText("You arrived at the mechanic! Phew!\nSpend " + PRICE_TO_UNLOCK_MECHANIC + " + " + CLICKS_TO_FIX_CAR + " clicks to\nrepair your wheels!");
                     }
                 } else if (button == button4) {
-                    if (atStartEngineScreen) {
-                            messageText.setText("\n\nStart your engine and\nbegin stage 2 part 1!");
-                        }
-                    } else {
+                    if (stage == 1) {
                         messageText.setText("\n\n\nThis item is currently locked!");
                     }
                 }
+            }
             if ((stage == 2 || stage == 3) && !atStartEngineScreen) {
                 if (button == buttonAddNitros) {
                     messageText.setText("\n\n\nAdd " + NITROS_TO_ADD_WHEN_BUTTON_CLICKED + " Nitros!");
                 }
                 if (button == button1) {
-                    messageText.setText("\n\n\nAccelerate by 1m/s");
+                    messageText.setText("\nAccelerate by 1m/s");
                 }
-                if (button == button2 && driveFirstClickFlag != 0) {
-                    messageText.setText("\n\n\nSlow by 1m/s");
+                if (stage == 2 && button == button2) {
+                    messageText.setText("\nSlow by 1m/s");
+                }
+                if (stage == 3 && button == button2 && driveFirstClickFlag != 0) {
+                    messageText.setText("\nSlow by 1m/s\nOr if nitros are active, kill them!");
                 }
                 if (button == button3 && stage == 2) {
-                    messageText.setText("\n\n\nSwerve Left!");
+                    messageText.setText("\nSwerve Left!");
                 } else if (button == button3 && stage == 3) {
-                    messageText.setText("\n\nToggle OverDrive\nMust be at 70+m/s");
+                    messageText.setText("Toggle OverDrive\nMust be at 70+m/s\nAllows further acceleration & nitros!");
                 }
                 if (button == button4 && stage == 2) {
-                    messageText.setText("\n\n\nSwerve Right!");
+                    messageText.setText("\nSwerve Right!");
                 } else if (button == button4 && stage == 3) {
-                    messageText.setText("\nNitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!");
+                    messageText.setText("Nitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!" + "\nAnd OverDrive needs to be on!");
                 }
             } else if ((stage == 2 || stage == 3) && (button == button1 || button == button2 || button == button3)) {
                 messageText.setText("\n\n\nThis item is currently locked!");
-            } else if ((stage == 2 || stage == 3) && button == button4) {
-                messageText.setText("\n\nStart your engine and\nbegin stage 2 part 2!");
+            } else if ((stage == 0 && button == button1)) {
+                messageText.setText("\n\n\nThis item is currently locked!");
+            } else if ((stage == 0 && button == button2)) {
+                messageText.setText("\n\n\nThis item is currently locked!");
+            } else if ((stage == 0 && button == button3)) {
+                messageText.setText("\nGarage Closed\nCar already repaired!");
+            }
+                else if ((stage == 0 && button == button4)) {
+                    messageText.setText("\n\nStart your engine and\nbegin stage 2");
+            }else if (((stage == 2 || stage == 3) && button == button4)) {
+                messageText.setText("\n\nStart your engine and\nbegin stage 3");
             }
         }
         @Override
@@ -1723,7 +1749,7 @@ public class Clicker extends Application {
 
     private void setInitialVariables(boolean restart) {
         if (restart) {
-            timerNitroAddButtonDisappearFlag = false; BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; autoClickerUnlocked = false; towTruckUnlocked = false; mechanicTriggeredYet = false; mechanicUnlocked = false; driveUnlocked = false; carInMechanic = false; accelerateClickedFlag = false; displayObstacleConditionsFlag = false; costOfFailureFirstIterationFlag = false;
+            gameOverFlag = false; timerNitroAddButtonDisappearFlag = false; BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; autoClickerUnlocked = false; towTruckUnlocked = false; mechanicTriggeredYet = false; mechanicUnlocked = false; driveUnlocked = false; carInMechanic = false; accelerateClickedFlag = false; displayObstacleConditionsFlag = false; costOfFailureFirstIterationFlag = false;
             failedObstacleWithinApproachOfEndOfStageGoal = false; approachingEndOfStageGoalFlag = false; checkTimeSteveMoveCount = false; startDelayTimerFlag = false; countDownToPassObstacleOn = false; startCountDownToPassObstacleFlag = false; wasPassingNowFailing = false; moreThanOneMinuteElapsedFlag = false;
             degradeNitro1 = false; degradeNitro2 = false; degradeNitro3 = false; degradeNitro4 = false; degradeNitro5 = false; nitro1 = false; nitro2 = false; nitro3 = false; nitro4 = false; nitro5 = false; nitroSpeedUp1 = false; nitroSpeedUp2 = false; nitroSpeedUp3 = false; nitroSpeedUp4 = false; nitroSpeedUp5 = false; overDrive = false; atStartEngineScreen = false;
             try {
@@ -1781,7 +1807,7 @@ public class Clicker extends Application {
         generalTimerElapsedMinutes = 0;
         generalTimerElapsedSeconds = 0;
         generalTimerSecondsToDisplay = 0;
-        countTimesPassTimeUntilSteveMoves = 1;
+        countTimesPassTimeUntilEndOStageGoal = 1;
         leftClickCount = 0;
         rightClickCount = 0;
         requiredLeftClicks = 0;
@@ -1862,9 +1888,6 @@ public class Clicker extends Application {
             button4.setFont(font1);
             button4.setForeground(Color.black);
             button4.setActionCommand(null);
-            button5.setText("RestartGame");
-            button5.setFont(font1);
-            button5.setActionCommand("RestartGame");
             distanceToGoTitleLabel.setText("");
             distanceToGoTitleLabel.setForeground(Color.yellow);
             distanceToGoTitleLabel.setFont(font2);
