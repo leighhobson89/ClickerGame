@@ -614,10 +614,6 @@ public class Clicker extends Application {
                 price4.setText(CLICKS_TO_FIX_CAR + "m");
                 temporarilyLockPowerUpsForMechanicMiniGame(1);
             }
-//            if ((stage == 2 || stage == 3) && approachingEndOfStageGoalFlag && nextObstDistance == 0 && (rangeActual > rangePermitted || rangeActual < 0)) {
-//                button2.doClick();
-//                button3.doClick();
-//            }
         });
     }
 
