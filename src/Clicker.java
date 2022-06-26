@@ -23,7 +23,7 @@ public class Clicker extends Application {
     final int DISTANCE_ENTER_OBSTACLE_ELIGIBILITY = 10;
     final int DISTANCE_TO_TRIGGER_FAST_OBSTACLE_RANGE_COUNTDOWN_SPEED = 10;
     final int TIME_UNTIL_PENALTY_STAGE2 = 600;
-    final int TIME_UNTIL_PENALTY_STAGE3 = 720;
+    final int TIME_UNTIL_PENALTY_STAGE3 = 60;
     final int MAX_DISTANCE_TO_ADD_IF_STEVE_MOVES = 5000;
     final int MIN_DISTANCE_TO_ADD_IF_STEVE_MOVES = 2000;
     final double WITHIN_RANGE_OBST_DISTANCE_COUNT_SPEED = 0.1;
@@ -523,6 +523,9 @@ public class Clicker extends Application {
                         }
                     }
                 }
+                if (stage == 3 && generalTimerElapsedSeconds >= (TIME_UNTIL_PENALTY_STAGE3 * countTimesPassTimeUntilEndOStageGoal) - 30 && generalTimerElapsedSeconds < (TIME_UNTIL_PENALTY_STAGE3 * countTimesPassTimeUntilEndOStageGoal)) {
+                    generalTimerElapsedValue.setForeground(Color.red);
+                }
                 if (stage == 2) {
                     if (generalTimerElapsedSeconds % TIME_UNTIL_PENALTY_STAGE2 == 0 && !checkTimeSteveMoveCount) {
                         checkTimeSteveMoveCount = true;
@@ -547,7 +550,7 @@ public class Clicker extends Application {
                 } else if (stage == 3 && generalTimerElapsedSeconds >= TIME_UNTIL_PENALTY_STAGE3) {
                     gameOver();
                 }
-                if (!countDownToPassObstacleOn) {
+                if (!countDownToPassObstacleOn && !gameOverFlag) {
                     nextObstDistance--;
                 } else {
                     if (nextObstDistance < DISTANCE_TO_TRIGGER_FAST_OBSTACLE_RANGE_COUNTDOWN_SPEED) {
@@ -557,7 +560,7 @@ public class Clicker extends Application {
                         nextObstDistance = nextObstDistance - WITHIN_RANGE_OBST_DISTANCE_COUNT_SPEED;
                     }
                 }
-                if (secondsElapsedDelayToRemoveObstaclePanel > 2) {
+                if (!gameOverFlag && secondsElapsedDelayToRemoveObstaclePanel > 2) {
                     passFailObstacle.setText("");
                 }
                 if (!approachingEndOfStageGoalFlag) {
@@ -583,7 +586,7 @@ public class Clicker extends Application {
                     }
                     countDownToPassObstacleTimerUpdate();
                 }
-                if (!displayObstacleConditionsFlag) {
+                if (!gameOverFlag && !displayObstacleConditionsFlag) {
                     countDisplay = 0;
                     obstacleConditionsTitle.setText("");
                     obstacleConditions.setText("");
@@ -708,8 +711,19 @@ public class Clicker extends Application {
 
     private void displayObstaclePassConditions(int count) {
         if (count == 1) { //bug fix for when passing and no button clicks allowing passing of next obstacle
+            double originalSpeed = clicksPerSecond;
             button2.doClick();
             button1.doClick();
+            if (originalSpeed > clicksPerSecond) {
+                while (originalSpeed > clicksPerSecond) {
+                    button1.doClick();
+                }
+            }
+            if (originalSpeed < clicksPerSecond) {
+                while (originalSpeed < clicksPerSecond) {
+                    button2.doClick();
+                }
+            }
             Integer mS = ((int) clicksPerSecond);
             speedKmH = clicksPerSecond * 3.6;
             String kmHr = String.format("%.1f", speedKmH);
@@ -788,10 +802,8 @@ public class Clicker extends Application {
             }
         } else {
             if (stage == 2) {
-                passFailObstacle.setText("YOU HIT STEVE!!");
                 gameOver();
             } else if (stage == 3) {
-                passFailObstacle.setText("PLANE DESTROYED!!");
                 gameOver();
             }
             if (!gameOverFlag) {
@@ -1547,7 +1559,9 @@ public class Clicker extends Application {
         generalTimerElapsedValue.setForeground(Color.red);
         if (stage == 2) {
             generalTimerElapsedValue.setText("YOU HIT STEVE!!");
-        } else if (stage == 3){
+        } else if (stage == 3 && nextObstDistance == 0){
+            generalTimerElapsedValue.setText("PLANE SMASHED!");
+        } else if (stage == 3) {
             generalTimerElapsedValue.setText("PLANE LEFT!");
         }
         passFailObstacle.setForeground(Color.red);
@@ -1559,10 +1573,12 @@ public class Clicker extends Application {
         button1.setText(LOCKED);
         button2.setText(LOCKED);
         button3.setText(LOCKED);
+        button3.setForeground(Color.black);
         button1.setActionCommand("");
         button2.setActionCommand("");
         button3.setActionCommand("");
         button4.setActionCommand("RestartGame");
+        buttonAddNitros.setActionCommand(null);
         button4.setText("Restart Game");
         System.out.println("Game Over");
         timer.stop();
@@ -1642,6 +1658,23 @@ public class Clicker extends Application {
                     messageText.setText("Nitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!" + "\nAnd OverDrive needs to be on!");
                 }
             }
+            if (gameOverFlag) {
+                if (button == button1) {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
+                if (button == button2) {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
+                if (button == button3) {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
+                if (button == button4) {
+                    messageText.setText("\n\n\nClick to Restart Game");
+                }
+                if (button == buttonAddNitros) {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
+            }
         }
 
         @Override
@@ -1715,11 +1748,27 @@ public class Clicker extends Application {
                 messageText.setText("\n\n\nThis item is currently locked!");
             } else if ((stage == 0 && button == button3)) {
                 messageText.setText("\nGarage Closed\nCar already repaired!");
-            }
-                else if ((stage == 0 && button == button4)) {
+            } else if ((stage == 0 && button == button4)) {
                     messageText.setText("\n\nStart your engine and\nbegin stage 2");
-            }else if (((stage == 2 || stage == 3) && button == button4)) {
+            } else if (((stage == 2 || stage == 3) && button == button4)) {
                 messageText.setText("\n\nStart your engine and\nbegin stage 3");
+            }
+            if (gameOverFlag) {
+                if (button == button1) {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
+                if (button == button2) {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
+                if (button == button3) {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
+                if (button == button4) {
+                    messageText.setText("\n\n\nClick to Restart Game");
+                }
+                if (button == buttonAddNitros) {
+                    messageText.setText("\n\n\nThis item is currently locked!");
+                }
             }
         }
         @Override
@@ -1885,6 +1934,7 @@ public class Clicker extends Application {
             button4.setFont(font1);
             button4.setForeground(Color.black);
             button4.setActionCommand(null);
+            buttonAddNitros.setVisible(false);
             distanceToGoTitleLabel.setText("");
             distanceToGoTitleLabel.setForeground(Color.yellow);
             distanceToGoTitleLabel.setFont(font2);
