@@ -631,7 +631,7 @@ public class Clicker extends Application {
             perSecondLabel.setText(clicksPerSecond + "m/s");
             timerUpdate(nitroBeingUsed);
         }
-        if (stage == 3){
+        if (stage == 3) {
             int value = (int) (Math.random() * NUMBER_OF_OBSTACLES_IN_AIRPORT_DASH_ARRAY_MINUS_1) + 1; //pick a new obstacle
             obstacleType = obstacleNameArrayStg3[value];
             obstacleTarget = value;
@@ -640,13 +640,22 @@ public class Clicker extends Application {
             nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG3 - MIN_NEW_OBSTACLE_DISTANCE_STG3)) + MIN_NEW_OBSTACLE_DISTANCE_STG3); //distance of next obstacle
             nextSuccessfulObstacleLeavesDistance = distanceToEndOfStageGoal - nextObstDistance;
             int count = 0;
-            while (nextSuccessfulObstacleLeavesDistance <= 2000) {
-                nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG3 - MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3)) + MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3); //distance of next obstacle
-                nextSuccessfulObstacleLeavesDistance = distanceToEndOfStageGoal - nextObstDistance;
-                approachTrigger = 1;
-                count++;
+            if (approachTrigger == 0) {
+                while (nextSuccessfulObstacleLeavesDistance <= 2000) {
+                    nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG3 - MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3)) + MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3); //distance of next obstacle
+                    nextSuccessfulObstacleLeavesDistance = distanceToEndOfStageGoal - nextObstDistance;
+                    approachTrigger = 1;
+                    count++;
+                }
+            } else if (approachTrigger == 1) {
+                while (nextSuccessfulObstacleLeavesDistance <= 500) {
+                    nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG3 - MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3)) + MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3); //distance of next obstacle
+                    nextSuccessfulObstacleLeavesDistance = distanceToEndOfStageGoal - nextObstDistance;
+                    approachTrigger = 2;
+                    count++;
+                }
             }
-            System.out.println("Loop ran " + count + " times!");
+            System.out.println("approachTrigger" + approachTrigger + " loop ran " + count + " times!");
             if (!approachingEndOfStageGoalFlag) {
                 distanceToNextObstacleLabel.setText((int) nextObstDistance + "m");
             }
@@ -660,7 +669,7 @@ public class Clicker extends Application {
         } else {
             endOfStageGoalApproach(distanceToEndOfStageGoalAfterFailure, approachTrigger);
         }
-        if (approachTrigger == 1) {
+        if (approachTrigger == 1 || approachTrigger == 2 || approachTrigger == 3) {
             endOfStageGoalApproach(distanceToEndOfStageGoalAfterFailure, approachTrigger);
         }
         if (distanceToEndOfStageGoal > 2500 && stage == 2) {
@@ -692,28 +701,45 @@ public class Clicker extends Application {
     }
 
     private void endOfStageGoalApproach(int distanceToEndOfStageGoalAfterFailure, int approachTrigger) {
-        if (approachTrigger == 1) {
-            obstacleType = obstacleNameArrayStg3[9];
-            obstacleTarget = 9;
-            whatIsNextObstacle.setText(obstacleType);
-            distanceToNextObstacleTitleLabel.setText("Distance to obstacle:");
-            distanceToNextObstacleLabel.setText((int) nextObstDistance + "m");
-        }
-        if (approachTrigger == 0 && ((stage == 2 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 2500) || (stage == 3 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 3000) || (stage == 3 && distanceToEndOfStageGoal < 3000) || (stage == 2 && distanceToEndOfStageGoal < 2500))) {
-            approachingEndOfStageGoalFlag = true;
-            if (stage == 2) {
-                generalTimerElapsedLabel.setText("Steve will wait for you!");
-                costOfFailureValue = COST_OF_FAILURE_FOR_HITTING_STEVE;
-                obstacleType = obstacleNameArrayStg2[20];
-                obstacleTarget = 20;
-                distanceToGoTitleLabel.setText("STOP WITHIN 10m OF STEVE!");
-            } else if (stage == 3) {
+        if ((stage == 3 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 3000) || (stage == 3 && distanceToEndOfStageGoal < 3000)) {
+            if (approachTrigger == 1) {
+                obstacleType = obstacleNameArrayStg3[9];
+                obstacleTarget = 9;
+                whatIsNextObstacle.setText(obstacleType);
+                distanceToNextObstacleTitleLabel.setText("Distance to obstacle:");
+                distanceToNextObstacleLabel.setText((int) nextObstDistance + "m");
+            }
+            if (approachTrigger == 2) {
+                obstacleType = obstacleNameArrayStg3[10];
+                obstacleTarget = 10;
+                whatIsNextObstacle.setText(obstacleType);
+                distanceToNextObstacleTitleLabel.setText("Distance to obstacle:");
+                distanceToNextObstacleLabel.setText((int) nextObstDistance + "m");
+            }
+            if (approachTrigger == 3) {
+                approachingEndOfStageGoalFlag = true;
                 generalTimerElapsedLabel.setText("The escape plane is ready!");
                 costOfFailureValue = clickCount;
                 obstacleType = obstacleNameArrayStg3[11];
                 obstacleTarget = 11;
                 distanceToGoTitleLabel.setText("STOP WITHIN 10m OF THE PLANE!");
+                whatIsNextObstacle.setText("");
+                nextObstDistance = distanceToEndOfStageGoal; //distance of next obstacle
+                distanceToNextObstacleTitleLabel.setText("");
+                distanceToNextObstacleLabel.setText("");
+                distanceToGoTitleLabel.setForeground(Color.red);
+                countDownToPassObstacleOn = false;
+                originalTimerObstacleValue = 3;
+                timerObstacleValue = originalTimerObstacleValue;
             }
+        }
+        if ((stage == 2 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 2500)  || (stage == 2 && distanceToEndOfStageGoal < 2500)) {
+            approachingEndOfStageGoalFlag = true;
+            generalTimerElapsedLabel.setText("Steve will wait for you!");
+            costOfFailureValue = COST_OF_FAILURE_FOR_HITTING_STEVE;
+            obstacleType = obstacleNameArrayStg2[20];
+            obstacleTarget = 20;
+            distanceToGoTitleLabel.setText("STOP WITHIN 10m OF STEVE!");
             generalTimerElapsedValue.setForeground(Color.green);
             generalTimerElapsedValue.setText("WAITING");
             whatIsNextObstacle.setText("");
