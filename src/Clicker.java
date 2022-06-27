@@ -39,21 +39,21 @@ public class Clicker extends Application {
     final int CLICKS_TO_FIX_CAR = 500;
     final int NUMBER_OF_OBSTACLES_IN_STEVE_ARRAY_MINUS_1 = 19;
     final int NUMBER_OF_OBSTACLES_IN_AIRPORT_DASH_ARRAY_MINUS_1 = 8;
-    final int MAX_NEW_OBSTACLE_DISTANCE_STG2_1 = 2000;
-    final int MIN_NEW_OBSTACLE_DISTANCE_STG2_1 = 650;
-    final int MAX_NEW_OBSTACLE_DISTANCE_STG3 = 12000;
+    final int MAX_NEW_OBSTACLE_DISTANCE_STG2 = 2000;
+    final int MIN_NEW_OBSTACLE_DISTANCE_STG2 = 650;
+    final int MAX_NEW_OBSTACLE_DISTANCE_STG3 = 10000;
     final int MIN_NEW_OBSTACLE_DISTANCE_STG3 = 5000;
     final int MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3 = 800;
-    final int MAX_NEW_TIMER_AMOUNT = 7;
-    final int MIN_NEW_TIMER_AMOUNT = 5;
+    final int MAX_NEW_TIMER_AMOUNT = 6;
+    final int MIN_NEW_TIMER_AMOUNT = 4;
     final int COST_OF_FAILURE_FIRST_ITERATION_FACTOR = 12;
     final int COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR1 = 33;
     final int COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2 = 10;
     final int DISTANCE_TO_GARAGE_GATE = 25;
     final int DISTANCE_TO_STEVE = 30;
-    final int DISTANCE_TO_ESCAPE_PLANE = 15000;
+    final int DISTANCE_TO_ESCAPE_PLANE = 50000;
     final int COST_OF_FAILURE_STAGE3_START_VALUE = 1500;
-    final int COST_OF_FAILURE_FOR_HITTING_STEVE = 10000;
+    final int COST_OF_FAILURE_FOR_FAILING_APPROACH_OR_END_OF_STAGE_OBSTACLE = 10000;
     final int MAX_NORMAL_SPEED_OF_CAR_MINUS_1 = 69;
     final int MAX_OVERDRIVE_SPEED_OF_CAR_MINUS_1 = 99;
     final int MAX_NO_OF_TURNING_CLICKS = 10;
@@ -64,9 +64,9 @@ public class Clicker extends Application {
     final int MAX_SPEED_BOOST_CAN_BE_USED = 320;
     final int BOOST_AMOUNT_DELIVERED = 50;
     final int MAX_NUMBER_OF_SIMULTANEOUS_NITROS = 5;
-    final int BOOST_DURATION = 7;
+    final int BOOST_DURATION = 8;
     final int TIME_TO_WAIT_TO_ADD_NITROS = 60;
-    final int NITROS_TO_ADD_WHEN_BUTTON_CLICKED = 20;
+    final int NITROS_TO_ADD_WHEN_BUTTON_CLICKED = 15;
 
     //---------------------------------------------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ public class Clicker extends Application {
     float repairCounterPercent;
     boolean BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, autoClickerUnlocked, towTruckUnlocked, mechanicTriggeredYet, mechanicUnlocked, driveUnlocked, carInMechanic, accelerateClickedFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
     boolean failedObstacleWithinApproachOfEndOfStageGoal, approachingEndOfStageGoalFlag, checkTimeSteveMoveCount, startDelayTimerFlag, countDownToPassObstacleOn, startCountDownToPassObstacleFlag, wasPassingNowFailing, moreThanOneMinuteElapsedFlag;
-    boolean adjustmentFlag, gameOverFlag, timerNitroAddButtonDisappearFlag, nitroSpeedUp1, nitroSpeedUp2, nitroSpeedUp3, nitroSpeedUp4, nitroSpeedUp5, nitro1, nitro2, nitro3, nitro4, nitro5, degradeNitro1, degradeNitro2, degradeNitro3, degradeNitro4, degradeNitro5, overDrive, atStartEngineScreen;
+    boolean approachFlag, adjustmentFlag, gameOverFlag, timerNitroAddButtonDisappearFlag, nitroSpeedUp1, nitroSpeedUp2, nitroSpeedUp3, nitroSpeedUp4, nitroSpeedUp5, nitro1, nitro2, nitro3, nitro4, nitro5, degradeNitro1, degradeNitro2, degradeNitro3, degradeNitro4, degradeNitro5, overDrive, atStartEngineScreen;
     boolean[] nitrosArray = {false, false, false, false, false};
     Font font1, font2, font3;
     ClickHandler cHandler = new ClickHandler();
@@ -640,19 +640,25 @@ public class Clicker extends Application {
             nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG3 - MIN_NEW_OBSTACLE_DISTANCE_STG3)) + MIN_NEW_OBSTACLE_DISTANCE_STG3); //distance of next obstacle
             nextSuccessfulObstacleLeavesDistance = distanceToEndOfStageGoal - nextObstDistance;
             int count = 0;
-            if (approachTrigger == 0) {
-                while (nextSuccessfulObstacleLeavesDistance <= 2000) {
-                    nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG3 - MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3)) + MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3); //distance of next obstacle
-                    nextSuccessfulObstacleLeavesDistance = distanceToEndOfStageGoal - nextObstDistance;
+            if (approachTrigger == 0 && passObstacleFlag != 2) {
+                if ((nextSuccessfulObstacleLeavesDistance - MIN_NEW_OBSTACLE_DISTANCE_STG3) < 3000) {
+                    int amountToSubtract = distanceToEndOfStageGoal - 5000;
+                    nextObstDistance = amountToSubtract;
                     approachTrigger = 1;
-                    count++;
+                    approachFlag = true;
                 }
             } else if (approachTrigger == 1) {
-                while (nextSuccessfulObstacleLeavesDistance <= 500) {
-                    nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG3 - MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3)) + MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3); //distance of next obstacle
-                    nextSuccessfulObstacleLeavesDistance = distanceToEndOfStageGoal - nextObstDistance;
-                    approachTrigger = 2;
-                    count++;
+                if (passObstacleFlag != 2) {
+                    while (nextSuccessfulObstacleLeavesDistance <= 1500) {
+                        nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG3 - MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3)) + MIN_NEW_OBSTACLE_DISTANCE_WHILE_APPROACHING_STG3); //distance of next obstacle
+                        nextSuccessfulObstacleLeavesDistance = distanceToEndOfStageGoal - nextObstDistance;
+                        approachTrigger = 2;
+                        count++;
+                    }
+                }
+            } else if (approachTrigger == 2) {
+                if (passObstacleFlag != 2) {
+                    approachTrigger = 3;
                 }
             }
             System.out.println("approachTrigger" + approachTrigger + " loop ran " + count + " times!");
@@ -665,7 +671,11 @@ public class Clicker extends Application {
                 originalTimerObstacleValue = (int) ((Math.random() * (MAX_NEW_TIMER_AMOUNT - MIN_NEW_TIMER_AMOUNT)) + MIN_NEW_TIMER_AMOUNT);
             }
             timerObstacleValue = originalTimerObstacleValue;
-            costOfFailureValue = (int) (Math.random() * (clickCount/100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR1)) + (clickCount/100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2);
+            if (!approachFlag) {
+                costOfFailureValue = (int) (Math.random() * (clickCount / 100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR1)) + (clickCount / 100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2);
+            } else {
+                costOfFailureValue = COST_OF_FAILURE_FOR_FAILING_APPROACH_OR_END_OF_STAGE_OBSTACLE;
+            }
         } else {
             endOfStageGoalApproach(distanceToEndOfStageGoalAfterFailure, approachTrigger);
         }
@@ -684,7 +694,7 @@ public class Clicker extends Application {
             obstacleTarget = value;
             countDownToPassObstacleOn = false;
             whatIsNextObstacle.setText("");
-            nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG2_1 - MIN_NEW_OBSTACLE_DISTANCE_STG2_1)) + MIN_NEW_OBSTACLE_DISTANCE_STG2_1); //distance of next obstacle
+            nextObstDistance = (int) ((Math.random() * (MAX_NEW_OBSTACLE_DISTANCE_STG2 - MIN_NEW_OBSTACLE_DISTANCE_STG2)) + MIN_NEW_OBSTACLE_DISTANCE_STG2); //distance of next obstacle
             if (!approachingEndOfStageGoalFlag) {
                 distanceToNextObstacleLabel.setText((int) nextObstDistance + "m");
             }
@@ -696,18 +706,22 @@ public class Clicker extends Application {
                 costOfFailureValue = (int) (Math.random() * (clickCount/100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR1)) + (clickCount/100 * COST_OF_FAILURE_FURTHER_ITERATIONS_FACTOR2);
             }
         } else {
-            endOfStageGoalApproach(distanceToEndOfStageGoalAfterFailure, approachTrigger);
+            if (!approachFlag) {
+                endOfStageGoalApproach(distanceToEndOfStageGoalAfterFailure, approachTrigger);
+            }
         }
     }
 
     private void endOfStageGoalApproach(int distanceToEndOfStageGoalAfterFailure, int approachTrigger) {
-        if ((stage == 3 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 3000) || (stage == 3 && distanceToEndOfStageGoal < 3000)) {
+        if ((stage == 3 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 3000) || (stage == 3 && approachFlag)) {
             if (approachTrigger == 1) {
                 obstacleType = obstacleNameArrayStg3[9];
                 obstacleTarget = 9;
                 whatIsNextObstacle.setText(obstacleType);
                 distanceToNextObstacleTitleLabel.setText("Distance to obstacle:");
                 distanceToNextObstacleLabel.setText((int) nextObstDistance + "m");
+                originalTimerObstacleValue = 3;
+                timerObstacleValue = originalTimerObstacleValue;
             }
             if (approachTrigger == 2) {
                 obstacleType = obstacleNameArrayStg3[10];
@@ -715,11 +729,15 @@ public class Clicker extends Application {
                 whatIsNextObstacle.setText(obstacleType);
                 distanceToNextObstacleTitleLabel.setText("Distance to obstacle:");
                 distanceToNextObstacleLabel.setText((int) nextObstDistance + "m");
+                originalTimerObstacleValue = 3;
+                timerObstacleValue = originalTimerObstacleValue;
             }
             if (approachTrigger == 3) {
+                approachFlag = false;
                 approachingEndOfStageGoalFlag = true;
                 generalTimerElapsedLabel.setText("The escape plane is ready!");
-                costOfFailureValue = clickCount;
+                generalTimerElapsedValue.setForeground(Color.green);
+                generalTimerElapsedValue.setText("WAITING");
                 obstacleType = obstacleNameArrayStg3[11];
                 obstacleTarget = 11;
                 distanceToGoTitleLabel.setText("STOP WITHIN 10m OF THE PLANE!");
@@ -736,7 +754,7 @@ public class Clicker extends Application {
         if ((stage == 2 && failedObstacleWithinApproachOfEndOfStageGoal && distanceToEndOfStageGoalAfterFailure < 2500)  || (stage == 2 && distanceToEndOfStageGoal < 2500)) {
             approachingEndOfStageGoalFlag = true;
             generalTimerElapsedLabel.setText("Steve will wait for you!");
-            costOfFailureValue = COST_OF_FAILURE_FOR_HITTING_STEVE;
+            costOfFailureValue = COST_OF_FAILURE_FOR_FAILING_APPROACH_OR_END_OF_STAGE_OBSTACLE;
             obstacleType = obstacleNameArrayStg2[20];
             obstacleTarget = 20;
             distanceToGoTitleLabel.setText("STOP WITHIN 10m OF STEVE!");
@@ -759,7 +777,7 @@ public class Clicker extends Application {
             adjustmentFlag = true;
             button2.doClick();
             button1.doClick();
-            if (originalSpeed > clicksPerSecond) {
+            if (originalSpeed > clicksPerSecond && !degradeNitro1 && !degradeNitro2 && !degradeNitro3 && !degradeNitro4 && !degradeNitro5) {
                 while (originalSpeed > clicksPerSecond) {
                     button1.doClick();
                 }
@@ -833,6 +851,10 @@ public class Clicker extends Application {
     }
 
     public void obstacleFailed() {
+        if (approachFlag) {
+            approachFlag = false;
+            approachTrigger = 0;
+        }
         if (stage == 3) {
             resetNitro();
         }
@@ -1550,7 +1572,7 @@ public class Clicker extends Application {
         failedObstacleWithinApproachOfEndOfStageGoal = false;
         approachingEndOfStageGoalFlag = false;
         distanceToEndOfStageGoal = DISTANCE_TO_ESCAPE_PLANE;
-        distanceToEndOfStageGoalAfterFail =
+        distanceToEndOfStageGoalAfterFail = 0;
         costOfFailureValue = COST_OF_FAILURE_STAGE3_START_VALUE;
         passFailObstacle.setText("");
         obstacleConditionsTitle.setText("");
@@ -1602,6 +1624,7 @@ public class Clicker extends Application {
     }
 
     private void gameOver() {
+        buttonAddNitros.setVisible(false);
         generalTimerElapsedValue.setForeground(Color.red);
         if (stage == 2) {
             generalTimerElapsedValue.setText("YOU HIT STEVE!!");
@@ -1858,7 +1881,7 @@ public class Clicker extends Application {
 
     private void setInitialVariables(boolean restart) {
         if (restart) {
-            adjustmentFlag = false; gameOverFlag = false; timerNitroAddButtonDisappearFlag = false; BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; autoClickerUnlocked = false; towTruckUnlocked = false; mechanicTriggeredYet = false; mechanicUnlocked = false; driveUnlocked = false; carInMechanic = false; accelerateClickedFlag = false; displayObstacleConditionsFlag = false; costOfFailureFirstIterationFlag = false;
+            approachFlag = false; adjustmentFlag = false; gameOverFlag = false; timerNitroAddButtonDisappearFlag = false; BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; autoClickerUnlocked = false; towTruckUnlocked = false; mechanicTriggeredYet = false; mechanicUnlocked = false; driveUnlocked = false; carInMechanic = false; accelerateClickedFlag = false; displayObstacleConditionsFlag = false; costOfFailureFirstIterationFlag = false;
             failedObstacleWithinApproachOfEndOfStageGoal = false; approachingEndOfStageGoalFlag = false; checkTimeSteveMoveCount = false; startDelayTimerFlag = false; countDownToPassObstacleOn = false; startCountDownToPassObstacleFlag = false; wasPassingNowFailing = false; moreThanOneMinuteElapsedFlag = false;
             degradeNitro1 = false; degradeNitro2 = false; degradeNitro3 = false; degradeNitro4 = false; degradeNitro5 = false; nitro1 = false; nitro2 = false; nitro3 = false; nitro4 = false; nitro5 = false; nitroSpeedUp1 = false; nitroSpeedUp2 = false; nitroSpeedUp3 = false; nitroSpeedUp4 = false; nitroSpeedUp5 = false; overDrive = false; atStartEngineScreen = false;
             try {
