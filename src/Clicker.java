@@ -84,7 +84,7 @@ public class Clicker extends Application {
     ImageIcon mainImageDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("")));
     JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
     JLabel obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
-    JButton buttonAuxiliary, button1, button2, button3, button4, button5;
+    JButton buttonAuxiliary, button1, button2, button3, button4;
     int stage, clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, distanceToEndOfStageGoal;
     int randomSteveMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, rangePermitted, rangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
     int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilEndOStageGoal, leftClickCount, rightClickCount;
@@ -315,14 +315,6 @@ public class Clicker extends Application {
         button4.addActionListener(cHandler);
         button4.addMouseListener(mHandler);
         itemPanel.add(button4);
-
-//        button5 = new JButton("RestartGame");
-//        button5.setFont(font1);
-//        button5.setFocusPainted(false);
-//        button5.addActionListener(cHandler);
-//        button5.setActionCommand("RestartGame");
-//        button5.addMouseListener(mHandler);
-//        itemPanel.add(button5);
 
         JPanel messagePanel = new JPanel();
         messagePanel.setBounds(530,25,140,150);
@@ -655,8 +647,7 @@ public class Clicker extends Application {
             int count = 0;
             if (approachTrigger == 0 && passObstacleFlag != 2) {
                 if ((nextSuccessfulObstacleLeavesDistance - MIN_NEW_OBSTACLE_DISTANCE_STG3) < 3000) {
-                    int amountToSubtract = distanceToEndOfStageGoal - 5000;
-                    nextObstDistance = amountToSubtract;
+                    nextObstDistance = distanceToEndOfStageGoal - 5000;
                     approachTrigger = 1;
                     approachFlag = true;
                 }
