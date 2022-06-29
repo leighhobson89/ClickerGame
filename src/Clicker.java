@@ -41,9 +41,9 @@ public class Clicker extends Application {
     final int COST_INCREASE_PER_TOW_TRUCK = 50;
     final int TOW_TRUCK_ADDS_THIS_MANY_CLICKS_PER_SECOND = 10;
     final int PRICE_TO_UNLOCK_MECHANIC = 3500;
-    final int PRICE_TO_UNLOCK_AUTOCLICKER = 10;
-    final int COST_INCREASE_PER_AUTOCLICKER = 5;
-    final double AUTOCLICKER_ADDS_THIS_MANY_CLICKS_PER_SECOND = 0.1;
+    final int PRICE_TO_UNLOCK_HIRED_HELP = 10;
+    final int COST_INCREASE_PER_HIRED_HELP = 5;
+    final double HIRED_HELP_ADDS_THIS_MANY_CLICKS_PER_SECOND = 0.1;
     final int CLICKS_TO_FIX_CAR = 500;
     final int NUMBER_OF_OBSTACLES_IN_STEVE_ARRAY_MINUS_1 = 19;
     final int NUMBER_OF_OBSTACLES_IN_AIRPORT_DASH_ARRAY_MINUS_1 = 8;
@@ -66,7 +66,8 @@ public class Clicker extends Application {
     final int DISTANCE_TO_PARACHUTE_ZONE = 300000;
     final int COST_OF_FAILURE_STAGE3_START_VALUE = 1500;
     final int COST_OF_FAILURE_FOR_FAILING_APPROACH_OR_END_OF_STAGE_OBSTACLE = 10000;
-    final int COST_OF_FAILURE_FOR_FAILING_APPROACH_OR_END_OF_STAGE_OBSTACLE_STAGE4 = 50000;
+    final int COST_OF_FAILURE_FOR_FAILING_DROPZONE_STAGE4 = 50000;
+    final int COST_OF_FAILURE_FOR_FAILING_JUMPZONE_STAGE4 = 50000;
     final int MAX_NORMAL_SPEED_OF_CAR_MINUS_1 = 69;
     final int MAX_OVERDRIVE_SPEED_OF_CAR_MINUS_1 = 99;
     final int MAX_NO_OF_TURNING_CLICKS = 10;
@@ -82,6 +83,8 @@ public class Clicker extends Application {
     final int NITROS_TO_ADD_WHEN_BUTTON_CLICKED = 15;
     final int FIRST_OBSTACLE_STAGE4 = 3500;
     final int TIME_UNTIL_PENALTY_STAGE4 = 1200;
+    final int ACCEPTABLE_RANGE_TO_PARACHUTE = 300;
+    final int MAX_SPEED_OF_JET_MINUS_1 = 599; //500 from thrust + 100 from pitch down
     String[] obstacleNameArrayStg2 = {"Garage Gate", "Sheep Crossing", "Police Checkpoint", "Level Crossing", "Tractor Up Ahead", "Dog Running in Road", "Drunk Man in Road", "Fallen Rocks", "Broken Water Pipe", "Kids Playing in Road",
             "Turning Lorry Up Ahead", "Bin Wagon Spilled Trash", "Fallen Tree", "Road Works Up Ahead", "Bicycle Up Ahead", "Mate Wants A Race", "Road Rager Chasing You", "Minimum Speed Limit", "Out Accelerate A Sports Car", "Out Accelerate A Hatchback", "Steve"};
     String[] obstacleNameArrayStg3 = {"Motorway Entry Road", "Slow Lorry Convoy", "Broken Down Van", "Pedestrian on Motorway", "Overpass Collapse", "Race a 1300cc Motorbike", "Jump The Ramp", "Max Power", "Steady She Goes", "Motorway Exit", "Airfield Entrance", "Escape Plane"};
@@ -90,7 +93,7 @@ public class Clicker extends Application {
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG3 = {{50, 70}, {35, 45}, {20, 30}, {10, 15}, {5, 10}, {100, 150}, {150, 200}, {320, 350}, {80, 120}, {30, 40}, {5, 10}, {0, 0}};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{70, 80}, {300, 400}, {400, 500}, {400, 500}, {350, 450}, {200, 250}, {80, 90}, {90, 100}};
     final Integer[][] ALTITUDE_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{70, 80}, {300, 400}, {400, 500}, {400, 500}, {350, 450}, {200, 250}, {80, 90}, {90, 100}};
-
+    final Integer[][] PITCH_ARRAY = {{0, -4}, {1, -3}, {2, -2}, {3, -1}, {4, 0}, {5, 1}, {6, 2}, {7, 3}, {8, 4}};
 /**------------------------------------------INITIAL VARIABLES------------------------------------------------ */
 
     String obstacleType, km, kmGoal;
@@ -109,11 +112,11 @@ public class Clicker extends Application {
     int stage, clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, distanceToEndOfStageGoal;
     int randomGoalMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, speedRangePermitted, speedRangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
     int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilEndOStageGoal, leftClickCount, rightClickCount;
-    int thrustLevel, approachTrigger, timeUntilAuxiliaryButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
-    int currentPitch, altitudeRangeActual, altitudeRangePermitted;
-    double nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
+    int altitude, thrustLevel, approachTrigger, timeUntilAuxiliaryButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
+    int currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
+    double speedKnots, nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
-    boolean dropZoneFlag, parachuteZoneFlag, landingGearUpFlag, BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, button1Unlocked, button2Unlocked, mechanicTriggeredYet, button3Unlocked, driveUnlocked, carInMechanic, hasIncreasedSpeedFromZeroOnCurrentStageFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
+    boolean hasTookOff, parachuteActive, dropZoneFlag, parachuteZoneFlag, landingGearUpFlag, BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, button1Unlocked, button2Unlocked, mechanicTriggeredYet, button3Unlocked, driveUnlocked, carInMechanic, hasIncreasedSpeedFromZeroOnCurrentStageFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
     boolean failedObstacleWithinApproachOfEndOfStageGoal, approachingEndOfStageGoalFlag, checkTimeGoalMoveCount, startDelayTimerFlag, countDownToPassObstacleOn, startCountDownToPassObstacleFlag, wasPassingNowFailing, moreThanOneMinuteElapsedFlag;
     boolean stage4Start, approachFlag, adjustmentFlag, gameOverFlag, timerAuxiliaryButtonDisappearFlag, nitroSpeedUp1, nitroSpeedUp2, nitroSpeedUp3, nitroSpeedUp4, nitroSpeedUp5, nitro1, nitro2, nitro3, nitro4, nitro5, degradeNitro1, degradeNitro2, degradeNitro3, degradeNitro4, degradeNitro5, overDrive, atStartEngineScreen;
     boolean[] nitrosArray = {false, false, false, false, false};
@@ -864,6 +867,7 @@ public class Clicker extends Application {
             if (approachTrigger == 1) {
                 obstacleType = obstacleNameArrayStg4[6];
                 obstacleTarget = 6;
+                costOfFailureValue = COST_OF_FAILURE_FOR_FAILING_DROPZONE_STAGE4;
                 distanceToGoTitleLabel.setText("DROP GOODS WITHIN 1000m OF DROPZONE!");
                 generalTimerElapsedValue.setForeground(Color.green);
                 generalTimerElapsedValue.setText("PREPARING!");
@@ -877,7 +881,7 @@ public class Clicker extends Application {
                 approachFlag = false;
                 approachingEndOfStageGoalFlag = true;
                 generalTimerElapsedLabel.setText("Prepare to Jump!");
-                costOfFailureValue = COST_OF_FAILURE_FOR_FAILING_APPROACH_OR_END_OF_STAGE_OBSTACLE_STAGE4;
+                costOfFailureValue = COST_OF_FAILURE_FOR_FAILING_JUMPZONE_STAGE4;
                 obstacleType = obstacleNameArrayStg4[7];
                 obstacleTarget = 7;
                 distanceToGoTitleLabel.setText("JUMP WITHIN 1000m OF LAND ZONE!");
@@ -930,8 +934,15 @@ public class Clicker extends Application {
             adjustmentFlag = false;
             Integer mS = ((int) clicksPerSecond);
             speedKmH = clicksPerSecond * 3.6;
+            speedKnots = speedKmH * 0.539957;
             String kmHr = String.format("%.1f", speedKmH);
-            perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
+            String knots = String.format("%.1f", speedKnots);
+            perSecondLabelLabel.setText("Speed:");
+            if (stage ==2 || stage == 3) {
+                perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
+            } else if (stage == 4) {
+                perSecondLabel.setText(mS + "m/s (" + knots + "knots)");
+            }
         } //end of bug fix
 
         if (costOfFailureValue == 0) { //if leaving garage and Garage Gate
@@ -983,6 +994,9 @@ public class Clicker extends Application {
             } else if (stage == 3) {
                 passFailObstacle.setText("YOU ESCAPED!!");
                 buttonAuxiliary.setVisible(false);
+            } else if (stage == 4) {
+                passFailObstacle.setText("YOU LANDED SAFELY!!");
+                buttonAuxiliary.setVisible(false);
             }
         }
         startDelayTimerFlag = true;
@@ -991,12 +1005,14 @@ public class Clicker extends Application {
         passObstacleFlag = 0;
         startCountDownToPassObstacleFlag = false;
         countDownToPassObstacleTimer.stop();
-        if (approachingEndOfStageGoalFlag && distanceToEndOfStageGoal < 10) {
+        if ((stage == 2 || stage == 3) && approachingEndOfStageGoalFlag && distanceToEndOfStageGoal < 10) {
             if (stage == 2) {
                 temporarilyLockButtonsForStageAdvance(2);
             } else if (stage == 3) {
                 temporarilyLockButtonsForStageAdvance(2);
             }
+        } else if (stage == 4 && approachingEndOfStageGoalFlag && distanceToEndOfStageGoal <= ACCEPTABLE_RANGE_TO_PARACHUTE); {
+            temporarilyLockButtonsForStageAdvance(2);
         }
     }
 
@@ -1024,8 +1040,10 @@ public class Clicker extends Application {
                 gameOver();
             } else if (stage == 3) {
                 gameOver();
+            } else if (stage == 4 && parachuteActive && altitude == 0 && clicksPerSecond > 4 && landingGearUpFlag) {
+                gameOver();
             }
-            if (!gameOverFlag) {
+            if ((stage == 2 || stage == 3) && !gameOverFlag) {
                 failedObstacleWithinApproachOfEndOfStageGoal = false;
                 unsetEndOfStageGoalApproach();
             }
@@ -1048,11 +1066,11 @@ public class Clicker extends Application {
             setupNextObstacle(passObstacleFlag, distanceToEndOfStageGoalAfterFail);
             passObstacleFlag = 0;
             startCountDownToPassObstacleFlag = false;
-            if (approachingEndOfStageGoalFlag) { //fail actually on steve
+            if (approachingEndOfStageGoalFlag) { //fail actually on goal
                 if (!failedObstacleWithinApproachOfEndOfStageGoal) {
                     unsetEndOfStageGoalApproach();
                 }
-            } else if (failedObstacleWithinApproachOfEndOfStageGoal) { //fail previous to steve but within range
+            } else if (failedObstacleWithinApproachOfEndOfStageGoal) { //fail previous to goal but within range
                 endOfStageGoalApproach(distanceToEndOfStageGoalAfterFail, approachTrigger);
             }
         }
@@ -1134,6 +1152,11 @@ public class Clicker extends Application {
                 countDownToPassObstacleTimer.stop();
                 obstaclePassed();
             }
+        } else if (stage == 4) { // add extra stage 4 conditions if necessary
+            if(passObstacleFlag == 1) {
+                countDownToPassObstacleTimer.stop();
+                obstaclePassed();
+            }
         }
         if (passObstacleFlag == 2) {
             obstacleFailed();
@@ -1154,7 +1177,7 @@ public class Clicker extends Application {
             timer.stop();
         }
 
-        if (nitroBeingUsed == 1 && nitroSpeedUp1 && stage == 3 && !degradeNitro1) {
+        if (stage == 3 && nitroBeingUsed == 1 && nitroSpeedUp1 && !degradeNitro1) {
             timerSpeed = 5;
             if (nitroTicks1 >= BOOST_AMOUNT_DELIVERED) {
                 nitroSpeedUp1 = false;
@@ -1164,7 +1187,7 @@ public class Clicker extends Application {
                 nitroTicks1 = 0;
             }
         }
-        if (nitroBeingUsed == 2 && nitroSpeedUp2 && stage == 3 && !degradeNitro2) {
+        if (stage == 3 && nitroBeingUsed == 2 && nitroSpeedUp2 && !degradeNitro2) {
             timerSpeed = 5;
             if (nitroTicks2 >= BOOST_AMOUNT_DELIVERED) {
                 nitroSpeedUp2 = false;
@@ -1174,7 +1197,7 @@ public class Clicker extends Application {
                 nitroTicks2 = 0;
             }
         }
-        if (nitroBeingUsed == 3 && nitroSpeedUp3 && stage == 3 && !degradeNitro3) {
+        if (stage == 3 && nitroBeingUsed == 3 && nitroSpeedUp3 && !degradeNitro3) {
             timerSpeed = 5;
             if (nitroTicks3 >= BOOST_AMOUNT_DELIVERED) {
                 nitroSpeedUp3 = false;
@@ -1184,7 +1207,7 @@ public class Clicker extends Application {
                 nitroTicks3 = 0;
             }
         }
-        if (nitroBeingUsed == 4 && nitroSpeedUp4 && stage == 3 && !degradeNitro4) {
+        if (stage == 3 && nitroBeingUsed == 4 && nitroSpeedUp4 && !degradeNitro4) {
             timerSpeed = 5;
             if (nitroTicks4 >= BOOST_AMOUNT_DELIVERED) {
                 nitroSpeedUp4 = false;
@@ -1194,7 +1217,7 @@ public class Clicker extends Application {
                 nitroTicks4 = 0;
             }
         }
-        if (nitroBeingUsed == 5 && nitroSpeedUp5 && stage == 3 && !degradeNitro5) {
+        if (stage == 3 && nitroBeingUsed == 5 && nitroSpeedUp5 && !degradeNitro5) {
             timerSpeed = 5;
             if (nitroTicks5 >= BOOST_AMOUNT_DELIVERED) {
                 nitroSpeedUp5 = false;
@@ -1232,8 +1255,14 @@ public class Clicker extends Application {
         } else if (stage == 3) {
             speedRangeActual = (int) clicksPerSecond - SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG3[obstacleTarget][0];
             speedRangePermitted = (SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG3[obstacleTarget][1] - SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG3[obstacleTarget][0]);
+        } else if (stage == 4) {
+            speedRangeActual = (int) clicksPerSecond - SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4[obstacleTarget][0];
+            speedRangePermitted = (SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4[obstacleTarget][1] - SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4[obstacleTarget][0]);
         }
-        if (stage != 1 && countDownToPassObstacleOn && nextObstDistance > 0 && (speedRangeActual > speedRangePermitted || speedRangeActual < 0)) {
+        if ((stage == 2 || stage == 3) && countDownToPassObstacleOn && nextObstDistance > 0 && (speedRangeActual > speedRangePermitted || speedRangeActual < 0)) {
+            wasPassingNowFailing = true;
+        }
+        if ((stage == 4) && countDownToPassObstacleOn && nextObstDistance > 0 && (speedRangeActual > speedRangePermitted || speedRangeActual < 0) && (altitudeRangeActual > altitudeRangePermitted || altitudeRangeActual < 0)) {
             wasPassingNowFailing = true;
         }
         if (stage == 1) {
@@ -1242,8 +1271,8 @@ public class Clicker extends Application {
             perSecondLabel.setText(s);
             double speed = 1 / clicksPerSecond * 1000;
             timerSpeed = (int) Math.round(speed);
-        } else if (stage == 2 || stage == 3) {
-            if (degradeNitro1 && stage == 3 && nitroBeingUsed != 0) {
+        } else if (stage == 2 || stage == 3 || stage == 4) {
+            if (stage == 3 && degradeNitro1 && nitroBeingUsed != 0) {
                 if (nitroTicks1 >= BOOST_AMOUNT_DELIVERED) {
                     nitroBeingUsed = 1;
                     degradeNitro1 = false;
@@ -1258,7 +1287,7 @@ public class Clicker extends Application {
                     clicksPerSecond--;
                 }
             }
-            if (degradeNitro2 && stage == 3 && nitroBeingUsed != 0) {
+            if (stage == 3 && degradeNitro2 && nitroBeingUsed != 0) {
                 if (nitroTicks2 >= BOOST_AMOUNT_DELIVERED) {
                     nitroBeingUsed = 2;
                     degradeNitro2 = false;
@@ -1273,7 +1302,7 @@ public class Clicker extends Application {
                     clicksPerSecond--;
                 }
             }
-            if (degradeNitro3 && stage == 3 && nitroBeingUsed != 0) {
+            if (stage == 3 && degradeNitro3 && nitroBeingUsed != 0) {
                 if (nitroTicks3 >= BOOST_AMOUNT_DELIVERED) {
                     nitroBeingUsed = 3;
                     degradeNitro3 = false;
@@ -1288,7 +1317,7 @@ public class Clicker extends Application {
                     clicksPerSecond--;
                 }
             }
-            if (degradeNitro4 && stage == 3 && nitroBeingUsed != 0) {
+            if (stage == 3 && degradeNitro4 && nitroBeingUsed != 0) {
                 if (nitroTicks4 >= BOOST_AMOUNT_DELIVERED) {
                     nitroBeingUsed = 4;
                     degradeNitro4 = false;
@@ -1303,7 +1332,7 @@ public class Clicker extends Application {
                     clicksPerSecond--;
                 }
             }
-            if (degradeNitro5 && stage == 3 && nitroBeingUsed != 0) {
+            if (stage == 3 && degradeNitro5 && nitroBeingUsed != 0) {
                 if (nitroTicks5 >= BOOST_AMOUNT_DELIVERED) {
                     nitroBeingUsed = 5;
                     degradeNitro5 = false;
@@ -1318,18 +1347,24 @@ public class Clicker extends Application {
                     clicksPerSecond--;
                 }
             }
-            if (nitroTicks1 == 0 && nitroTicks2 == 0 && nitroTicks3 == 0 && nitroTicks4 == 0 && nitroTicks5 == 0 && clicksPerSecond > 0 && !degradeNitro1) {
+            if (stage == 3 && nitroTicks1 == 0 && nitroTicks2 == 0 && nitroTicks3 == 0 && nitroTicks4 == 0 && nitroTicks5 == 0 && clicksPerSecond > 0 && !degradeNitro1) {
                 double speed = 1 / clicksPerSecond * 1000;
                 timerSpeed = (int) Math.round(speed);
             }
             Integer mS = ((int) clicksPerSecond);
             speedKmH = clicksPerSecond * 3.6;
+            speedKnots = speedKmH * 0.539957;
             String kmHr = String.format("%.1f", speedKmH);
+            String knots = String.format("%.1f", speedKnots);
             perSecondLabelLabel.setText("Speed:");
-            perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
+            if (stage ==2 || stage == 3){
+                perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
+            } else if (stage == 4) {
+                perSecondLabel.setText(mS + "m/s (" + knots + "knots)");
+            }
         }
 
-        if((!button3Unlocked && stage == 1 && clickCount < PRICE_TO_UNLOCK_MECHANIC) || ((stage == 2 || stage == 3) && clicksPerSecond > 0)) {
+        if((!button3Unlocked && stage == 1 && clickCount < PRICE_TO_UNLOCK_MECHANIC) || ((stage == 2 || stage == 3 || stage == 4) && clicksPerSecond > 0)) {
             setTimer();
             timer.start();
         }
@@ -1345,7 +1380,7 @@ public class Clicker extends Application {
                     clickCount = clickCount + 1750; //replace with clickCount++ for real, or clickCount = clickCount + 1750 for debug
                     clickCountLabel.setText(clickCount+"m");
 
-                    if (!button1Unlocked && clickCount >= PRICE_TO_UNLOCK_AUTOCLICKER) {
+                    if (!button1Unlocked && clickCount >= PRICE_TO_UNLOCK_HIRED_HELP) {
                         button1Unlocked = true;
                         button1.setText("Hired Help");
                         price1.setText(autoClickerPrice + "m");
@@ -1383,13 +1418,13 @@ public class Clicker extends Application {
                 case "Hired Help":
                     if(clickCount >= autoClickerPrice && !button3Unlocked && stage == 1){
                         clickCount = clickCount-autoClickerPrice;
-                        autoClickerPrice = autoClickerPrice + COST_INCREASE_PER_AUTOCLICKER;
+                        autoClickerPrice = autoClickerPrice + COST_INCREASE_PER_HIRED_HELP;
                         clickCountLabel.setText(clickCount+"m");
                         price1.setText("" + autoClickerPrice + "m");
                         autoClickerNumber++;
                         button1.setText("Hired Help (" + autoClickerNumber + ")");
                         messageText.setText("Hired Help!\n[Price: " + autoClickerPrice + "]\nExtra manpower to push \nevery 10 seconds!");
-                        clicksPerSecond = clicksPerSecond + AUTOCLICKER_ADDS_THIS_MANY_CLICKS_PER_SECOND;
+                        clicksPerSecond = clicksPerSecond + HIRED_HELP_ADDS_THIS_MANY_CLICKS_PER_SECOND;
                         timerUpdate(nitroBeingUsed, thrustLevel);
                     }
                     else {
@@ -1631,7 +1666,7 @@ public class Clicker extends Application {
                     }
                 break;
                 case "GearUp":
-                    if (countDownToPassObstacleOn && !landingGearUpFlag) {
+                    if (countDownToPassObstacleOn && !landingGearUpFlag && hasTookOff) {
                         Utils.playSound("gearUp.mp3");
                         landingGearUpFlag = true;
                         timerAuxiliaryButtonDisappearFlag = true;
@@ -1644,7 +1679,7 @@ public class Clicker extends Application {
                      * 5 - Medium thrust - speed climbs to half max speed (250cps)
                      * 9 - Max thrust - speed climbs to full speed (500cps)
                      *
-                     * At a particular thust level, the speed increases based on the current speed in relation to the
+                     * At a particular thrust level, the speed increases based on the current speed in relation to the
                      * maximum speed for that thrust level.  For example:
                      * Thrust level 5 and current speed 100:
                      * - Max Speed: 250cps - Current Speed proportion: (100/250)*100 = 40%
@@ -1694,7 +1729,44 @@ public class Clicker extends Application {
                             }
                         }
                 break;
-                case "Pitch":
+                case "ThrustDown":
+                    if ((hasIncreasedSpeedFromZeroOnCurrentStageFlag || adjustmentFlag)) {
+                        if (thrustLevel > 0 && clicksPerSecond <= (MAX_SPEED_OF_JET_MINUS_1 + 1)) {
+                            thrustLevel--;
+                        }
+                        timerUpdate(nitroBeingUsed, thrustLevel);
+                        speedRangeActual = (int) clicksPerSecond - SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4[obstacleTarget][0];
+                        speedRangePermitted = (SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4[obstacleTarget][1] - SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4[obstacleTarget][0]);
+                        if (countDownToPassObstacleOn && nextObstDistance > 0 && (speedRangeActual > speedRangePermitted || speedRangeActual < 0) && (altitudeRangeActual > altitudeRangePermitted || altitudeRangeActual < 0)) {
+                            wasPassingNowFailing = true;
+                        }
+                        if (nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && !countDownToPassObstacleOn && nextObstDistance >= 0 && (speedRangeActual <= speedRangePermitted && speedRangeActual >= 0) && (altitudeRangeActual > altitudeRangePermitted || altitudeRangeActual < 0)) {
+                            startCountDownToPassObstacleFlag = true;
+                            setCountDownToPassObstacleTimer();
+                            countDownToPassObstacleTimerUpdate();
+                        }
+                        if (wasPassingNowFailing) {
+                            //System.out.println("now failing, timer should reset");
+                            countDownToPassObstacleOn = false;
+                            startCountDownToPassObstacleFlag = false;
+                            countDownToPassObstacleTimer.stop();
+                            setCountDownToPassObstacleTimer();
+                            countDownToPassObstacleTimerUpdate();
+                            if (nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && nextObstDistance >= 0 && (speedRangeActual <= speedRangePermitted && speedRangeActual >= 0) && (altitudeRangeActual > altitudeRangePermitted || altitudeRangeActual < 0)) {
+                                //System.out.println("not failing any more timer should start again");
+                                wasPassingNowFailing = false;
+                                startCountDownToPassObstacleFlag = true;
+                                setCountDownToPassObstacleTimer();
+                                countDownToPassObstacleTimerUpdate();
+                            }
+                        }
+                    }
+                break;
+                case "PitchUp":
+                    //pitchUpCode
+                break;
+                case "PitchDown":
+                    //pitchDownCode
                 break;
 
             }
@@ -1717,7 +1789,7 @@ public class Clicker extends Application {
                 button2Unlocked = true;
                 button3Unlocked =false;
                 driveUnlocked = true;
-            } else if (stage == 2 || stage == 3) {
+            } else if (stage == 2 || stage == 3 || stage == 4) {
                 button1Unlocked = false;
                 button2Unlocked = false;
                 button3Unlocked = false;
@@ -1728,22 +1800,28 @@ public class Clicker extends Application {
                 button2.setActionCommand("");
                 button3.setActionCommand("");
             }
-            if ((stage != 1 && stage != 2) || (stage == 2) || (stage == 3)) {
+            if ((stage == 0) || (stage == 2) || (stage == 3) || stage == 4) {
                 button4.setActionCommand("AdvanceStage");
             }
             button4.setFont(font3);
             button4.setForeground(Color.red);
             button4.setBorder(raisedBorder);
-            button4.setText("START ENGINE!");
+            if (stage == 4) {
+                button4.setText("START SWIMMING!!");
+            } else {
+                button4.setText("START ENGINE!");
+            }
             driveFirstClickFlag = 0;
             atStartEngineScreen = true;
             if (stage == 2) {
                 generalTimerElapsedLabel.setText("You met Steve!");
                 generalTimerElapsedValue.setText("NICE ONE MATE!");
-            }
-            if(stage == 3) {
+            } else if(stage == 3) {
                 generalTimerElapsedLabel.setText("You caught the plane!");
                 generalTimerElapsedValue.setText("HERE'S TO LIFE!!");
+            } else if(stage == 4) {
+                generalTimerElapsedLabel.setText("You landed safely!");
+                generalTimerElapsedValue.setText("SWIM FOR IT!!");
             }
         }
     }
@@ -1757,28 +1835,38 @@ public class Clicker extends Application {
                 driveFirstClickFlag = 1;
                 BeginningOfADrivingStage = false;
             }
-            if ((stage == 2 || stage == 3 || stage == 0)) {
-                if (button == button1 && !atStartEngineScreen) {
+            if ((stage == 0 || stage == 2 || stage == 3 || stage == 4)) {
+                if ((stage == 2 || stage == 3) && button == button1 && !atStartEngineScreen) {
                     messageText.setText("\nAccelerate by 1m/s");
+                } else if (stage == 4 && button == button1) {
+                    messageText.setText("\n\n\nIncrease Thrust:\n " + thrustLevel + "/9");
                 } else if (button == button1) {
                     messageText.setText("\n\n\nThis item is currently locked!");
                 }
                 if (button == button2 && stage == 2 && !atStartEngineScreen) {
                     messageText.setText("\nSlow by 1m/s");
-                } else if (button == button2 && stage == 3 && !atStartEngineScreen) {
+                }  else if (stage == 4 && button == button2) {
+                    messageText.setText("\n\n\nDecrease Thrust:\n " + thrustLevel + "/9");
+                }  else if (button == button2 && stage == 3 && !atStartEngineScreen) {
                     messageText.setText("\nSlow by 1m/s\nOr if nitros are active, kill them!");
                 } else if (button == button2 && atStartEngineScreen) {
                     messageText.setText("\n\n\nThis item is currently locked!");
                 }
                 if (button == button3 && stage == 2 && !atStartEngineScreen) {
                     messageText.setText("\nSwerve Left!");
-                } else if (button == button3 && stage == 3 && !atStartEngineScreen) {
+                }  else if (stage == 4 && button == button3) {
+                    currentPitchToDisplay = PITCH_ARRAY[currentPitch][1];
+                    messageText.setText("\n\n\nPitch Up: " + currentPitchToDisplay);
+                }  else if (button == button3 && stage == 3 && !atStartEngineScreen) {
                     messageText.setText("Toggle OverDrive\nMust be at 70+m/s\nAllows further acceleration & nitros!");
                 } else if (button == button3 && atStartEngineScreen) {
                     messageText.setText("\n\n\nThis item is currently locked!");
                 }
                 if (button == button4 && stage == 2 && !atStartEngineScreen) {
                     messageText.setText("\nSwerve Right!");
+                } else if (stage == 4 && button == button4) {
+                    currentPitchToDisplay = PITCH_ARRAY[currentPitch][1];
+                    messageText.setText("\n\n\nPitch Down: " + currentPitchToDisplay);
                 } else if (button == button4 && stage == 3 && !atStartEngineScreen) {
                     messageText.setText("Nitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!" + "\nAnd OverDrive needs to be on!");
                 } else if (button == button4 && atStartEngineScreen && stage == 0) {
@@ -1787,6 +1875,12 @@ public class Clicker extends Application {
                     messageText.setText("\n\nStart your engine and\nbegin stage 3");
                 } else if (button == button4 && atStartEngineScreen && stage == 3) {
                     messageText.setText("\n\nStart your engine and\nbegin stage 4");
+                } else if (button == buttonAuxiliary && stage == 4 && !landingGearUpFlag) {
+                    messageText.setText("After Takeoff, click to raise landing gear");
+                } else if (button == buttonAuxiliary && stage == 4 && dropZoneFlag) {
+                    messageText.setText("Click to drop the stash in the dropzone");
+                } else if (button == buttonAuxiliary && stage == 4 && parachuteZoneFlag) {
+                    messageText.setText("Click to jump out of the plane!");
                 }
             }
 
@@ -1847,15 +1941,28 @@ public class Clicker extends Application {
                     messageText.setText("\n\n\nThis item is currently locked!");
                 }
             }
-            if ((stage == 2 || stage == 3) && !atStartEngineScreen) {
+            if ((stage == 2 || stage == 3 || stage == 4) && !atStartEngineScreen) {
                 if (button == buttonAuxiliary) {
                     messageText.setText("\n\n\nAdd " + NITROS_TO_ADD_WHEN_BUTTON_CLICKED + " Nitros!");
                 }
-                if (button == button1) {
+                if (button == buttonAuxiliary && stage == 4 && !landingGearUpFlag) {
+                    messageText.setText("After Takeoff, click to raise landing gear");
+                }
+                if (button == buttonAuxiliary && stage == 4 && dropZoneFlag) {
+                    messageText.setText("Click to drop the stash in the dropzone");
+                }
+                if (button == buttonAuxiliary && stage == 4 && parachuteZoneFlag) {
+                    messageText.setText("Click to jump out of the plane!");
+                }
+                if ((stage == 2 || stage == 3) && button == button1) {
                     messageText.setText("\nAccelerate by 1m/s");
+                } else if (stage == 4 && button == button1) {
+                    messageText.setText("\n\n\nIncrease Thrust:\n " + thrustLevel + "/9");
                 }
                 if (stage == 2 && button == button2) {
                     messageText.setText("\nSlow by 1m/s");
+                } else if (stage == 4 && button == button2) {
+                    messageText.setText("\n\n\nDecrease Thrust:\n " + thrustLevel + "/9");
                 }
                 if (stage == 3 && button == button2 && driveFirstClickFlag != 0) {
                     messageText.setText("\nSlow by 1m/s\nOr if nitros are active, kill them!");
@@ -1864,13 +1971,19 @@ public class Clicker extends Application {
                     messageText.setText("\nSwerve Left!");
                 } else if (button == button3 && stage == 3) {
                     messageText.setText("Toggle OverDrive\nMust be at 70+m/s\nAllows further acceleration & nitros!");
+                } else if (stage == 4 && button == button3) {
+                    currentPitchToDisplay = PITCH_ARRAY[currentPitch][1];
+                    messageText.setText("\n\n\nPitch Up: " + currentPitchToDisplay);
                 }
                 if (button == button4 && stage == 2) {
                     messageText.setText("\nSwerve Right!");
                 } else if (button == button4 && stage == 3) {
                     messageText.setText("Nitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!" + "\nAnd OverDrive needs to be on!");
+                } else if (stage == 4 && button == button4) {
+                    currentPitchToDisplay = PITCH_ARRAY[currentPitch][1];
+                    messageText.setText("\n\n\nPitch Down: " + currentPitchToDisplay);
                 }
-            } else if ((stage == 2 || stage == 3) && (button == button1 || button == button2 || button == button3)) {
+            } else if ((stage == 2 || stage == 3 || stage == 4) && (button == button1 || button == button2 || button == button3)) {
                 messageText.setText("\n\n\nThis item is currently locked!");
             } else if ((stage == 0 && button == button1)) {
                 messageText.setText("\n\n\nThis item is currently locked!");
@@ -1884,6 +1997,8 @@ public class Clicker extends Application {
                 messageText.setText("\n\nStart your engine and\nbegin stage 3");
             } else if (((stage == 3) && button == button4)) {
                 messageText.setText("\n\nStart your engine and\nbegin stage 4");
+            } else if (((stage == 4) && button == button4)) {
+                messageText.setText("\n\nStart Swimming to the stash!");
             }
             if (gameOverFlag) {
                 if (button == button1) {
@@ -1929,7 +2044,7 @@ public class Clicker extends Application {
 
     private void setInitialVariables(boolean restart) {
         if (restart) {
-            stage4Start = false; landingGearUpFlag = false; dropZoneFlag = false; parachuteZoneFlag = false; approachFlag = false; adjustmentFlag = false; gameOverFlag = false; timerAuxiliaryButtonDisappearFlag = false; BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; button1Unlocked = false; button2Unlocked = false; mechanicTriggeredYet = false; displayObstacleConditionsFlag = false;
+            hasTookOff = false; parachuteActive =false; stage4Start = false; landingGearUpFlag = false; dropZoneFlag = false; parachuteZoneFlag = false; approachFlag = false; adjustmentFlag = false; gameOverFlag = false; timerAuxiliaryButtonDisappearFlag = false; BeginningOfADrivingStage = false; timerOn = false; delayObstaclePanelOn = false; button1Unlocked = false; button2Unlocked = false; mechanicTriggeredYet = false; displayObstacleConditionsFlag = false;
             failedObstacleWithinApproachOfEndOfStageGoal = false; approachingEndOfStageGoalFlag = false; checkTimeGoalMoveCount = false; startDelayTimerFlag = false; countDownToPassObstacleOn = false; startCountDownToPassObstacleFlag = false; wasPassingNowFailing = false; moreThanOneMinuteElapsedFlag = false; button3Unlocked = false; driveUnlocked = false; carInMechanic = false; hasIncreasedSpeedFromZeroOnCurrentStageFlag = false;
             degradeNitro1 = false; degradeNitro2 = false; degradeNitro3 = false; degradeNitro4 = false; degradeNitro5 = false; nitro1 = false; nitro2 = false; nitro3 = false; nitro4 = false; nitro5 = false; nitroSpeedUp1 = false; nitroSpeedUp2 = false; nitroSpeedUp3 = false; nitroSpeedUp4 = false; nitroSpeedUp5 = false; overDrive = false; atStartEngineScreen = false; costOfFailureFirstIterationFlag = false;
             try {
@@ -1957,7 +2072,10 @@ public class Clicker extends Application {
                 System.out.println("general timer didn't exist.");
             }
         }
-        currentPitch = 0;
+        speedKnots = 0;
+        altitude = 0;
+        currentPitchToDisplay = 0;
+        currentPitch = 4;
         altitudeRangeActual = 0;
         altitudeRangePermitted = 0;
         thrustLevel = 0;
@@ -1971,7 +2089,7 @@ public class Clicker extends Application {
         clicksPerSecond = 0;
         clickCount = 0;
         autoClickerNumber = 0;
-        autoClickerPrice = PRICE_TO_UNLOCK_AUTOCLICKER;
+        autoClickerPrice = PRICE_TO_UNLOCK_HIRED_HELP;
         towTruckNumber = 0;
         towTruckPrice = PRICE_TO_UNLOCK_TOW_TRUCK;
         mechanicPrice = PRICE_TO_UNLOCK_MECHANIC;
@@ -2312,8 +2430,8 @@ public class Clicker extends Application {
         button3Unlocked = true;
         button1.setActionCommand("ThrustUp");
         button2.setActionCommand("ThrustDown");
-        button3.setActionCommand("Pitch");
-        button4.setActionCommand("Pitch");
+        button3.setActionCommand("PitchUp");
+        button4.setActionCommand("PitchDown");
         button1.setText("Thrust +");
         button2.setText("Thrust -");
         button3.setText("Pitch Up");
@@ -2349,6 +2467,8 @@ public class Clicker extends Application {
             generalTimerElapsedValue.setText("PLANE LEFT!");
         } else if (stage == 4 && costOfFailureValue == 0) {
             generalTimerElapsedValue.setText("CRASHED ON TAKEOFF!");
+        } else if (stage == 4 && parachuteActive && altitude == 0 && clicksPerSecond > 4 && landingGearUpFlag) {
+            generalTimerElapsedValue.setText("YOU DIED ON IMPACT!!");
         }
         passFailObstacle.setForeground(Color.red);
         passFailObstacle.setFont(font3);
