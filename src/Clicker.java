@@ -1816,7 +1816,8 @@ public class Clicker extends Application {
                      * Stall
                      * -----
                      *
-                     * If speed < than STALL_LIMIT && hasTookOff, activate stall:
+                     * If speed < STALL_LIMIT && hasTookOff, activate stall:
+                     * - if altitude <= 0 && stallActive == true then gameOver()
                      * - lock all buttons
                      * - set thrust to level 10
                      * - pitch down to 60º (accelerate to max of thrustlevel 10 plus 100, descend by 133.34m for every 100m covered)
@@ -1829,15 +1830,16 @@ public class Clicker extends Application {
                      * Rules of Altitude:
                      * ------------------
                      *
+                     * - if altitude <= 0 && hasTookOff == true then gameOver()
                      * - show indicated airspeed (from array) and calculate stall based on this number
                      * - show ground speed as below, and calculate obstacle distances/end of stage distances based on that
-                     * - if altitude < 0 during stall, gameOver()
                      * - if altitude:
                      * 	- 0-20000 - STALL_LIMIT= 100m/s indicated - GroundSpeed = Max Speed from Array
                      * 	- 0-25000 - STALL_LIMIT= 120m/s indicated - GroundSpeed = 115% max
                      * 	- 0-30000 - STALL_LIMIT= 150/s indicated - GroundSpeed = 125% max
                      * 	- 0-35000 - STALL_LIMIT= 200m/s indicated - GroundSpeed = 140% max
                      * 	- 0-40000 - STALL_LIMIT= 250m/s indicated - GroundSpeed = 160% max
+                     * 	- This relationship between indicated and max airspeed should be evaluated every "tick" ie it is progressive and not with hard boundaries
                      */
                     //pitchUpCode
                 break;
