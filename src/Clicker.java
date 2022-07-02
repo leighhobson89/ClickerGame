@@ -1719,26 +1719,6 @@ public class Clicker extends Application {
                     }
                 break;
                 case "ThrustUp":
-                    /** Thrust level is set from 0-9 in the following way: clicksPerSecond * thrustLevel;
-                     * 0 - Zero thrust - speed degrades to nothing (0cps)
-                     * 5 - Medium thrust - speed climbs to half max speed (250cps)
-                     * 9 - Max thrust - speed climbs to full speed (500cps)
-                     *
-                     * At a particular thrust level, the speed increases based on the current speed in relation to the
-                     * maximum speed for that thrust level.  For example:
-                     * Thrust level 5 and current speed 100:
-                     * - Max Speed: 250cps - Current Speed proportion: (100/250)*100 = 40%
-                     * - Percentage Modifier = 100 - 40 = 60%
-                     * - Acceleration Amount: Current Speed(100) * ThrustLevel (5) * 60% = 300cps/ps
-                     * Thrust level 5 and current speed 200:
-                     * - Max Speed: 250cps - Current Speed proportion: (200/250)*100 = 80%
-                     * - Percentage Modifier = 100 - 80 = 20%
-                     * - Acceleration Amount: Current Speed(100) * ThrustLevel (5) * 20% = 100cps/ps
-                     *
-                     * - Finally add a modifier to make the acceleration more realistic:
-                     * - Acceleration Amount = AccelerationAmount / modifier (maybe 4 but try different ones)
-                     */
-
                         originalCPS = clicksPerSecond;
                         if (thrustLevel < 30 && thrustLevel >= 0) {
                             thrustLevel++;
@@ -1815,6 +1795,50 @@ public class Clicker extends Application {
                     }
                 break;
                 case "PitchUp":
+                    /**
+                     * PITCH
+                     * -----
+                     *
+                     * 11 settings - 0-10
+                     *
+                     * 0  - 60º (accelerate to max of thrustlevel plus 100), (descend by 133.34m for every 100m covered)
+                     * 1  - 45º (accelerate to max of thrustlevel plus 75), (descend by 100m for every 100m covered)
+                     * 2  - 30º (accelerate to max of thrustlevel plus 50), (descend by 66.67m for every 100m covered)
+                     * 3  - 20º (accelerate to max of thrustlevel plus 33), (descend by 44.45m for every 100m covered)
+                     * 4  - 10º (accelerate to max of thrustlevel plus 17), (descend by 22.22m for every 100m covered)
+                     * 5  - 0 (level)
+                     * 6  + 10º (degrade to 2/9 max for thrustlevel), (climb by 22.22m for every 100m covered)
+                     * 7  + 20º (degrade to 4/9 max for thrustlevel), (climb by 44.45m for every 100m covered)
+                     * 8  + 30º (degrade to 2/3 max for thrustlevel), (climb by 66.67m for every 100m covered)
+                     * 9  + 45º (degrade to 1/2 max for thrustlevel), (climb by 100m for every 100m covered)
+                     * 10 + 60º (degrade to 1/3 max for thrustlevel, (climb by 133.34m for every 100m covered)
+                     *
+                     * Stall
+                     * -----
+                     *
+                     * If speed < than STALL_LIMIT && hasTookOff, activate stall:
+                     * - lock all buttons
+                     * - set thrust to level 10
+                     * - pitch down to 60º (accelerate to max of thrustlevel 10 plus 100, descend by 133.34m for every 100m covered)
+                     * - when max of thrustlevel 10 achieved, offer button with "Recover Stall":
+                     * 	- sets pitch to 4 (level),
+                     * 	- speed to degrade to max thrustlevel 10,
+                     * 	- button disappears when clicked
+                     * 	- unlock all buttons
+                     *
+                     * Rules of Altitude:
+                     * ------------------
+                     *
+                     * - show indicated airspeed (from array) and calculate stall based on this number
+                     * - show ground speed as below, and calculate obstacle distances/end of stage distances based on that
+                     * - if altitude < 0 during stall, gameOver()
+                     * - if altitude:
+                     * 	- 0-20000 - STALL_LIMIT= 100m/s indicated - GroundSpeed = Max Speed from Array
+                     * 	- 0-25000 - STALL_LIMIT= 120m/s indicated - GroundSpeed = 115% max
+                     * 	- 0-30000 - STALL_LIMIT= 150/s indicated - GroundSpeed = 125% max
+                     * 	- 0-35000 - STALL_LIMIT= 200m/s indicated - GroundSpeed = 140% max
+                     * 	- 0-40000 - STALL_LIMIT= 250m/s indicated - GroundSpeed = 160% max
+                     */
                     //pitchUpCode
                 break;
                 case "PitchDown":
