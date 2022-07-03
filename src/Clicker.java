@@ -97,9 +97,10 @@ public class Clicker extends Application {
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG2 = {{0, 0, 0}, {2, 8, 1}, {1, 2, 0}, {0, 0, 0}, {3, 6, 1}, {2, 9, 1}, {4, 8, 1}, {3, 10, 1}, {6, 12, 1}, {2, 4, 1}, {8, 11, 1}, {6, 15, 1}, {3, 14, 1}, {0, 1, 1}, {3, 15, 1}, {50, 60, 0}, {45, 50, 0}, {30, 70, 0}, {65, 70, 0}, {60, 65, 0}, {0, 0, 0}};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG3 = {{50, 70}, {35, 45}, {20, 30}, {10, 15}, {5, 10}, {100, 150}, {150, 200}, {320, 350}, {80, 120}, {30, 40}, {5, 10}, {0, 0}};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{80, 100}, {230, 280}, {250, 300}, {270, 300}, {280, 290}, {120, 160}, {80, 90}, {90, 100}};
-    final Integer[][] ALTITUDE_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{5, 10}, {300, 400}, {400, 500}, {400, 500}, {350, 450}, {200, 250}, {80, 90}, {90, 100}};
-    final Integer[][] PITCH_ARRAY = {{0, -4}, {1, -3}, {2, -2}, {3, -1}, {4, 0}, {5, 1}, {6, 2}, {7, 3}, {8, 4}};
+    final Integer[][] ALTITUDE_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{5, 10}, {200, 250}, {400, 420}, {370, 390}, {280, 320}, {200, 250}, {80, 90}, {90, 100}};
+    final double[][] PITCH_ARRAY = {{0, -5, 60, 100}, {1, -4, 45, 75}, {2, -3, 30, 50}, {3, -2, 20, 33}, {4, -1, 10, 17}, {5, 0, 0, 0}, {6, 1, 10, 0.889}, {7, 2, 20, 0.778}, {8, 3, 30, 0.667}, {9, 4, 45, 0.5}, {10, 5, 60, 0.333}}; // if climbing multiply max speed of thrustlevel by factor, if descending, add factor on to max
     final Integer[][] THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
+    final Integer[][] ALTITUDE_STALL_MAXSPEED_RELATIONSHIP_ARRAY = {{0, 90, 100}, {250, 110, 115}, {300, 140, 125}, {350, 180, 140}, {400, 220, 150}, {450, 230, 160}};
     /**------------------------------------------INITIAL VARIABLES------------------------------------------------ */
 
     String obstacleType, km, kmGoal;
@@ -119,7 +120,7 @@ public class Clicker extends Application {
     int randomGoalMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, speedRangePermitted, speedRangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
     int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilEndOStageGoal, leftClickCount, rightClickCount;
     int ripGearOffValue, altitude, thrustLevel, approachTrigger, timeUntilAuxiliaryButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
-    int currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
+    int stallActive, altitudeZone, currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
     double finalProportionPercentage, currentSpeedProportionOfMaxForThrustLevel, accelerationAmount, speedKnots, nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean rippedGearOff, speedDegrading, hasTookOff, parachuteActive, dropZoneFlag, parachuteZoneFlag, landingGearUpFlag, BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, button1Unlocked, button2Unlocked, mechanicTriggeredYet, button3Unlocked, driveUnlocked, carInMechanic, hasIncreasedSpeedFromZeroOnCurrentStageFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
@@ -425,6 +426,15 @@ public class Clicker extends Application {
     public void setTimer() {
         timer = new Timer(timerSpeed, e -> {
             clickCount++;
+            if (stage == 4 && hasTookOff && landingGearUpFlag) {
+                if (stallActive == 0) {
+                    stallCheck();
+                } else if (stallActive == 1) {
+                    stallSetup();
+                } else if (stallActive == 2) {
+                    recoverStallCheck();
+                }
+            }
             if (stage == 4) {
                 if (speedDegrading) {
                     currentSpeedProportionOfMaxForThrustLevel = (clicksPerSecond - THRUST_ARRAY[thrustLevel][1]);
@@ -695,6 +705,54 @@ public class Clicker extends Application {
                 temporarilyLockButtonsForStageAdvance(1);
             }
         });
+    }
+
+    private void recoverStallCheck() {
+        if (clicksPerSecond >= THRUST_ARRAY[thrustLevel][1] && altitude > 0) {
+            buttonAuxiliary.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(5.0f), Color.red));
+            buttonAuxiliary.setText("Recover");
+            buttonAuxiliary.setActionCommand("RecoverStall");
+            buttonAuxiliary.setVisible(true);
+        }
+        if (altitude <= 0) {
+            gameOver();
+        }
+    }
+
+    private void stallSetup() {
+        temporarilyLockButtonsForStageAdvance(2);
+        if (altitudeZone == 0) {
+            thrustLevel = 10;
+        } else if (altitudeZone == 1) {
+            thrustLevel = 15;
+        } else if (altitudeZone == 2) {
+            thrustLevel = 20;
+        } else if (altitudeZone == 3) {
+            thrustLevel = 23;
+        } else if (altitudeZone == 4) {
+            thrustLevel = 25;
+        }
+
+        currentPitch = (int) PITCH_ARRAY[0][0];
+        stallActive = 2; //stall set up and active
+    }
+
+    private void stallCheck() {
+        if (altitude > 0 && altitude <= 250) {
+            altitudeZone = 0;
+        } else if (altitude > 250 && altitude <= 300) {
+            altitudeZone = 1;
+        } else if (altitude > 300 && altitude <= 350) {
+            altitudeZone = 2;
+        } else if (altitude > 350 && altitude <= 400) {
+            altitudeZone = 3;
+        } else if (altitude > 400 && altitude <= 450) {
+            altitudeZone = 4;
+        }
+        if (clicksPerSecond < ALTITUDE_STALL_MAXSPEED_RELATIONSHIP_ARRAY[altitudeZone][1]) {
+            stallActive = 1; //trigger stall setup phase
+            System.out.println("Stalling Activated!");
+        }
     }
 
     private void setupNextObstacle(int passObstacleFlag, int distanceToEndOfStageGoalAfterFailure) {
@@ -1718,6 +1776,23 @@ public class Clicker extends Application {
                         buttonAuxiliary.setBorder(BorderFactory.createEmptyBorder());
                     }
                 break;
+                case "RecoverStall":
+                    stallActive = 0;
+                    currentPitch = 5;
+                    timerAuxiliaryButtonDisappearFlag = true;
+                    timeUntilAuxiliaryButtonDisappears = generalTimerElapsedSeconds;
+                    button1Unlocked = true;
+                    button2Unlocked = true;
+                    button3Unlocked = true;
+                    button1.setActionCommand("ThrustUp");
+                    button2.setActionCommand("ThrustDown");
+                    button3.setActionCommand("PitchUp");
+                    button4.setActionCommand("PitchDown");
+                    button1.setText("Thrust +");
+                    button2.setText("Thrust -");
+                    button3.setText("Pitch Up");
+                    button4.setText("Pitch Down");
+                break;
                 case "ThrustUp":
                         originalCPS = clicksPerSecond;
                         if (thrustLevel < 30 && thrustLevel >= 0) {
@@ -1878,26 +1953,31 @@ public class Clicker extends Application {
                 button2.setActionCommand("");
                 button3.setActionCommand("");
             }
-            if ((stage == 0) || (stage == 2) || (stage == 3) || stage == 4) {
+            if ((stage == 0) || (stage == 2) || (stage == 3) || (stage == 4 && stallActive == 0)) {
                 button4.setActionCommand("AdvanceStage");
+            } else if (stage == 4) {
+                button4.setActionCommand("");
+                button4.setText("STALLING!");
             }
             button4.setFont(font3);
             button4.setForeground(Color.red);
             button4.setBorder(raisedBorder);
-            if (stage == 4) {
+            if (stage == 4 && stallActive == 0) {
                 button4.setText("START SWIMMING!!");
-            } else {
+                driveFirstClickFlag = 0;
+                atStartEngineScreen = true;
+            } else if (stallActive == 0) {
                 button4.setText("START ENGINE!");
+                driveFirstClickFlag = 0;
+                atStartEngineScreen = true;
             }
-            driveFirstClickFlag = 0;
-            atStartEngineScreen = true;
             if (stage == 2) {
                 generalTimerElapsedLabel.setText("You met Steve!");
                 generalTimerElapsedValue.setText("NICE ONE MATE!");
             } else if(stage == 3) {
                 generalTimerElapsedLabel.setText("You caught the plane!");
                 generalTimerElapsedValue.setText("HERE'S TO LIFE!!");
-            } else if(stage == 4) {
+            } else if(stage == 4 && stallActive == 0) {
                 generalTimerElapsedLabel.setText("You landed safely!");
                 generalTimerElapsedValue.setText("SWIM FOR IT!!");
             }
@@ -1933,7 +2013,7 @@ public class Clicker extends Application {
                 if (button == button3 && stage == 2 && !atStartEngineScreen) {
                     messageText.setText("\nSwerve Left!");
                 }  else if (stage == 4 && button == button3) {
-                    currentPitchToDisplay = PITCH_ARRAY[currentPitch][1];
+                    currentPitchToDisplay = (int) PITCH_ARRAY[currentPitch][1];
                     messageText.setText("\n\n\nPitch Up: " + currentPitchToDisplay);
                 }  else if (button == button3 && stage == 3 && !atStartEngineScreen) {
                     messageText.setText("Toggle OverDrive\nMust be at 70+m/s\nAllows further acceleration & nitros!");
@@ -1943,7 +2023,7 @@ public class Clicker extends Application {
                 if (button == button4 && stage == 2 && !atStartEngineScreen) {
                     messageText.setText("\nSwerve Right!");
                 } else if (stage == 4 && button == button4) {
-                    currentPitchToDisplay = PITCH_ARRAY[currentPitch][1];
+                    currentPitchToDisplay = (int) PITCH_ARRAY[currentPitch][1];
                     messageText.setText("\n\n\nPitch Down: " + currentPitchToDisplay);
                 } else if (button == button4 && stage == 3 && !atStartEngineScreen) {
                     messageText.setText("Nitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!" + "\nAnd OverDrive needs to be on!");
@@ -2050,7 +2130,7 @@ public class Clicker extends Application {
                 } else if (button == button3 && stage == 3) {
                     messageText.setText("Toggle OverDrive\nMust be at 70+m/s\nAllows further acceleration & nitros!");
                 } else if (stage == 4 && button == button3) {
-                    currentPitchToDisplay = PITCH_ARRAY[currentPitch][1];
+                    currentPitchToDisplay = (int) PITCH_ARRAY[currentPitch][1];
                     messageText.setText("\n\n\nPitch Up: " + currentPitchToDisplay);
                 }
                 if (button == button4 && stage == 2) {
@@ -2058,7 +2138,7 @@ public class Clicker extends Application {
                 } else if (button == button4 && stage == 3) {
                     messageText.setText("Nitrous Oxide\nHuge speed boost!\nYou only have " + nitrousBoostsRemainingCount + "!" + "\nAnd OverDrive needs to be on!");
                 } else if (stage == 4 && button == button4) {
-                    currentPitchToDisplay = PITCH_ARRAY[currentPitch][1];
+                    currentPitchToDisplay = (int) PITCH_ARRAY[currentPitch][1];
                     messageText.setText("\n\n\nPitch Down: " + currentPitchToDisplay);
                 }
             } else if ((stage == 2 || stage == 3 || stage == 4) && (button == button1 || button == button2 || button == button3)) {
@@ -2150,6 +2230,8 @@ public class Clicker extends Application {
                 System.out.println("general timer didn't exist.");
             }
         }
+        stallActive = 0;
+        altitudeZone = 0;
         ripGearOffValue = 0;
         finalProportionPercentage = 0;
         currentSpeedProportionOfMaxForThrustLevel = 0;
@@ -2551,10 +2633,12 @@ public class Clicker extends Application {
             generalTimerElapsedValue.setText("PLANE LEFT!");
         } else if (stage == 4 && !landingGearUpFlag && !rippedGearOff) {
             generalTimerElapsedValue.setText("CRASHED ON TAKEOFF!");
-        } else if (stage == 4 && !landingGearUpFlag && rippedGearOff) {
+        } else if (stage == 4 && !landingGearUpFlag) {
             generalTimerElapsedValue.setText("RIPPED GEAR OFF!");
-        } else if (stage == 4 && parachuteActive && altitude == 0 && clicksPerSecond > 4 && landingGearUpFlag) {
+        } else if (stage == 4 && parachuteActive && altitude == 0 && clicksPerSecond > 4) {
             generalTimerElapsedValue.setText("YOU DIED ON IMPACT!!");
+        } else if (stage == 4 && stallActive == 2 && altitude == 0) {
+            generalTimerElapsedValue.setText("STALLED AND CRASHED!");
         }
         clicksPerSecond = 0;
         passFailObstacle.setForeground(Color.red);
