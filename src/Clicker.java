@@ -100,13 +100,27 @@ public class Clicker extends Application {
     final Integer[][] ALTITUDE_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{5, 10}, {200, 250}, {400, 420}, {370, 390}, {280, 320}, {200, 250}, {80, 90}, {90, 100}};
     final double[][] PITCH_ARRAY = {{0, -5, 60, 100}, {1, -4, 45, 75}, {2, -3, 30, 50}, {3, -2, 20, 33}, {4, -1, 10, 17}, {5, 0, 0, 0}, {6, 1, 10, 0.889}, {7, 2, 20, 0.778}, {8, 3, 30, 0.667}, {9, 4, 45, 0.5}, {10, 5, 60, 0.333}}; // if climbing multiply max speed of thrustlevel by factor, if descending, add factor on to max
     final Integer[][] THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
-    final Integer[][] ALTITUDE_STALL_MAXSPEED_RELATIONSHIP_ARRAY = {{0, 90, 100}, {250, 110, 115}, {300, 140, 125}, {350, 180, 140}, {400, 220, 150}, {450, 230, 160}};
+    final Integer[][] ALTITUDE_STALL_MAXSPEED_RELATIONSHIP_ARRAY = {{0, 80, 100}, {250, 100, 115}, {300, 130, 125}, {350, 180, 140}, {400, 220, 150}, {450, 230, 160}};
     /**------------------------------------------INITIAL VARIABLES------------------------------------------------ */
 
     String obstacleType, km, kmGoal;
+    BufferedImage pitch0 = ImageIO.read(new File("src\\resource\\pitch0.png"));
+    BufferedImage pitch1 = ImageIO.read(new File("src\\resource\\pitch1.png"));
+    BufferedImage pitch2 = ImageIO.read(new File("src\\resource\\pitch2.png"));
+    BufferedImage pitch3 = ImageIO.read(new File("src\\resource\\pitch3.png"));
+    BufferedImage pitch4 = ImageIO.read(new File("src\\resource\\pitch4.png"));
+    BufferedImage pitch5_level = ImageIO.read(new File("src\\resource\\pitch5_level.png"));
+    BufferedImage pitch6 = ImageIO.read(new File("src\\resource\\pitch6.png"));
+    BufferedImage pitch7 = ImageIO.read(new File("src\\resource\\pitch7.png"));
+    BufferedImage pitch8 = ImageIO.read(new File("src\\resource\\pitch8.png"));
+    BufferedImage pitch9 = ImageIO.read(new File("src\\resource\\pitch9.png"));
+    BufferedImage pitch10 = ImageIO.read(new File("src\\resource\\pitch10.png"));
     BufferedImage jetImage = ImageIO.read(new File("src\\resource\\jetImage.png"));
     BufferedImage mainDisplayImage = ImageIO.read(new File("src\\resource\\carImage.png"));
     ImageIcon mainImageDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("")));
+    ImageIcon pitchHUDDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("")));
+    JPanel priceLabelPanel = new JPanel(); JPanel pricePanel = new JPanel(); JPanel pitchInfo = new JPanel();
+    JLabel pitchDisplayContainer = new JLabel();
     JButton mainImageButton = new JButton(); JButton buttonAuxiliary = new JButton("NOS +" + NITROS_TO_ADD_WHEN_BUTTON_CLICKED); JButton button1 = new JButton(LOCKED); JButton button2 = new JButton(LOCKED); JButton button3 = new JButton(LOCKED); JButton button4 = new JButton(LOCKED);
     JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
     JLabel obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
@@ -155,6 +169,18 @@ public class Clicker extends Application {
         window.getContentPane().setBackground(Color.black);
         window.setLayout(null);
 
+        pitchInfo.setBounds(370, 146, 107, 255);
+        pitchInfo.setBackground(Color.black);
+        window.add(pitchInfo);
+        pitchInfo.setVisible(false);
+
+        pitchHUDDisplay.setImage(pitch5_level);
+
+        pitchDisplayContainer.setBackground(Color.black);
+        pitchDisplayContainer.setBorder(null);
+        pitchDisplayContainer.setIcon(pitchHUDDisplay);
+        pitchInfo.add(pitchDisplayContainer);
+
         JPanel clickHere = new JPanel();
         clickHere.setBounds(100,200,200,200);
         clickHere.setBackground(Color.black);
@@ -186,7 +212,7 @@ public class Clicker extends Application {
 
         JPanel clickCounter = new JPanel();
         clickCounter.setBounds(100,50,320,150);
-        clickCounter.setBackground(Color.black);
+        clickCounter.setOpaque(false);
         clickCounter.setLayout(new GridLayout(6,1));
         window.add(clickCounter);
 
@@ -256,7 +282,6 @@ public class Clicker extends Application {
         passFailObstacle.setFont(font1);
         obstacleInfoPanel.add(passFailObstacle);
 
-        JPanel priceLabelPanel = new JPanel();
         priceLabelPanel.setBounds(390,100,100,50);
         priceLabelPanel.setBackground(Color.black);
         priceLabelPanel.setLayout(new GridLayout(1,1));
@@ -268,7 +293,6 @@ public class Clicker extends Application {
         price.setFont(font1);
         priceLabelPanel.add(price);
 
-        JPanel pricePanel = new JPanel();
         pricePanel.setBounds(390,150,100,250);
         pricePanel.setBackground(Color.black);
         pricePanel.setLayout(new GridLayout(4,1));
@@ -733,7 +757,7 @@ public class Clicker extends Application {
             thrustLevel = 25;
         }
 
-        currentPitch = (int) PITCH_ARRAY[0][0];
+        currentPitch = 0;
         stallActive = 2; //stall set up and active
     }
 
@@ -1916,14 +1940,73 @@ public class Clicker extends Application {
                      * 	- 0-40000 - STALL_LIMIT= 250m/s indicated - GroundSpeed = 160% max
                      * 	- This relationship between indicated and max airspeed should be evaluated every "tick" ie it is progressive and not with hard boundaries
                      */
-                    //pitchUpCode
+                    if (hasTookOff || clicksPerSecond >= 80) {
+                        if (!hasTookOff) {
+                            if (currentPitch < 8) {
+                                currentPitch++;
+                            }
+                        }
+                        if (currentPitch < 10 && hasTookOff) {
+                            currentPitch++;
+                        }
+                    }
+                    setPitchImage(currentPitch);
                 break;
                 case "PitchDown":
-                    //pitchDownCode
+                    if (!hasTookOff) {
+                        if (currentPitch > 5) {
+                            currentPitch--;
+                        }
+                    }
+                    if (hasTookOff) {
+                        if (currentPitch > 0) {
+                            currentPitch--;
+                        }
+                    }
+                    setPitchImage(currentPitch);
                 break;
 
             }
         }
+    }
+
+    private void setPitchImage(int currentPitch) {
+        switch (currentPitch) {
+            case 0 -> pitchHUDDisplay.setImage(pitch0);
+            case 1 -> pitchHUDDisplay.setImage(pitch1);
+            case 2 -> pitchHUDDisplay.setImage(pitch2);
+            case 3 -> pitchHUDDisplay.setImage(pitch3);
+            case 4 -> pitchHUDDisplay.setImage(pitch4);
+            case 5 -> pitchHUDDisplay.setImage(pitch5_level);
+            case 6 -> pitchHUDDisplay.setImage(pitch6);
+            case 7 -> pitchHUDDisplay.setImage(pitch7);
+            case 8 -> pitchHUDDisplay.setImage(pitch8);
+            case 9 -> pitchHUDDisplay.setImage(pitch9);
+            case 10 -> pitchHUDDisplay.setImage(pitch10);
+        }
+//        if (currentPitch == 0) {
+//            pitchHUDDisplay.setImage(pitch0);
+//        } else if (currentPitch == 1) {
+//            pitchHUDDisplay.setImage(pitch1);
+//        } else if (currentPitch == 2) {
+//            pitchHUDDisplay.setImage(pitch2);
+//        } else if (currentPitch == 3) {
+//            pitchHUDDisplay.setImage(pitch3);
+//        } else if (currentPitch == 4) {
+//            pitchHUDDisplay.setImage(pitch4);
+//        } else if (currentPitch == 5) {
+//            pitchHUDDisplay.setImage(pitch5_level);
+//        } else if (currentPitch == 6) {
+//            pitchHUDDisplay.setImage(pitch6);
+//        } else if (currentPitch == 7) {
+//            pitchHUDDisplay.setImage(pitch7);
+//        } else if (currentPitch == 8) {
+//            pitchHUDDisplay.setImage(pitch8);
+//        } else if (currentPitch == 9) {
+//            pitchHUDDisplay.setImage(pitch9);
+//        } else if (currentPitch == 10) {
+//            pitchHUDDisplay.setImage(pitch10);
+//        }
     }
 
     private void temporarilyLockButtonsForStageAdvance(int toggle) {
@@ -2239,7 +2322,7 @@ public class Clicker extends Application {
         speedKnots = 0;
         altitude = 0;
         currentPitchToDisplay = 0;
-        currentPitch = 4;
+        currentPitch = 5;
         altitudeRangeActual = 0;
         altitudeRangePermitted = -1;
         thrustLevel = 0;
@@ -2556,6 +2639,9 @@ public class Clicker extends Application {
     }
 
     private void letsFly() throws IOException {
+        priceLabelPanel.setVisible(false);
+        pricePanel.setVisible(false);
+        pitchInfo.setVisible(true);
         ripGearOffValue = (int) ((Math.random() * (MAX_RIP_GEAR_OFF_DISTANCE - MIN_RIP_GEAR_OFF_DISTANCE)) + MIN_RIP_GEAR_OFF_DISTANCE);
         stage4Start = true;
         mainImageDisplay.setImage(jetImage);
