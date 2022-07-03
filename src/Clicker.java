@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Objects;
+
+import static javax.swing.SwingConstants.LEFT;
 import static javax.swing.SwingConstants.RIGHT;
 
 public class Clicker extends Application {
@@ -90,10 +92,10 @@ public class Clicker extends Application {
     final double ACCELERATION_MODIFIER = 2;
     final int MAX_RIP_GEAR_OFF_DISTANCE = 4000;
     final int MIN_RIP_GEAR_OFF_DISTANCE = 2000;
-    String[] obstacleNameArrayStg2 = {"Garage Gate", "Sheep Crossing", "Police Checkpoint", "Level Crossing", "Tractor Up Ahead", "Dog Running in Road", "Drunk Man in Road", "Fallen Rocks", "Broken Water Pipe", "Kids Playing in Road",
+    final String[] obstacleNameArrayStg2 = {"Garage Gate", "Sheep Crossing", "Police Checkpoint", "Level Crossing", "Tractor Up Ahead", "Dog Running in Road", "Drunk Man in Road", "Fallen Rocks", "Broken Water Pipe", "Kids Playing in Road",
             "Turning Lorry Up Ahead", "Bin Wagon Spilled Trash", "Fallen Tree", "Road Works Up Ahead", "Bicycle Up Ahead", "Mate Wants A Race", "Road Rager Chasing You", "Minimum Speed Limit", "Out Accelerate A Sports Car", "Out Accelerate A Hatchback", "Steve"};
-    String[] obstacleNameArrayStg3 = {"Motorway Entry Road", "Slow Lorry Convoy", "Broken Down Van", "Pedestrian on Motorway", "Overpass Collapse", "Race a 1300cc Motorbike", "Jump The Ramp", "Max Power", "Steady She Goes", "Motorway Exit", "Airfield Entrance", "Escape Plane"};
-    String[] obstacleNameArrayStg4 = {"Takeoff", "Plane Inbound", "Storm", "Radar Failure", "Severe Turbulence", "Strange Phenomenon", "Drop Zone", "Parachute Zone"};
+    final String[] obstacleNameArrayStg3 = {"Motorway Entry Road", "Slow Lorry Convoy", "Broken Down Van", "Pedestrian on Motorway", "Overpass Collapse", "Race a 1300cc Motorbike", "Jump The Ramp", "Max Power", "Steady She Goes", "Motorway Exit", "Airfield Entrance", "Escape Plane"};
+    final String[] obstacleNameArrayStg4 = {"Takeoff", "Plane Inbound", "Storm", "Radar Failure", "Severe Turbulence", "Strange Phenomenon", "Drop Zone", "Parachute Zone"};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG2 = {{0, 0, 0}, {2, 8, 1}, {1, 2, 0}, {0, 0, 0}, {3, 6, 1}, {2, 9, 1}, {4, 8, 1}, {3, 10, 1}, {6, 12, 1}, {2, 4, 1}, {8, 11, 1}, {6, 15, 1}, {3, 14, 1}, {0, 1, 1}, {3, 15, 1}, {50, 60, 0}, {45, 50, 0}, {30, 70, 0}, {65, 70, 0}, {60, 65, 0}, {0, 0, 0}};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG3 = {{50, 70}, {35, 45}, {20, 30}, {10, 15}, {5, 10}, {100, 150}, {150, 200}, {320, 350}, {80, 120}, {30, 40}, {5, 10}, {0, 0}};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{80, 100}, {230, 280}, {250, 300}, {270, 300}, {280, 290}, {120, 160}, {80, 90}, {90, 100}};
@@ -103,28 +105,15 @@ public class Clicker extends Application {
     final Integer[][] ALTITUDE_STALL_MAXSPEED_RELATIONSHIP_ARRAY = {{0, 80, 100}, {250, 100, 115}, {300, 130, 125}, {350, 180, 140}, {400, 220, 150}, {450, 230, 160}};
     /**------------------------------------------INITIAL VARIABLES------------------------------------------------ */
 
-    String obstacleType, km, kmGoal;
-    BufferedImage pitch0 = ImageIO.read(new File("src\\resource\\pitch0.png"));
-    BufferedImage pitch1 = ImageIO.read(new File("src\\resource\\pitch1.png"));
-    BufferedImage pitch2 = ImageIO.read(new File("src\\resource\\pitch2.png"));
-    BufferedImage pitch3 = ImageIO.read(new File("src\\resource\\pitch3.png"));
-    BufferedImage pitch4 = ImageIO.read(new File("src\\resource\\pitch4.png"));
-    BufferedImage pitch5_level = ImageIO.read(new File("src\\resource\\pitch5_level.png"));
-    BufferedImage pitch6 = ImageIO.read(new File("src\\resource\\pitch6.png"));
-    BufferedImage pitch7 = ImageIO.read(new File("src\\resource\\pitch7.png"));
-    BufferedImage pitch8 = ImageIO.read(new File("src\\resource\\pitch8.png"));
-    BufferedImage pitch9 = ImageIO.read(new File("src\\resource\\pitch9.png"));
-    BufferedImage pitch10 = ImageIO.read(new File("src\\resource\\pitch10.png"));
-    BufferedImage jetImage = ImageIO.read(new File("src\\resource\\jetImage.png"));
-    BufferedImage mainDisplayImage = ImageIO.read(new File("src\\resource\\carImage.png"));
-    ImageIcon mainImageDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("")));
-    ImageIcon pitchHUDDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("")));
-    JPanel priceLabelPanel = new JPanel(); JPanel pricePanel = new JPanel(); JPanel pitchInfo = new JPanel();
-    JLabel pitchDisplayContainer = new JLabel();
+    Color hudText = new Color(126, 255, 0);
+    String obstacleType, km, kmGoal, indAS, altString;
+    BufferedImage pitch0 = ImageIO.read(new File("src\\resource\\pitch0.png")); BufferedImage pitch1 = ImageIO.read(new File("src\\resource\\pitch1.png")); BufferedImage pitch2 = ImageIO.read(new File("src\\resource\\pitch2.png")); BufferedImage pitch3 = ImageIO.read(new File("src\\resource\\pitch3.png")); BufferedImage pitch4 = ImageIO.read(new File("src\\resource\\pitch4.png")); BufferedImage pitch5_level = ImageIO.read(new File("src\\resource\\pitch5_level.png")); BufferedImage pitch6 = ImageIO.read(new File("src\\resource\\pitch6.png")); BufferedImage pitch7 = ImageIO.read(new File("src\\resource\\pitch7.png")); BufferedImage pitch8 = ImageIO.read(new File("src\\resource\\pitch8.png")); BufferedImage pitch9 = ImageIO.read(new File("src\\resource\\pitch9.png")); BufferedImage pitch10 = ImageIO.read(new File("src\\resource\\pitch10.png")); BufferedImage jetImage = ImageIO.read(new File("src\\resource\\jetImage.png")); BufferedImage mainDisplayImage = ImageIO.read(new File("src\\resource\\carImage.png"));
+    ImageIcon mainImageDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource(""))); ImageIcon pitchHUDDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("")));
+    JPanel priceLabelPanel = new JPanel(); JPanel pricePanel = new JPanel(); JPanel pitchInfo = new JPanel(); JPanel speedLabel = new JPanel(); JPanel flightLevelLabel = new JPanel();
     JButton mainImageButton = new JButton(); JButton buttonAuxiliary = new JButton("NOS +" + NITROS_TO_ADD_WHEN_BUTTON_CLICKED); JButton button1 = new JButton(LOCKED); JButton button2 = new JButton(LOCKED); JButton button3 = new JButton(LOCKED); JButton button4 = new JButton(LOCKED);
-    JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel;
-    JLabel obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
-    Font font1, font2, font3;
+    JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel, obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
+    JLabel pitchDisplayContainer = new JLabel(); JLabel indicatedAirspeed = new JLabel(""); JLabel altitudeDisplayValue = new JLabel("");
+    Font font1, font2, font3, fontHUD;
     ClickHandler cHandler = new ClickHandler();
     Timer timer, delayPanelAfterObstacleTimer, countDownToPassObstacleTimer, generalElapsedCounter;
     JTextArea messageText;
@@ -134,7 +123,7 @@ public class Clicker extends Application {
     int randomGoalMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, speedRangePermitted, speedRangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
     int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilEndOStageGoal, leftClickCount, rightClickCount;
     int ripGearOffValue, altitude, thrustLevel, approachTrigger, timeUntilAuxiliaryButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
-    int stallActive, altitudeZone, currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
+    int randomSubHundredFeetValue, indicatedAirspeedValue, stallActive, altitudeZone, currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
     double finalProportionPercentage, currentSpeedProportionOfMaxForThrustLevel, accelerationAmount, speedKnots, nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean rippedGearOff, speedDegrading, hasTookOff, parachuteActive, dropZoneFlag, parachuteZoneFlag, landingGearUpFlag, BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, button1Unlocked, button2Unlocked, mechanicTriggeredYet, button3Unlocked, driveUnlocked, carInMechanic, hasIncreasedSpeedFromZeroOnCurrentStageFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
@@ -160,6 +149,7 @@ public class Clicker extends Application {
         font1 = new Font("Arial", Font.PLAIN, 32);
         font2 = new Font("Arial", Font.PLAIN, 15);
         font3 = new Font("Arial", Font.BOLD, 27);
+        fontHUD = new Font("Consolas", Font.PLAIN, 18);
     }
     public void createUI(BufferedImage initialImage) {
 
@@ -169,27 +159,47 @@ public class Clicker extends Application {
         window.getContentPane().setBackground(Color.black);
         window.setLayout(null);
 
+        speedLabel.setBounds(375,150,60,20);
+        speedLabel.setOpaque(false);
+        speedLabel.setVisible(false);
+        window.add(speedLabel);
+
+        indicatedAirspeed.setForeground(Color.decode("#58b200"));
+        indicatedAirspeed.setFont(fontHUD);
+        indicatedAirspeed.setHorizontalAlignment(LEFT);
+        speedLabel.add(indicatedAirspeed);
+
+        flightLevelLabel.setBounds(375,175,60,20);
+        flightLevelLabel.setOpaque(false);
+        flightLevelLabel.setVisible(false);
+        window.add(flightLevelLabel);
+
+        altitudeDisplayValue.setForeground(Color.decode("#58b200"));
+        altitudeDisplayValue.setFont(fontHUD);
+        altitudeDisplayValue.setHorizontalAlignment(RIGHT);
+        flightLevelLabel.add(altitudeDisplayValue);
+
         pitchInfo.setBounds(370, 146, 107, 255);
-        pitchInfo.setBackground(Color.black);
+        pitchInfo.setOpaque(false);
         window.add(pitchInfo);
         pitchInfo.setVisible(false);
 
         pitchHUDDisplay.setImage(pitch5_level);
 
-        pitchDisplayContainer.setBackground(Color.black);
+        pitchDisplayContainer.setOpaque(false);
         pitchDisplayContainer.setBorder(null);
         pitchDisplayContainer.setIcon(pitchHUDDisplay);
         pitchInfo.add(pitchDisplayContainer);
 
         JPanel clickHere = new JPanel();
         clickHere.setBounds(100,200,200,200);
-        clickHere.setBackground(Color.black);
+        clickHere.setOpaque(false);
         window.add(clickHere);
 
         mainImageDisplay.setImage(initialImage);
 
+        mainImageButton.setOpaque(false);
         mainImageButton.setBackground(Color.black);
-        mainImageButton.setFocusPainted(false);
         mainImageButton.setBorder(null);
         mainImageButton.setIcon(mainImageDisplay);
         mainImageButton.addActionListener(cHandler);
@@ -198,7 +208,7 @@ public class Clicker extends Application {
 
         JPanel addNitros = new JPanel();
         addNitros.setBounds(680,25,100,100);
-        addNitros.setBackground(Color.black);
+        addNitros.setOpaque(false);
         addNitros.setLayout(new GridLayout(1,1));
         window.add(addNitros);
 
@@ -248,7 +258,7 @@ public class Clicker extends Application {
 
         JPanel obstacleInfoPanel = new JPanel();
         obstacleInfoPanel.setBounds(500,401,250,150);
-        obstacleInfoPanel.setBackground(Color.black);
+        obstacleInfoPanel.setOpaque(false);
         obstacleInfoPanel.setLayout(new GridLayout(6,1));
         window.add(obstacleInfoPanel);
 
@@ -283,7 +293,7 @@ public class Clicker extends Application {
         obstacleInfoPanel.add(passFailObstacle);
 
         priceLabelPanel.setBounds(390,100,100,50);
-        priceLabelPanel.setBackground(Color.black);
+        priceLabelPanel.setOpaque(false);
         priceLabelPanel.setLayout(new GridLayout(1,1));
         window.add(priceLabelPanel);
 
@@ -294,7 +304,7 @@ public class Clicker extends Application {
         priceLabelPanel.add(price);
 
         pricePanel.setBounds(390,150,100,250);
-        pricePanel.setBackground(Color.black);
+        pricePanel.setOpaque(false);
         pricePanel.setLayout(new GridLayout(4,1));
         window.add(pricePanel);
 
@@ -324,7 +334,7 @@ public class Clicker extends Application {
 
         JPanel itemPanel = new JPanel();
         itemPanel.setBounds(500,150,280,250);
-        itemPanel.setBackground(Color.black);
+        itemPanel.setOpaque(false);
         itemPanel.setLayout(new GridLayout(4,1));
         window.add(itemPanel);
 
@@ -357,13 +367,13 @@ public class Clicker extends Application {
 
         JPanel messagePanel = new JPanel();
         messagePanel.setBounds(530,25,140,150);
-        messagePanel.setBackground(Color.black);
+        messagePanel.setOpaque(false);
         window.add(messagePanel);
 
         messageText = new JTextArea();
         messageText.setBounds(530, 25, 140, 150);
         messageText.setForeground(Color.yellow);
-        messageText.setBackground(Color.black);
+        messageText.setOpaque(false);
         messageText.setFont(font2);
         messageText.setLineWrap(true);
         messageText.setWrapStyleWord(true);
@@ -372,7 +382,7 @@ public class Clicker extends Application {
 
         JPanel bottomDistanceInfoPanel = new JPanel();
         bottomDistanceInfoPanel.setBounds(100,415,300,130);
-        bottomDistanceInfoPanel.setBackground(Color.black);
+        bottomDistanceInfoPanel.setOpaque(false);
         bottomDistanceInfoPanel.setLayout(new GridLayout(5,1));
         window.add(bottomDistanceInfoPanel);
 
@@ -460,6 +470,17 @@ public class Clicker extends Application {
                 }
             }
             if (stage == 4) {
+                randomSubHundredFeetValue = (int) (Math.random() * 99);
+                if (hasTookOff && currentPitch != 5) {
+                    altString = String.format("%03d", altitude);
+                    altitudeDisplayValue.setText(altString + randomSubHundredFeetValue + "");
+                } else {
+                    altitudeDisplayValue.setText(altString + "00");
+                }
+
+                indicatedAirspeedValue = (int) clicksPerSecond; //change with altitude adjustment calculation
+                indAS = String.format("%03d", indicatedAirspeedValue);
+                indicatedAirspeed.setText(indAS + "IAS");
                 if (speedDegrading) {
                     currentSpeedProportionOfMaxForThrustLevel = (clicksPerSecond - THRUST_ARRAY[thrustLevel][1]);
                 }
@@ -1024,10 +1045,11 @@ public class Clicker extends Application {
             speedKnots = speedKmH * 0.539957;
             String kmHr = String.format("%.1f", speedKmH);
             String knots = String.format("%.1f", speedKnots);
-            perSecondLabelLabel.setText("Speed:");
             if (stage ==2 || stage == 3) {
+                perSecondLabelLabel.setText("Speed:");
                 perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
             } else if (stage == 4) {
+                perSecondLabelLabel.setText("Ground Speed:");
                 perSecondLabel.setText(mS + "m/s (" + knots + "knots)");
             }
         } //end of bug fix
@@ -1483,10 +1505,11 @@ public class Clicker extends Application {
             speedKnots = speedKmH * 0.539957;
             String kmHr = String.format("%.1f", speedKmH);
             String knots = String.format("%.1f", speedKnots);
-            perSecondLabelLabel.setText("Speed:");
             if (stage ==2 || stage == 3){
+                perSecondLabelLabel.setText("Speed:");
                 perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
             } else if (stage == 4) {
+                perSecondLabelLabel.setText("Ground Speed:");
                 perSecondLabel.setText(mS + "m/s (" + knots + "knots)");
             }
         }
@@ -1971,6 +1994,7 @@ public class Clicker extends Application {
     }
 
     private void setPitchImage(int currentPitch) {
+        pitchInfo.setVisible(false);
         switch (currentPitch) {
             case 0 -> pitchHUDDisplay.setImage(pitch0);
             case 1 -> pitchHUDDisplay.setImage(pitch1);
@@ -1984,29 +2008,7 @@ public class Clicker extends Application {
             case 9 -> pitchHUDDisplay.setImage(pitch9);
             case 10 -> pitchHUDDisplay.setImage(pitch10);
         }
-//        if (currentPitch == 0) {
-//            pitchHUDDisplay.setImage(pitch0);
-//        } else if (currentPitch == 1) {
-//            pitchHUDDisplay.setImage(pitch1);
-//        } else if (currentPitch == 2) {
-//            pitchHUDDisplay.setImage(pitch2);
-//        } else if (currentPitch == 3) {
-//            pitchHUDDisplay.setImage(pitch3);
-//        } else if (currentPitch == 4) {
-//            pitchHUDDisplay.setImage(pitch4);
-//        } else if (currentPitch == 5) {
-//            pitchHUDDisplay.setImage(pitch5_level);
-//        } else if (currentPitch == 6) {
-//            pitchHUDDisplay.setImage(pitch6);
-//        } else if (currentPitch == 7) {
-//            pitchHUDDisplay.setImage(pitch7);
-//        } else if (currentPitch == 8) {
-//            pitchHUDDisplay.setImage(pitch8);
-//        } else if (currentPitch == 9) {
-//            pitchHUDDisplay.setImage(pitch9);
-//        } else if (currentPitch == 10) {
-//            pitchHUDDisplay.setImage(pitch10);
-//        }
+        pitchInfo.setVisible(true);
     }
 
     private void temporarilyLockButtonsForStageAdvance(int toggle) {
@@ -2313,6 +2315,10 @@ public class Clicker extends Application {
                 System.out.println("general timer didn't exist.");
             }
         }
+        randomSubHundredFeetValue = 0;
+        indAS = "";
+        altString = "";
+        indicatedAirspeedValue = 0;
         stallActive = 0;
         altitudeZone = 0;
         ripGearOffValue = 0;
@@ -2367,6 +2373,8 @@ public class Clicker extends Application {
         nitrousBoostsRemainingCount = 0;
         resetNitro();
         if (restart) {
+            flightLevelLabel.setVisible(false);
+            indicatedAirspeed.setVisible(false);
             generalTimerElapsedLabel.setForeground(Color.yellow);
             generalTimerElapsedLabel.setFont(font2);
             generalTimerElapsedLabel.setText("");
@@ -2639,6 +2647,13 @@ public class Clicker extends Application {
     }
 
     private void letsFly() throws IOException {
+        speedLabel.setVisible(true);
+        flightLevelLabel.setVisible(true);
+        altString = String.format("%03d", altitude);
+        altitudeDisplayValue.setText(altString + "00");
+        indicatedAirspeedValue = (int) clicksPerSecond; //change with altitude adjustment calculation
+        indAS = String.format("%03d", indicatedAirspeedValue);
+        indicatedAirspeed.setText(indAS + "IAS");
         priceLabelPanel.setVisible(false);
         pricePanel.setVisible(false);
         pitchInfo.setVisible(true);
