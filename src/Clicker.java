@@ -15,8 +15,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
-import static javax.swing.SwingConstants.LEFT;
-import static javax.swing.SwingConstants.RIGHT;
+import static javax.swing.SwingConstants.*;
 
 public class Clicker extends Application {
 
@@ -100,16 +99,14 @@ public class Clicker extends Application {
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG3 = {{50, 70}, {35, 45}, {20, 30}, {10, 15}, {5, 10}, {100, 150}, {150, 200}, {320, 350}, {80, 120}, {30, 40}, {5, 10}, {0, 0}};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{80, 100}, {230, 280}, {250, 300}, {270, 300}, {280, 290}, {120, 160}, {80, 90}, {90, 100}};
     final Integer[][] ALTITUDE_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{5, 10}, {200, 250}, {400, 420}, {370, 390}, {280, 320}, {200, 250}, {80, 90}, {90, 100}};
-    final double[][] PITCH_ARRAY = {{0, -5, 60, 100}, {1, -4, 45, 75}, {2, -3, 30, 50}, {3, -2, 20, 33}, {4, -1, 10, 17}, {5, 0, 0, 0}, {6, 1, 10, 0.889}, {7, 2, 20, 0.778}, {8, 3, 30, 0.667}, {9, 4, 45, 0.5}, {10, 5, 60, 0.333}}; // if climbing multiply max speed of thrustlevel by factor, if descending, add factor on to max
+    final double[][] PITCH_ARRAY = {{0, -5, 60, 100}, {1, -4, 45, 75}, {2, -3, 30, 50}, {3, -2, 20, 33}, {4, -1, 10, 17}, {5, 0, 0, 0}, {6, 1, 10, 0.889}, {7, 2, 20, 0.778}, {8, 3, 30, 0.667}, {9, 4, 45, 0.5}, {10, 5, 60, 0.333}}; // if climbing multiply max speed of thrust-level by factor, if descending, add factor on to max
     final Integer[][] THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
-    final Integer[][] ALTITUDE_STALL_MAXSPEED_RELATIONSHIP_ARRAY = {{0, 80, 100}, {250, 100, 115}, {300, 130, 125}, {350, 180, 140}, {400, 220, 150}, {450, 230, 160}};
+    final Integer[][] ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY = {{0, 80, 100}, {250, 100, 115}, {300, 130, 125}, {350, 180, 140}, {400, 220, 150}, {450, 230, 160}};
     /**------------------------------------------INITIAL VARIABLES------------------------------------------------ */
-
-    Color hudText = new Color(126, 255, 0);
     String obstacleType, km, kmGoal, indAS, altString;
     BufferedImage pitch0 = ImageIO.read(new File("src\\resource\\pitch0.png")); BufferedImage pitch1 = ImageIO.read(new File("src\\resource\\pitch1.png")); BufferedImage pitch2 = ImageIO.read(new File("src\\resource\\pitch2.png")); BufferedImage pitch3 = ImageIO.read(new File("src\\resource\\pitch3.png")); BufferedImage pitch4 = ImageIO.read(new File("src\\resource\\pitch4.png")); BufferedImage pitch5_level = ImageIO.read(new File("src\\resource\\pitch5_level.png")); BufferedImage pitch6 = ImageIO.read(new File("src\\resource\\pitch6.png")); BufferedImage pitch7 = ImageIO.read(new File("src\\resource\\pitch7.png")); BufferedImage pitch8 = ImageIO.read(new File("src\\resource\\pitch8.png")); BufferedImage pitch9 = ImageIO.read(new File("src\\resource\\pitch9.png")); BufferedImage pitch10 = ImageIO.read(new File("src\\resource\\pitch10.png")); BufferedImage jetImage = ImageIO.read(new File("src\\resource\\jetImage.png")); BufferedImage mainDisplayImage = ImageIO.read(new File("src\\resource\\carImage.png"));
     ImageIcon mainImageDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource(""))); ImageIcon pitchHUDDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("")));
-    JPanel priceLabelPanel = new JPanel(); JPanel pricePanel = new JPanel(); JPanel pitchInfo = new JPanel(); JPanel speedLabel = new JPanel(); JPanel flightLevelLabel = new JPanel();
+    JPanel clickHere = new JPanel(); JPanel priceLabelPanel = new JPanel(); JPanel pricePanel = new JPanel(); JPanel pitchInfo = new JPanel(); JPanel speedLabel = new JPanel(); JPanel flightLevelLabel = new JPanel();
     JButton mainImageButton = new JButton(); JButton buttonAuxiliary = new JButton("NOS +" + NITROS_TO_ADD_WHEN_BUTTON_CLICKED); JButton button1 = new JButton(LOCKED); JButton button2 = new JButton(LOCKED); JButton button3 = new JButton(LOCKED); JButton button4 = new JButton(LOCKED);
     JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel, obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
     JLabel pitchDisplayContainer = new JLabel(); JLabel indicatedAirspeed = new JLabel(""); JLabel altitudeDisplayValue = new JLabel("");
@@ -159,24 +156,26 @@ public class Clicker extends Application {
         window.getContentPane().setBackground(Color.black);
         window.setLayout(null);
 
-        speedLabel.setBounds(375,150,60,20);
+        speedLabel.setBounds(377,157,60,20);
         speedLabel.setOpaque(false);
         speedLabel.setVisible(false);
+        speedLabel.setLayout(new GridLayout(1,1));
         window.add(speedLabel);
 
         indicatedAirspeed.setForeground(Color.decode("#58b200"));
         indicatedAirspeed.setFont(fontHUD);
-        indicatedAirspeed.setHorizontalAlignment(LEFT);
+        indicatedAirspeed.setHorizontalTextPosition(LEFT);
         speedLabel.add(indicatedAirspeed);
 
-        flightLevelLabel.setBounds(375,175,60,20);
+        flightLevelLabel.setBounds(377,175,60,20);
         flightLevelLabel.setOpaque(false);
         flightLevelLabel.setVisible(false);
+        flightLevelLabel.setLayout(new GridLayout(1,1));
         window.add(flightLevelLabel);
 
         altitudeDisplayValue.setForeground(Color.decode("#58b200"));
         altitudeDisplayValue.setFont(fontHUD);
-        altitudeDisplayValue.setHorizontalAlignment(RIGHT);
+        altitudeDisplayValue.setHorizontalAlignment(LEFT);
         flightLevelLabel.add(altitudeDisplayValue);
 
         pitchInfo.setBounds(370, 146, 107, 255);
@@ -191,8 +190,7 @@ public class Clicker extends Application {
         pitchDisplayContainer.setIcon(pitchHUDDisplay);
         pitchInfo.add(pitchDisplayContainer);
 
-        JPanel clickHere = new JPanel();
-        clickHere.setBounds(100,200,200,200);
+        clickHere.setBounds(100,200,199,200);
         clickHere.setOpaque(false);
         window.add(clickHere);
 
@@ -309,7 +307,7 @@ public class Clicker extends Application {
         window.add(pricePanel);
 
         price1 = new JLabel("10m");
-        price1.setHorizontalAlignment(RIGHT);
+        price1.setHorizontalAlignment(LEFT);
         price1.setForeground(Color.white);
         price1.setFont(font1);
         pricePanel.add(price1);
@@ -794,7 +792,7 @@ public class Clicker extends Application {
         } else if (altitude > 400 && altitude <= 450) {
             altitudeZone = 4;
         }
-        if (clicksPerSecond < ALTITUDE_STALL_MAXSPEED_RELATIONSHIP_ARRAY[altitudeZone][1]) {
+        if (clicksPerSecond < ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][1]) {
             stallActive = 1; //trigger stall setup phase
             System.out.println("Stalling Activated!");
         }
@@ -1146,9 +1144,7 @@ public class Clicker extends Application {
                 gameOver();
             } else if (stage == 3) {
                 gameOver();
-            } else if (stage == 4 && parachuteActive && altitude == 0 && clicksPerSecond > 4 && landingGearUpFlag) {
-                gameOver();
-            } else if (stage == 4 && !landingGearUpFlag) {
+            } else if (stage == 4) {
                 gameOver();
             }
             if ((stage == 2 || stage == 3) && !gameOverFlag) {
@@ -1508,7 +1504,7 @@ public class Clicker extends Application {
             if (stage ==2 || stage == 3){
                 perSecondLabelLabel.setText("Speed:");
                 perSecondLabel.setText(mS + "m/s (" + kmHr + "km/hr)");
-            } else if (stage == 4) {
+            } else {
                 perSecondLabelLabel.setText("Ground Speed:");
                 perSecondLabel.setText(mS + "m/s (" + knots + "knots)");
             }
@@ -1923,17 +1919,17 @@ public class Clicker extends Application {
                      *
                      * 11 settings - 0-10
                      *
-                     * 0  - 60º (accelerate to max of thrustlevel plus 100), (descend by 133.34m for every 100m covered)
-                     * 1  - 45º (accelerate to max of thrustlevel plus 75), (descend by 100m for every 100m covered)
-                     * 2  - 30º (accelerate to max of thrustlevel plus 50), (descend by 66.67m for every 100m covered)
-                     * 3  - 20º (accelerate to max of thrustlevel plus 33), (descend by 44.45m for every 100m covered)
-                     * 4  - 10º (accelerate to max of thrustlevel plus 17), (descend by 22.22m for every 100m covered)
+                     * 0  - 60º (accelerate to max of thrust level plus 100), (descend by 133.34m for every 100m covered)
+                     * 1  - 45º (accelerate to max of thrust level plus 75), (descend by 100m for every 100m covered)
+                     * 2  - 30º (accelerate to max of thrust level plus 50), (descend by 66.67m for every 100m covered)
+                     * 3  - 20º (accelerate to max of thrust level plus 33), (descend by 44.45m for every 100m covered)
+                     * 4  - 10º (accelerate to max of thrust level plus 17), (descend by 22.22m for every 100m covered)
                      * 5  - 0 (level)
-                     * 6  + 10º (degrade to 2/9 max for thrustlevel), (climb by 22.22m for every 100m covered)
-                     * 7  + 20º (degrade to 4/9 max for thrustlevel), (climb by 44.45m for every 100m covered)
-                     * 8  + 30º (degrade to 2/3 max for thrustlevel), (climb by 66.67m for every 100m covered)
-                     * 9  + 45º (degrade to 1/2 max for thrustlevel), (climb by 100m for every 100m covered)
-                     * 10 + 60º (degrade to 1/3 max for thrustlevel, (climb by 133.34m for every 100m covered)
+                     * 6  + 10º (degrade to 2/9 max for thrust level), (climb by 22.22m for every 100m covered)
+                     * 7  + 20º (degrade to 4/9 max for thrust level), (climb by 44.45m for every 100m covered)
+                     * 8  + 30º (degrade to 2/3 max for thrust level), (climb by 66.67m for every 100m covered)
+                     * 9  + 45º (degrade to 1/2 max for thrust level), (climb by 100m for every 100m covered)
+                     * 10 + 60º (degrade to 1/3 max for thrust level, (climb by 133.34m for every 100m covered)
                      *
                      * Stall
                      * -----
@@ -1942,10 +1938,10 @@ public class Clicker extends Application {
                      * - if altitude <= 0 && stallActive == true then gameOver()
                      * - lock all buttons
                      * - set thrust to level 10
-                     * - pitch down to 60º (accelerate to max of thrustlevel 10 plus 100, descend by 133.34m for every 100m covered)
-                     * - when max of thrustlevel 10 achieved, offer button with "Recover Stall":
+                     * - pitch down to 60º (accelerate to max of thrust level 10 plus 100, descend by 133.34m for every 100m covered)
+                     * - when max of thrust level 10 achieved, offer button with "Recover Stall":
                      * 	- sets pitch to 4 (level),
-                     * 	- speed to degrade to max thrustlevel 10,
+                     * 	- speed to degrade to max thrust level 10,
                      * 	- button disappears when clicked
                      * 	- unlock all buttons
                      *
@@ -2373,6 +2369,10 @@ public class Clicker extends Application {
         nitrousBoostsRemainingCount = 0;
         resetNitro();
         if (restart) {
+            clickHere.setVisible(false);
+            mainImageDisplay.setImage(mainDisplayImage);
+            clickHere.setVisible(true);
+            pitchInfo.setVisible(false);
             flightLevelLabel.setVisible(false);
             indicatedAirspeed.setVisible(false);
             generalTimerElapsedLabel.setForeground(Color.yellow);
