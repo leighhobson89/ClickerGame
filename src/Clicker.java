@@ -92,6 +92,8 @@ public class Clicker extends Application {
     final int MAX_RIP_GEAR_OFF_DISTANCE = 4000;
     final int MIN_RIP_GEAR_OFF_DISTANCE = 2000;
     final int MIN_TAKEOFF_PITCH = 7;
+    final int STALL_RECOVERY_COEFFICIENT = 10;
+    final int ALTITUDE_COEFFICIENT = 4;
     final String[] obstacleNameArrayStg2 = {"Garage Gate", "Sheep Crossing", "Police Checkpoint", "Level Crossing", "Tractor Up Ahead", "Dog Running in Road", "Drunk Man in Road", "Fallen Rocks", "Broken Water Pipe", "Kids Playing in Road",
             "Turning Lorry Up Ahead", "Bin Wagon Spilled Trash", "Fallen Tree", "Road Works Up Ahead", "Bicycle Up Ahead", "Mate Wants A Race", "Road Rager Chasing You", "Minimum Speed Limit", "Out Accelerate A Sports Car", "Out Accelerate A Hatchback", "Steve"};
     final String[] obstacleNameArrayStg3 = {"Motorway Entry Road", "Slow Lorry Convoy", "Broken Down Van", "Pedestrian on Motorway", "Overpass Collapse", "Race a 1300cc Motorbike", "Jump The Ramp", "Max Power", "Steady She Goes", "Motorway Exit", "Airfield Entrance", "Escape Plane"};
@@ -102,16 +104,17 @@ public class Clicker extends Application {
     final Integer[][] ALTITUDE_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{5, 10}, {200, 250}, {400, 420}, {370, 390}, {280, 320}, {200, 250}, {80, 90}, {90, 100}};
     final double[][] PITCH_ARRAY = {{0, -5, 60, 100}, {1, -4, 45, 75}, {2, -3, 30, 50}, {3, -2, 20, 33}, {4, -1, 10, 17}, {5, 0, 0, 0}, {6, 1, 10, 0.889}, {7, 2, 20, 0.778}, {8, 3, 30, 0.667}, {9, 4, 45, 0.5}, {10, 5, 60, 0.333}}; // if climbing multiply max speed of thrust-level by factor, if descending, add factor on to max
     final Integer[][] THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
-    final Integer[][] ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY = {{0, 80, 100}, {250, 100, 115}, {300, 130, 125}, {350, 180, 140}, {400, 220, 150}, {450, 230, 160}};
+    final Integer[][] ORIGINAL_THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
+    final Integer[][] ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY = {{80, 50}, {250, 120}, {300, 150}, {350, 180}, {400, 220}, {450, 230}};
     /**------------------------------------------INITIAL VARIABLES------------------------------------------------ */
     String obstacleType, km, kmGoal, indAS, altString;
     BufferedImage pitch0 = ImageIO.read(new File("src\\resource\\pitch0.png")); BufferedImage pitch1 = ImageIO.read(new File("src\\resource\\pitch1.png")); BufferedImage pitch2 = ImageIO.read(new File("src\\resource\\pitch2.png")); BufferedImage pitch3 = ImageIO.read(new File("src\\resource\\pitch3.png")); BufferedImage pitch4 = ImageIO.read(new File("src\\resource\\pitch4.png")); BufferedImage pitch5_level = ImageIO.read(new File("src\\resource\\pitch5_level.png")); BufferedImage pitch6 = ImageIO.read(new File("src\\resource\\pitch6.png")); BufferedImage pitch7 = ImageIO.read(new File("src\\resource\\pitch7.png")); BufferedImage pitch8 = ImageIO.read(new File("src\\resource\\pitch8.png")); BufferedImage pitch9 = ImageIO.read(new File("src\\resource\\pitch9.png")); BufferedImage pitch10 = ImageIO.read(new File("src\\resource\\pitch10.png")); BufferedImage jetImage = ImageIO.read(new File("src\\resource\\jetImage.png")); BufferedImage mainDisplayImage = ImageIO.read(new File("src\\resource\\carImage.png"));
     ImageIcon mainImageDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource(""))); ImageIcon pitchHUDDisplay = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("")));
-    JPanel clickHere = new JPanel(); JPanel priceLabelPanel = new JPanel(); JPanel pricePanel = new JPanel(); JPanel pitchInfo = new JPanel(); JPanel speedLabel = new JPanel(); JPanel flightLevelLabel = new JPanel();
+    JPanel stallingWarningPanel = new JPanel(); JPanel clickHere = new JPanel(); JPanel priceLabelPanel = new JPanel(); JPanel pricePanel = new JPanel(); JPanel pitchInfo = new JPanel(); JPanel speedLabel = new JPanel(); JPanel flightLevelLabel = new JPanel();
     JButton mainImageButton = new JButton(); JButton buttonAuxiliary = new JButton("NOS +" + NITROS_TO_ADD_WHEN_BUTTON_CLICKED); JButton button1 = new JButton(LOCKED); JButton button2 = new JButton(LOCKED); JButton button3 = new JButton(LOCKED); JButton button4 = new JButton(LOCKED);
     JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel, obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
-    JLabel pitchDisplayContainer = new JLabel(); JLabel indicatedAirspeed = new JLabel(""); JLabel altitudeDisplayValue = new JLabel(""); JLabel altitudeHundredthsDisplayValue = new JLabel("");
-    Font font1, font2, font3, fontHUD;
+    JLabel stallingWarning = new JLabel(); JLabel pitchDisplayContainer = new JLabel(); JLabel indicatedAirspeed = new JLabel(""); JLabel altitudeDisplayValue = new JLabel(""); JLabel altitudeHundredthsDisplayValue = new JLabel("");
+    Font font1, font2, font3, font4, fontHUD;
     ClickHandler cHandler = new ClickHandler();
     Timer timer, delayPanelAfterObstacleTimer, countDownToPassObstacleTimer, generalElapsedCounter;
     JTextArea messageText;
@@ -121,7 +124,7 @@ public class Clicker extends Application {
     int randomGoalMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, speedRangePermitted, speedRangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
     int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilEndOStageGoal, leftClickCount, rightClickCount;
     int ripGearOffValue, thrustLevel, approachTrigger, timeUntilAuxiliaryButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
-    int randomSubHundredFeetValue, stallActive, altitudeZone, currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
+    int recoverySpeed, newMaxSpeedAdjustedForPitch, randomSubHundredFeetValue, stallActive, altitudeZone, currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
     double altitude, indicatedAirspeedValue, altitudeGain, finalProportionPercentage, currentSpeedProportionOfMaxForThrustLevel, accelerationAmount, speedKnots, nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean rippedGearOff, speedDegrading, hasTookOff, parachuteActive, dropZoneFlag, parachuteZoneFlag, landingGearUpFlag, BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, button1Unlocked, button2Unlocked, mechanicTriggeredYet, button3Unlocked, driveUnlocked, carInMechanic, hasIncreasedSpeedFromZeroOnCurrentStageFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
@@ -147,6 +150,7 @@ public class Clicker extends Application {
         font1 = new Font("Arial", Font.PLAIN, 32);
         font2 = new Font("Arial", Font.PLAIN, 15);
         font3 = new Font("Arial", Font.BOLD, 27);
+        font4 = new Font("Arial", Font.PLAIN, 17);
         fontHUD = new Font("Consolas", Font.PLAIN, 18);
     }
     public void createUI(BufferedImage initialImage) {
@@ -156,6 +160,17 @@ public class Clicker extends Application {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.getContentPane().setBackground(Color.black);
         window.setLayout(null);
+
+        stallingWarningPanel.setBounds(20,5,500,40);
+        stallingWarningPanel.setOpaque(false);
+        stallingWarningPanel.setVisible(false);
+        stallingWarningPanel.setLayout(new GridLayout(1,1));
+        window.add(stallingWarningPanel);
+
+        stallingWarning.setForeground(Color.red);
+        stallingWarning.setFont(font4);
+        stallingWarning.setHorizontalTextPosition(LEFT);
+        stallingWarningPanel.add(stallingWarning);
 
         speedLabel.setBounds(377,157,60,20);
         speedLabel.setOpaque(false);
@@ -465,6 +480,7 @@ public class Clicker extends Application {
         timer = new Timer(timerSpeed, e -> {
             clickCount++;
             if (stage == 4 && hasTookOff) {
+                adjustSpeedForPitch();
                 calculateAltitude();
                 if (altitude <= 0) {
                     gameOver();
@@ -761,23 +777,56 @@ public class Clicker extends Application {
         });
     }
 
+    private void adjustSpeedForPitch() {
+        if (hasTookOff) {
+            switch (currentPitch) {
+                case 0 -> newMaxSpeedAdjustedForPitch = 100;
+                case 1 -> newMaxSpeedAdjustedForPitch = 75;
+                case 2 -> newMaxSpeedAdjustedForPitch = 50;
+                case 3 -> newMaxSpeedAdjustedForPitch = 33;
+                case 4 -> newMaxSpeedAdjustedForPitch = 17;
+                case 5 -> newMaxSpeedAdjustedForPitch = 0;
+                case 6 -> newMaxSpeedAdjustedForPitch = ((ORIGINAL_THRUST_ARRAY[thrustLevel][1] / 9) * 7) - ORIGINAL_THRUST_ARRAY[thrustLevel][1];
+                case 7 -> newMaxSpeedAdjustedForPitch = ((ORIGINAL_THRUST_ARRAY[thrustLevel][1] / 9) * 6) - ORIGINAL_THRUST_ARRAY[thrustLevel][1];
+                case 8 -> newMaxSpeedAdjustedForPitch = ((ORIGINAL_THRUST_ARRAY[thrustLevel][1] / 9) * 5) - ORIGINAL_THRUST_ARRAY[thrustLevel][1];
+                case 9 -> newMaxSpeedAdjustedForPitch = (ORIGINAL_THRUST_ARRAY[thrustLevel][1] / 2) - ORIGINAL_THRUST_ARRAY[thrustLevel][1];
+                case 10 -> newMaxSpeedAdjustedForPitch = (ORIGINAL_THRUST_ARRAY[thrustLevel][1] / 3) - ORIGINAL_THRUST_ARRAY[thrustLevel][1];
+            }
+            THRUST_ARRAY[thrustLevel][1] = ORIGINAL_THRUST_ARRAY[thrustLevel][1] + newMaxSpeedAdjustedForPitch;
+            System.out.println(THRUST_ARRAY[thrustLevel][1]);
+        }
+    }
+
     private void calculateAltitude() {
         switch (currentPitch) {
-            case 0, 10 -> altitudeGain = (indicatedAirspeedValue * 1.33) / 1000;
-            case 1, 9 -> altitudeGain = (indicatedAirspeedValue) / 1000;
-            case 2, 8 -> altitudeGain = (indicatedAirspeedValue * 0.67) / 1000;
-            case 3, 7 -> altitudeGain = (indicatedAirspeedValue * 0.45) / 1000;
-            case 4, 6 -> altitudeGain = (indicatedAirspeedValue * 0.22) / 1000;
+            case 0, 10 -> altitudeGain = ((indicatedAirspeedValue / ALTITUDE_COEFFICIENT) * 1.33) / 1000;
+            case 1, 9 -> altitudeGain = ((indicatedAirspeedValue / ALTITUDE_COEFFICIENT)) / 1000;
+            case 2, 8 -> altitudeGain = ((indicatedAirspeedValue / ALTITUDE_COEFFICIENT) * 0.67) / 1000;
+            case 3, 7 -> altitudeGain = ((indicatedAirspeedValue / ALTITUDE_COEFFICIENT) * 0.45) / 1000;
+            case 4, 6 -> altitudeGain = ((indicatedAirspeedValue / ALTITUDE_COEFFICIENT) * 0.22) / 1000;
             case 5 -> altitudeGain = 0;
         }
         switch (currentPitch) {
             case 0,1,2,3,4 -> altitude = (altitude - altitudeGain);
             case 5,6,7,8,9,10 -> altitude = (altitude + altitudeGain);
         }
+        if (altitude > 0 && altitude <= 50) {
+            altitudeZone = 0;
+        } else if (altitude > 50 && altitude <= 250) {
+            altitudeZone = 1;
+        }else if (altitude > 250 && altitude <= 300) {
+            altitudeZone = 2;
+        } else if (altitude > 300 && altitude <= 350) {
+            altitudeZone = 3;
+        } else if (altitude > 350 && altitude <= 400) {
+            altitudeZone = 4;
+        } else if (altitude > 400 && altitude <= 450) {
+            altitudeZone = 5;
+        }
     }
 
     private void recoverStallCheck() {
-        if (clicksPerSecond >= THRUST_ARRAY[thrustLevel][1] && altitude > 0) {
+        if ((altitudeZone != 5 && (indicatedAirspeedValue >= ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone+1][1] + STALL_RECOVERY_COEFFICIENT && altitude > 0)) || (altitudeZone != 5 && (indicatedAirspeedValue >= ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][1] + STALL_RECOVERY_COEFFICIENT && altitude > 0))) {
             buttonAuxiliary.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(5.0f), Color.red));
             buttonAuxiliary.setText("Recover");
             buttonAuxiliary.setActionCommand("RecoverStall");
@@ -790,35 +839,30 @@ public class Clicker extends Application {
 
     private void stallSetup() {
         temporarilyLockButtonsForStageAdvance(2);
-        if (altitudeZone == 0) {
-            thrustLevel = 10;
-        } else if (altitudeZone == 1) {
-            thrustLevel = 15;
-        } else if (altitudeZone == 2) {
-            thrustLevel = 20;
-        } else if (altitudeZone == 3) {
-            thrustLevel = 23;
-        } else if (altitudeZone == 4) {
-            thrustLevel = 25;
+        stallingWarningPanel.setVisible(true);
+        stallingWarning.setText("STALLING! TO RECOVER, ACCELERATE TO AT LEAST " + (ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][1] + STALL_RECOVERY_COEFFICIENT) + "IAS.");
+        recoverySpeed = ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][1] + STALL_RECOVERY_COEFFICIENT;
+        pitchInfo.setVisible(false);
+        pitchHUDDisplay.setImage(pitch3);
+        pitchInfo.setVisible(true);
+        button1.setText("Thrust +");
+        button1.setActionCommand("ThrustUp");
+        for (int i = 0; i < THRUST_ARRAY.length; i++) { //sets thrustlevel to be nearest to keep speed similar to require user action
+            if (indicatedAirspeedValue <= THRUST_ARRAY[i][1] && indicatedAirspeedValue > THRUST_ARRAY[i-1][1]) {
+                if (thrustLevel > 10) {
+                    thrustLevel = THRUST_ARRAY[i - 10][0];
+                } else {
+                    thrustLevel = 0;
+                }
+                break;
+            }
         }
-
-        currentPitch = 0;
+        currentPitch = 3;
         stallActive = 2; //stall set up and active
     }
 
     private void stallCheck() {
-        if (altitude > 0 && altitude <= 250) {
-            altitudeZone = 0;
-        } else if (altitude > 250 && altitude <= 300) {
-            altitudeZone = 1;
-        } else if (altitude > 300 && altitude <= 350) {
-            altitudeZone = 2;
-        } else if (altitude > 350 && altitude <= 400) {
-            altitudeZone = 3;
-        } else if (altitude > 400 && altitude <= 450) {
-            altitudeZone = 4;
-        }
-        if (clicksPerSecond < ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][1]) {
+        if (indicatedAirspeedValue < ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][1]) {
             stallActive = 1; //trigger stall setup phase
             System.out.println("Stalling Activated!");
         }
@@ -1851,10 +1895,12 @@ public class Clicker extends Application {
                     }
                 break;
                 case "RecoverStall":
+                    speedDegrading = true;
                     stallActive = 0;
                     currentPitch = 5;
                     timerAuxiliaryButtonDisappearFlag = true;
                     timeUntilAuxiliaryButtonDisappears = generalTimerElapsedSeconds;
+                    stallingWarningPanel.setVisible(false);
                     button1Unlocked = true;
                     button2Unlocked = true;
                     button3Unlocked = true;
@@ -2005,6 +2051,9 @@ public class Clicker extends Application {
                             currentPitch++;
                         }
                     }
+                    if (hasTookOff) {
+                        speedDegrading = true;
+                    }
                     setPitchImage(currentPitch);
                 break;
                 case "PitchDown":
@@ -2057,7 +2106,7 @@ public class Clicker extends Application {
             if (stage != 2 && stage != 3 && stage != 4) {
                 button1Unlocked = true;
                 button2Unlocked = true;
-                button3Unlocked =false;
+                button3Unlocked = false;
                 driveUnlocked = true;
             } else {
                 button1Unlocked = false;
@@ -2073,6 +2122,10 @@ public class Clicker extends Application {
             if ((stage == 0) || (stage == 2) || (stage == 3) || (stage == 4 && stallActive == 0)) {
                 button4.setActionCommand("AdvanceStage");
             } else if (stage == 4) {
+                button1Unlocked = true;
+                button1.setActionCommand("");
+                button2.setActionCommand("");
+                button3.setActionCommand("");
                 button4.setActionCommand("");
                 button4.setText("STALLING!");
             }
@@ -2156,6 +2209,8 @@ public class Clicker extends Application {
                     messageText.setText("Click to drop the stash in the dropzone");
                 } else if (button == buttonAuxiliary && stage == 4 && parachuteZoneFlag) {
                     messageText.setText("Click to jump out of the plane!");
+                } else if (button == buttonAuxiliary && stage == 4 && hasTookOff && stallActive == 2) {
+                    messageText.setText("Click to Recover from Stall!");
                 }
             }
 
@@ -2217,8 +2272,11 @@ public class Clicker extends Application {
                 }
             }
             if ((stage == 2 || stage == 3 || stage == 4) && !atStartEngineScreen) {
-                if (button == buttonAuxiliary) {
+                if (button == buttonAuxiliary && stage == 3) {
                     messageText.setText("\n\n\nAdd " + NITROS_TO_ADD_WHEN_BUTTON_CLICKED + " Nitros!");
+                }
+                if (button == buttonAuxiliary && stage == 4 && hasTookOff && stallActive == 2) {
+                    messageText.setText("Click to Recover from Stall!");
                 }
                 if (button == buttonAuxiliary && stage == 4 && !landingGearUpFlag) {
                     messageText.setText("After Takeoff, click to raise landing gear to safely surpass 100m/s");
@@ -2347,6 +2405,8 @@ public class Clicker extends Application {
                 System.out.println("general timer didn't exist.");
             }
         }
+        recoverySpeed = 0;
+        newMaxSpeedAdjustedForPitch = 0;
         altitudeGain = 0;
         randomSubHundredFeetValue = 0;
         indAS = "";
