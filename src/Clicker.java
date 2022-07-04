@@ -91,6 +91,7 @@ public class Clicker extends Application {
     final double ACCELERATION_MODIFIER = 2;
     final int MAX_RIP_GEAR_OFF_DISTANCE = 4000;
     final int MIN_RIP_GEAR_OFF_DISTANCE = 2000;
+    final int MIN_TAKEOFF_PITCH = 7;
     final String[] obstacleNameArrayStg2 = {"Garage Gate", "Sheep Crossing", "Police Checkpoint", "Level Crossing", "Tractor Up Ahead", "Dog Running in Road", "Drunk Man in Road", "Fallen Rocks", "Broken Water Pipe", "Kids Playing in Road",
             "Turning Lorry Up Ahead", "Bin Wagon Spilled Trash", "Fallen Tree", "Road Works Up Ahead", "Bicycle Up Ahead", "Mate Wants A Race", "Road Rager Chasing You", "Minimum Speed Limit", "Out Accelerate A Sports Car", "Out Accelerate A Hatchback", "Steve"};
     final String[] obstacleNameArrayStg3 = {"Motorway Entry Road", "Slow Lorry Convoy", "Broken Down Van", "Pedestrian on Motorway", "Overpass Collapse", "Race a 1300cc Motorbike", "Jump The Ramp", "Max Power", "Steady She Goes", "Motorway Exit", "Airfield Entrance", "Escape Plane"};
@@ -109,7 +110,7 @@ public class Clicker extends Application {
     JPanel clickHere = new JPanel(); JPanel priceLabelPanel = new JPanel(); JPanel pricePanel = new JPanel(); JPanel pitchInfo = new JPanel(); JPanel speedLabel = new JPanel(); JPanel flightLevelLabel = new JPanel();
     JButton mainImageButton = new JButton(); JButton buttonAuxiliary = new JButton("NOS +" + NITROS_TO_ADD_WHEN_BUTTON_CLICKED); JButton button1 = new JButton(LOCKED); JButton button2 = new JButton(LOCKED); JButton button3 = new JButton(LOCKED); JButton button4 = new JButton(LOCKED);
     JLabel generalTimerElapsedValue, generalTimerElapsedLabel, metresTravelledLabel, clickCountLabel, perSecondLabelLabel, perSecondLabel, price, price1, price2, price3, price4, distanceToGoLabel, distanceToGoTitleLabel, whatIsNextObstacle, distanceToNextObstacleTitleLabel, distanceToNextObstacleLabel, obstacleConditionsTitle, obstacleConditions, timerObstacleTitle, timerObstacle, passFailObstacle, costOfFailure;
-    JLabel pitchDisplayContainer = new JLabel(); JLabel indicatedAirspeed = new JLabel(""); JLabel altitudeDisplayValue = new JLabel("");
+    JLabel pitchDisplayContainer = new JLabel(); JLabel indicatedAirspeed = new JLabel(""); JLabel altitudeDisplayValue = new JLabel(""); JLabel altitudeHundredthsDisplayValue = new JLabel("");
     Font font1, font2, font3, fontHUD;
     ClickHandler cHandler = new ClickHandler();
     Timer timer, delayPanelAfterObstacleTimer, countDownToPassObstacleTimer, generalElapsedCounter;
@@ -119,9 +120,9 @@ public class Clicker extends Application {
     int stage, clickCount, timerSpeed, secondsElapsedDelayToRemoveObstaclePanel, autoClickerNumber, autoClickerPrice, towTruckNumber, towTruckPrice, mechanicPrice, button3ClickIteration, repairCounter, clicksLeftToFixCar, distanceToEndOfStageGoal;
     int randomGoalMovementModifier, driveFirstClickFlag, obstacleTarget, costOfFailureValue,timerObstacleValue, originalTimerObstacleValue, passObstacleFlag, speedRangePermitted, speedRangeActual, generalTimerElapsedSeconds, generalTimerSecondsToDisplay, generalTimerElapsedMinutes;
     int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilEndOStageGoal, leftClickCount, rightClickCount;
-    int ripGearOffValue, altitude, thrustLevel, approachTrigger, timeUntilAuxiliaryButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
-    int randomSubHundredFeetValue, indicatedAirspeedValue, stallActive, altitudeZone, currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
-    double finalProportionPercentage, currentSpeedProportionOfMaxForThrustLevel, accelerationAmount, speedKnots, nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
+    int ripGearOffValue, thrustLevel, approachTrigger, timeUntilAuxiliaryButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
+    int randomSubHundredFeetValue, stallActive, altitudeZone, currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
+    double altitude, indicatedAirspeedValue, altitudeGain, finalProportionPercentage, currentSpeedProportionOfMaxForThrustLevel, accelerationAmount, speedKnots, nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean rippedGearOff, speedDegrading, hasTookOff, parachuteActive, dropZoneFlag, parachuteZoneFlag, landingGearUpFlag, BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, button1Unlocked, button2Unlocked, mechanicTriggeredYet, button3Unlocked, driveUnlocked, carInMechanic, hasIncreasedSpeedFromZeroOnCurrentStageFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
     boolean failedObstacleWithinApproachOfEndOfStageGoal, approachingEndOfStageGoalFlag, checkTimeGoalMoveCount, startDelayTimerFlag, countDownToPassObstacleOn, startCountDownToPassObstacleFlag, wasPassingNowFailing, moreThanOneMinuteElapsedFlag;
@@ -170,13 +171,18 @@ public class Clicker extends Application {
         flightLevelLabel.setBounds(377,175,60,20);
         flightLevelLabel.setOpaque(false);
         flightLevelLabel.setVisible(false);
-        flightLevelLabel.setLayout(new GridLayout(1,1));
+        flightLevelLabel.setLayout(new GridLayout(1,2));
         window.add(flightLevelLabel);
 
         altitudeDisplayValue.setForeground(Color.decode("#58b200"));
         altitudeDisplayValue.setFont(fontHUD);
         altitudeDisplayValue.setHorizontalAlignment(LEFT);
         flightLevelLabel.add(altitudeDisplayValue);
+
+        altitudeHundredthsDisplayValue.setForeground(Color.decode("#58b200"));
+        altitudeHundredthsDisplayValue.setFont(fontHUD);
+        altitudeHundredthsDisplayValue.setHorizontalAlignment(LEFT);
+        flightLevelLabel.add(altitudeHundredthsDisplayValue);
 
         pitchInfo.setBounds(370, 146, 107, 255);
         pitchInfo.setOpaque(false);
@@ -458,7 +464,11 @@ public class Clicker extends Application {
     public void setTimer() {
         timer = new Timer(timerSpeed, e -> {
             clickCount++;
-            if (stage == 4 && hasTookOff && landingGearUpFlag) {
+            if (stage == 4 && hasTookOff) {
+                calculateAltitude();
+                if (altitude <= 0) {
+                    gameOver();
+                }
                 if (stallActive == 0) {
                     stallCheck();
                 } else if (stallActive == 1) {
@@ -470,14 +480,15 @@ public class Clicker extends Application {
             if (stage == 4) {
                 randomSubHundredFeetValue = (int) (Math.random() * 99);
                 if (hasTookOff && currentPitch != 5) {
-                    altString = String.format("%03d", altitude);
-                    altitudeDisplayValue.setText(altString + randomSubHundredFeetValue + "");
+                    altString = String.format("%03d", (int) altitude);
+                    altitudeDisplayValue.setText(altString);
+                    altitudeHundredthsDisplayValue.setText(randomSubHundredFeetValue + "");
                 } else {
-                    altitudeDisplayValue.setText(altString + "00");
+                    altitudeHundredthsDisplayValue.setText("00");
                 }
 
                 indicatedAirspeedValue = (int) clicksPerSecond; //change with altitude adjustment calculation
-                indAS = String.format("%03d", indicatedAirspeedValue);
+                indAS = String.format("%03d", (int) indicatedAirspeedValue);
                 indicatedAirspeed.setText(indAS + "IAS");
                 if (speedDegrading) {
                     currentSpeedProportionOfMaxForThrustLevel = (clicksPerSecond - THRUST_ARRAY[thrustLevel][1]);
@@ -748,6 +759,21 @@ public class Clicker extends Application {
                 temporarilyLockButtonsForStageAdvance(1);
             }
         });
+    }
+
+    private void calculateAltitude() {
+        switch (currentPitch) {
+            case 0, 10 -> altitudeGain = (indicatedAirspeedValue * 1.33) / 1000;
+            case 1, 9 -> altitudeGain = (indicatedAirspeedValue) / 1000;
+            case 2, 8 -> altitudeGain = (indicatedAirspeedValue * 0.67) / 1000;
+            case 3, 7 -> altitudeGain = (indicatedAirspeedValue * 0.45) / 1000;
+            case 4, 6 -> altitudeGain = (indicatedAirspeedValue * 0.22) / 1000;
+            case 5 -> altitudeGain = 0;
+        }
+        switch (currentPitch) {
+            case 0,1,2,3,4 -> altitude = (altitude - altitudeGain);
+            case 5,6,7,8,9,10 -> altitude = (altitude + altitudeGain);
+        }
     }
 
     private void recoverStallCheck() {
@@ -1263,6 +1289,11 @@ public class Clicker extends Application {
             if(passObstacleFlag == 1) {
                 countDownToPassObstacleTimer.stop();
                 obstaclePassed();
+            }
+            if (stage == 4 && !hasTookOff && currentPitch < MIN_TAKEOFF_PITCH) {
+                passObstacleFlag = 2;
+                countDownToPassObstacleTimer.stop();
+                obstacleFailed();
             }
         }
         if (passObstacleFlag == 2) {
@@ -1835,6 +1866,11 @@ public class Clicker extends Application {
                     button2.setText("Thrust -");
                     button3.setText("Pitch Up");
                     button4.setText("Pitch Down");
+                    button4.setForeground(Color.black);
+                    button4.setFont(font1);
+                    pitchInfo.setVisible(false);
+                    pitchHUDDisplay.setImage(pitch5_level);
+                    pitchInfo.setVisible(true);
                 break;
                 case "ThrustUp":
                         originalCPS = clicksPerSecond;
@@ -2311,6 +2347,7 @@ public class Clicker extends Application {
                 System.out.println("general timer didn't exist.");
             }
         }
+        altitudeGain = 0;
         randomSubHundredFeetValue = 0;
         indAS = "";
         altString = "";
@@ -2649,10 +2686,11 @@ public class Clicker extends Application {
     private void letsFly() throws IOException {
         speedLabel.setVisible(true);
         flightLevelLabel.setVisible(true);
-        altString = String.format("%03d", altitude);
-        altitudeDisplayValue.setText(altString + "00");
+        altString = String.format("%03d", (int) altitude);
+        altitudeDisplayValue.setText(altString);
+        altitudeHundredthsDisplayValue.setText("00");
         indicatedAirspeedValue = (int) clicksPerSecond; //change with altitude adjustment calculation
-        indAS = String.format("%03d", indicatedAirspeedValue);
+        indAS = String.format("%03d", (int) indicatedAirspeedValue);
         indicatedAirspeed.setText(indAS + "IAS");
         priceLabelPanel.setVisible(false);
         pricePanel.setVisible(false);
@@ -2740,6 +2778,9 @@ public class Clicker extends Application {
             generalTimerElapsedValue.setText("YOU DIED ON IMPACT!!");
         } else if (stage == 4 && stallActive == 2 && altitude == 0) {
             generalTimerElapsedValue.setText("STALLED AND CRASHED!");
+        } else if (stage == 4 && hasTookOff && altitude <= 0) {
+             generalTimerElapsedValue.setText("CRASHED INTO GROUND!");
+             altitudeHundredthsDisplayValue.setText("00");
         }
         clicksPerSecond = 0;
         passFailObstacle.setForeground(Color.red);
