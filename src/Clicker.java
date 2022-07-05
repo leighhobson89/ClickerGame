@@ -101,7 +101,7 @@ public class Clicker extends Application {
     final String[] obstacleNameArrayStg4 = {"Takeoff", "Plane Inbound", "Storm", "Radar Failure", "Severe Turbulence", "Strange Phenomenon", "Drop Zone", "Parachute Zone"};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG2 = {{0, 0, 0}, {2, 8, 1}, {1, 2, 0}, {0, 0, 0}, {3, 6, 1}, {2, 9, 1}, {4, 8, 1}, {3, 10, 1}, {6, 12, 1}, {2, 4, 1}, {8, 11, 1}, {6, 15, 1}, {3, 14, 1}, {0, 1, 1}, {3, 15, 1}, {50, 60, 0}, {45, 50, 0}, {30, 70, 0}, {65, 70, 0}, {60, 65, 0}, {0, 0, 0}};
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG3 = {{50, 70}, {35, 45}, {20, 30}, {10, 15}, {5, 10}, {100, 150}, {150, 200}, {320, 350}, {80, 120}, {30, 40}, {5, 10}, {0, 0}};
-    final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{80, 100}, {230, 280}, {250, 300}, {270, 300}, {280, 290}, {120, 160}, {80, 90}, {90, 100}};
+    final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{90, 100}, {230, 280}, {250, 300}, {270, 300}, {280, 290}, {120, 160}, {80, 90}, {90, 100}};
     final Integer[][] ALTITUDE_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{0, 0}, {200, 250}, {400, 420}, {370, 390}, {280, 320}, {200, 250}, {80, 90}, {90, 100}};
     final double[][] PITCH_ARRAY = {{0, -5, 60, 100}, {1, -4, 45, 75}, {2, -3, 30, 50}, {3, -2, 20, 33}, {4, -1, 10, 17}, {5, 0, 0, 0}, {6, 1, 10, 0.889}, {7, 2, 20, 0.778}, {8, 3, 30, 0.667}, {9, 4, 45, 0.5}, {10, 5, 60, 0.333}}; // if climbing multiply max speed of thrust-level by factor, if descending, add factor on to max
     final Integer[][] THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
@@ -763,17 +763,21 @@ public class Clicker extends Application {
                     countDownToPassObstacleTimerUpdate();
                 }
                 if (stage == 4 && (speedRangeActual > speedRangePermitted || speedRangeActual < 0) && (altitudeRangeActual > altitudeRangePermitted || altitudeRangeActual < 0) && (nextObstDistance <= 0)) {
-                        passObstacleFlag = 2;
-                        obstacleFailed();
+                    passObstacleFlag = 2;
+                    obstacleFailed();
                 }
-                    if (stage == 4 && nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && nextObstDistance >= 0 && (speedRangeActual <= speedRangePermitted && speedRangeActual >= 0)) { // add extra stage 4 conditions if necessary when testing done
-                        passObstacleFlag = 1;
-                        obstaclePassed();
-                    }
-                    if (stage == 4 && nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && !hasTookOff && currentPitch < MIN_TAKEOFF_PITCH ) {
-                        passObstacleFlag = 2;
-                        obstacleFailed();
-                    }
+                if (stage == 4 && obstacleTarget == 0 && currentPitch >= MIN_TAKEOFF_PITCH && clicksPerSecond >= SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4[0][0] && clicksPerSecond <= SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4[0][1]) {
+                    passObstacleFlag = 1;
+                    obstaclePassed();
+                }
+                if (stage == 4 && nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && nextObstDistance >= 0 && (speedRangeActual <= speedRangePermitted && speedRangeActual >= 0)) { // add extra stage 4 conditions if necessary when testing done
+                    passObstacleFlag = 1;
+                    obstaclePassed();
+                }
+                if (stage == 4 && nextObstDistance < DISTANCE_ENTER_OBSTACLE_ELIGIBILITY && !hasTookOff && currentPitch < MIN_TAKEOFF_PITCH ) {
+                    passObstacleFlag = 2;
+                    obstacleFailed();
+                }
                 if (!gameOverFlag && !displayObstacleConditionsFlag) {
                     countDisplay = 0;
                     obstacleConditionsTitle.setText("");
