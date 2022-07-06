@@ -104,9 +104,9 @@ public class Clicker extends Application {
     final Integer[][] SPEED_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{90, 100}, {230, 280}, {250, 300}, {270, 300}, {280, 290}, {120, 160}, {80, 90}, {90, 100}};
     final Integer[][] ALTITUDE_RANGE_REQUIRED_OBSTACLES_ARRAY_STG4 = {{0, 0}, {200, 250}, {400, 420}, {370, 390}, {280, 320}, {200, 250}, {80, 90}, {90, 100}};
     final double[][] PITCH_ARRAY = {{0, -5, 60, 100}, {1, -4, 45, 75}, {2, -3, 30, 50}, {3, -2, 20, 33}, {4, -1, 10, 17}, {5, 0, 0, 0}, {6, 1, 10, 0.889}, {7, 2, 20, 0.778}, {8, 3, 30, 0.667}, {9, 4, 45, 0.5}, {10, 5, 60, 0.333}}; // if climbing multiply max speed of thrust-level by factor, if descending, add factor on to max
-    final Integer[][] THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
+    final double[][] THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
     final Integer[][] ORIGINAL_THRUST_ARRAY = {{0, 0}, {1, 10}, {2, 20}, {3, 30}, {4, 40}, {5, 50}, {6, 60}, {7, 70}, {8, 80}, {9, 90}, {10, 100}, {11, 110}, {12, 120}, {13, 130}, {14, 140}, {15, 150}, {16, 160}, {17, 170}, {18, 180}, {19, 190}, {20, 200}, {21, 210}, {22, 220}, {23, 230}, {24, 240}, {25, 250}, {26, 260}, {27, 270}, {28, 280}, {29, 290}, {30, 300}};
-    final Integer[][] ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY = {{80, 50}, {250, 100}, {300, 130}, {350, 150}, {400, 170}, {450, 190}};
+    final Integer[][] ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY = {{80, 50, 0, 0}, {250, 100, 20, 20}, {300, 130, 40, 20}, {350, 150, 60, 20}, {400, 170, 80, 20}, {450, 190, 100, 20}}; //up to and including given altitude, stall speed shown, then adjuster for IAS
     final String[] DEGREES_ARRAY = {"-60º", "-45º", "-30º", "-20º", "-10º", "Level", "+10º", "+20º", "+30º", "+45º", "+60º"};
     /**------------------------------------------INITIAL VARIABLES------------------------------------------------ */
     String obstacleType, km, kmGoal, indAS, altString, hundredthsString;
@@ -127,7 +127,7 @@ public class Clicker extends Application {
     int nitroBeingUsed, numberOfActiveNitros, nitrousBoostsRemainingCount, countDisplay, distanceToEndOfStageGoalAfterFail, requiredLeftClicks, requiredRightClicks, countTimesPassTimeUntilEndOStageGoal, leftClickCount, rightClickCount;
     int ripGearOffValue, thrustLevel, approachTrigger, timeUntilAuxiliaryButtonDisappears, nitroRechargeValue, nitroTicks1, nitroTicks2, nitroTicks3, nitroTicks4, nitroTicks5, originalGeneralTimerValue1, originalGeneralTimerValue2, originalGeneralTimerValue3, originalGeneralTimerValue4, originalGeneralTimerValue5;
     int originalOverSpeedTimerValue, recoverySpeed, newMaxSpeedAdjustedForPitch, randomSubHundredFeetValue, stallActive, altitudeZone, currentPitchToDisplay, currentPitch, altitudeRangeActual, altitudeRangePermitted;
-    double altitude, indicatedAirspeedValue, altitudeGain, finalProportionPercentage, currentSpeedProportionOfMaxForThrustLevel, accelerationAmount, speedKnots, nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
+    double altitudeAdjustedThrustArrayValue, altitudeProportion, altitude, indicatedAirspeedValue, altitudeGain, finalProportionPercentage, currentSpeedProportionOfMaxForThrustLevel, accelerationAmount, speedKnots, nextSuccessfulObstacleLeavesDistance, originalCPS, preNitroCPS1, preNitroCPS2, preNitroCPS3, preNitroCPS4, preNitroCPS5, clicksPerSecond, speedKmH, nextObstDistance;
     float repairCounterPercent;
     boolean overSpeedFlag, rippedGearOff, speedDegrading, hasTookOff, parachuteActive, dropZoneFlag, parachuteZoneFlag, landingGearUpFlag, BeginningOfADrivingStage, timerOn, delayObstaclePanelOn, button1Unlocked, button2Unlocked, mechanicTriggeredYet, button3Unlocked, driveUnlocked, carInMechanic, hasIncreasedSpeedFromZeroOnCurrentStageFlag, displayObstacleConditionsFlag, costOfFailureFirstIterationFlag;
     boolean failedObstacleWithinApproachOfEndOfStageGoal, approachingEndOfStageGoalFlag, checkTimeGoalMoveCount, startDelayTimerFlag, countDownToPassObstacleOn, startCountDownToPassObstacleFlag, wasPassingNowFailing, moreThanOneMinuteElapsedFlag;
@@ -482,8 +482,9 @@ public class Clicker extends Application {
         timer = new Timer(timerSpeed, e -> {
             clickCount++;
             if (stage == 4 && hasTookOff) {
-                adjustSpeedForPitch();
                 calculateAltitude();
+                adjustSpeedForAltitudeZone();
+                adjustSpeedForPitch();
                 if (altitude <= 0) {
                     gameOver();
                 }
@@ -507,8 +508,16 @@ public class Clicker extends Application {
                 } else {
                     altitudeHundredthsDisplayValue.setText("00");
                 }
-
-                indicatedAirspeedValue = (int) clicksPerSecond; //change with altitude adjustment calculation
+                switch (altitudeZone) {
+                    case 0:
+                        indicatedAirspeedValue = clicksPerSecond;
+                    break;
+                    case 1, 2, 3, 4, 5:
+                        while (indicatedAirspeedValue > (altitudeAdjustedThrustArrayValue / 100)) {
+                            indicatedAirspeedValue = clicksPerSecond - (ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][2] * altitudeProportion);
+                        }
+                    break;
+                }
                 indAS = String.format("%03d", (int) indicatedAirspeedValue);
                 indicatedAirspeed.setText(indAS + "IAS");
                 if (indicatedAirspeedValue > (MAX_SPEED_OF_JET_WITHOUT_OVERSPEEDING) && !overSpeedFlag) {
@@ -849,18 +858,18 @@ public class Clicker extends Application {
             case 0,1,2,3,4 -> altitude = (altitude - altitudeGain);
             case 5,6,7,8,9,10 -> altitude = (altitude + altitudeGain);
         }
-        if (altitude > 0 && altitude <= 50) {
-            altitudeZone = 0;
-        } else if (altitude > 50 && altitude <= 250) {
-            altitudeZone = 1;
-        }else if (altitude > 250 && altitude <= 300) {
-            altitudeZone = 2;
-        } else if (altitude > 300 && altitude <= 350) {
-            altitudeZone = 3;
-        } else if (altitude > 350 && altitude <= 400) {
-            altitudeZone = 4;
-        } else if (altitude > 400 && altitude <= 450) {
-            altitudeZone = 5;
+        if (altitude > ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][0] && altitude <= ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[5][0]) {
+            altitudeZone++;
+        }
+    }
+
+    private void adjustSpeedForAltitudeZone() {
+        if (altitudeZone > 0) {
+            double altitudeDifferenceBetweenAltitudeZones = ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone][0] - ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone-1][0];
+            double altitudeDifferenceBetweenCurrentAndPreviousAltitudeMax = altitude - ALTITUDE_STALL_MAX_SPEED_RELATIONSHIP_ARRAY[altitudeZone-1][0];
+            altitudeProportion = (100 / altitudeDifferenceBetweenAltitudeZones) * altitudeDifferenceBetweenCurrentAndPreviousAltitudeMax;
+            THRUST_ARRAY[thrustLevel][1] = THRUST_ARRAY[thrustLevel][1] * (100 - altitudeProportion);
+            altitudeAdjustedThrustArrayValue = THRUST_ARRAY[thrustLevel][1];
         }
     }
 
@@ -2413,6 +2422,8 @@ public class Clicker extends Application {
                 System.out.println("general timer didn't exist.");
             }
         }
+        altitudeAdjustedThrustArrayValue = 0;
+        altitudeProportion = 0;
         originalOverSpeedTimerValue = 0;
         recoverySpeed = 0;
         newMaxSpeedAdjustedForPitch = 0;
@@ -2758,7 +2769,7 @@ public class Clicker extends Application {
         altString = String.format("%03d", (int) altitude);
         altitudeDisplayValue.setText(altString);
         altitudeHundredthsDisplayValue.setText("00");
-        indicatedAirspeedValue = (int) clicksPerSecond; //change with altitude adjustment calculation
+        indicatedAirspeedValue = 0;
         indAS = String.format("%03d", (int) indicatedAirspeedValue);
         indicatedAirspeed.setText(indAS + "IAS");
         priceLabelPanel.setVisible(false);
